@@ -350,3 +350,54 @@ button, .card, .modal {
     opacity: 0.5 !important;
   }
 }
+
+/* Modal Animations - Phase 1.4 */
+
+/* Modal backdrop fade-in (slightly slower than normal for uncanny effect) */
+.modal-backdrop {
+  animation: backdrop-fade-in 0.4s cubic-bezier(0.43, 0.13, 0.23, 0.96);
+}
+
+@keyframes backdrop-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal content slide-up and fade-in */
+.modal-content {
+  animation: modal-slide-up 0.5s cubic-bezier(0.43, 0.13, 0.23, 0.96);
+}
+
+@keyframes modal-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Spinning loader */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Border width utility for spinner */
+.border-3 {
+  border-width: 3px;
+}

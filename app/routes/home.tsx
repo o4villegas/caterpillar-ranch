@@ -1,5 +1,8 @@
+import { useState } from "react";
 import type { Route } from "./+types/home";
 import { mockProducts } from "../lib/mocks/products";
+import { ProductModal } from "../lib/components/ProductModal";
+import type { Product } from "../lib/types/product";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,13 +12,36 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export function loader({ context }: Route.LoaderArgs) {
+  const cloudflare = context.cloudflare as { env: Env };
   return {
     products: mockProducts,
-    message: context.cloudflare.env.VALUE_FROM_CLOUDFLARE,
+    message: cloudflare.env.VALUE_FROM_CLOUDFLARE,
   };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = (product: Product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    // Delay clearing product to allow exit animation
+    setTimeout(() => setSelectedProduct(null), 300);
+  };
+
+  const handleAddToCart = (productId: string, variantId: string, quantity: number) => {
+    // TODO: Implement cart state management in Phase 2
+    console.log('Add to cart:', { productId, variantId, quantity });
+
+    // For now, just show a console message
+    // In Phase 2, this will integrate with cart state (localStorage + KV)
+  };
+
   return (
     <main className="min-h-screen p-8">
       <div className="max-w-6xl mx-auto">
@@ -65,7 +91,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 <span className="text-2xl font-bold text-ranch-lime">
                   ${product.price}
                 </span>
-                <button className="bg-ranch-cyan hover:bg-ranch-lime text-ranch-dark px-4 py-2 rounded-lg font-bold transition-colors">
+                <button
+                  onClick={() => handleOpenModal(product)}
+                  className="bg-ranch-cyan hover:bg-ranch-lime text-ranch-dark px-4 py-2 rounded-lg font-bold transition-colors"
+                >
                   View
                 </button>
               </div>
@@ -89,6 +118,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </div>
         )}
       </div>
+
+      {/* Product Detail Modal */}
+      {selectedProduct && (
+        <ProductModal
+          product={selectedProduct}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onAddToCart={handleAddToCart}
+        />
+      )}
     </main>
   );
 }
