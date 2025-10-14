@@ -19,6 +19,15 @@
   --color-purple-deep: #4A3258;
   --color-neutral-cream: #F5F5DC;
   --color-neutral-dark: #1a1a1a;
+
+  /* Custom color aliases for utility classes */
+  --color-ranch-cyan: #00CED1;
+  --color-ranch-lime: #32CD32;
+  --color-ranch-pink: #FF1493;
+  --color-ranch-purple: #4A3258;
+  --color-ranch-lavender: #9B8FB5;
+  --color-ranch-cream: #F5F5DC;
+  --color-ranch-dark: #1a1a1a;
 }
 
 /* Force dark mode as default (horror aesthetic requirement) */
