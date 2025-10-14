@@ -107,7 +107,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               )}
 
               {/* Product Image */}
-              <div className="relative overflow-hidden rounded-lg mb-4 bg-ranch-purple/10">
+              <div className="relative overflow-hidden rounded-lg mb-4 bg-ranch-purple/10 product-image">
                 <motion.img
                   src={product.imageUrl}
                   alt={product.name}

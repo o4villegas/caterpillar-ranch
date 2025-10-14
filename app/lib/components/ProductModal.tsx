@@ -19,6 +19,8 @@ import {
   DrawerDescription,
 } from './ui/drawer';
 import { HORROR_COPY, getRandomLoadingMessage } from '../constants/horror-copy';
+import { ParticleBurst } from './ParticleBurst';
+import { GameModal } from './GameModal';
 
 interface ProductModalProps {
   product: Product;
@@ -33,6 +35,9 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
   const [isAdding, setIsAdding] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState(getRandomLoadingMessage());
+  const [showParticleBurst, setShowParticleBurst] = useState(false);
+  const [isGameModalOpen, setIsGameModalOpen] = useState(false);
+  const [earnedDiscount, setEarnedDiscount] = useState(0);
 
   // Detect mobile viewport
   useEffect(() => {
@@ -75,6 +80,10 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
     onAddToCart(product.id, selectedVariant.id, quantity);
     setIsAdding(false);
 
+    // Trigger particle burst effect
+    setShowParticleBurst(true);
+    setTimeout(() => setShowParticleBurst(false), 1000);
+
     // Show toast notification with horror theme
     toast.success(HORROR_COPY.success.added, {
       description: `${quantity}x ${product.name} (${selectedVariant.size}) - The Ranch accepts your selection 🐛`,
@@ -87,8 +96,13 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
     }, 800);
   };
 
+  const handleGameComplete = (discount: number) => {
+    setEarnedDiscount(discount);
+  };
+
   const inStockVariants = product.variants.filter(v => v.inStock);
-  const totalPrice = product.price * quantity;
+  const discountedPrice = product.price * (1 - earnedDiscount / 100);
+  const totalPrice = discountedPrice * quantity;
 
   // Shared content component
   const ModalContent = () => (
@@ -139,10 +153,20 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
           </p>
           <div className="text-3xl font-bold text-ranch-lime">
             ${totalPrice.toFixed(2)}
+            {earnedDiscount > 0 && (
+              <span className="ml-2 text-lg line-through text-ranch-lavender opacity-50">
+                ${(product.price * quantity).toFixed(2)}
+              </span>
+            )}
           </div>
+          {earnedDiscount > 0 && (
+            <div className="text-sm text-ranch-lime font-bold mt-1">
+              🎉 {earnedDiscount}% Ranch Blessing Applied!
+            </div>
+          )}
           {quantity > 1 && (
             <div className="text-sm text-ranch-lavender mt-1">
-              ${product.price} each
+              ${discountedPrice.toFixed(2)} each
             </div>
           )}
         </motion.div>
@@ -244,12 +268,34 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
           </div>
         </motion.div>
 
-        {/* Add to cart button */}
+        {/* Action buttons */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.4 }}
+          className="space-y-3"
         >
+          {/* Play Game button (if no discount earned yet) */}
+          {earnedDiscount === 0 && (
+            <Button
+              onClick={() => setIsGameModalOpen(true)}
+              variant="outline"
+              disabled={!selectedVariant || inStockVariants.length === 0}
+              className="w-full h-14 text-lg relative overflow-hidden border-2 border-ranch-lime text-ranch-lime hover:bg-ranch-lime/10"
+              size="lg"
+            >
+              <motion.div
+                animate={{ x: ['0%', '100%'] }}
+                transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-ranch-lime/20 to-transparent"
+              />
+              <span className="relative z-10">
+                🎮 Play Game - Earn up to 40% Off
+              </span>
+            </Button>
+          )}
+
+          {/* Add to cart button */}
           <Button
             onClick={handleAddToCart}
             disabled={!selectedVariant || isAdding || inStockVariants.length === 0}
@@ -270,7 +316,7 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
             ) : !selectedVariant ? (
               'Choose Your Size'
             ) : (
-              'Claim Your Harvest'
+              `Claim Your Harvest${earnedDiscount > 0 ? ` - Save ${earnedDiscount}%` : ''}`
             )}
           </Button>
         </motion.div>
@@ -295,30 +341,48 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
   // Desktop: Use Dialog
   if (!isMobile) {
     return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="sr-only">
-            <DialogTitle>{product.name}</DialogTitle>
-            <DialogDescription>{product.description}</DialogDescription>
-          </DialogHeader>
-          <ModalContent />
-        </DialogContent>
-      </Dialog>
+      <>
+        <Dialog open={isOpen} onOpenChange={onClose}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="sr-only">
+              <DialogTitle>{product.name}</DialogTitle>
+              <DialogDescription>{product.description}</DialogDescription>
+            </DialogHeader>
+            <ModalContent />
+          </DialogContent>
+        </Dialog>
+        <ParticleBurst trigger={showParticleBurst} />
+        <GameModal
+          isOpen={isGameModalOpen}
+          onClose={() => setIsGameModalOpen(false)}
+          productId={product.id}
+          onGameComplete={handleGameComplete}
+        />
+      </>
     );
   }
 
   // Mobile: Use Drawer
   return (
-    <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="max-h-[90vh] overflow-y-auto pb-8">
-        <DrawerHeader className="sr-only">
-          <DrawerTitle>{product.name}</DrawerTitle>
-          <DrawerDescription>{product.description}</DrawerDescription>
-        </DrawerHeader>
-        <div className="px-4 pb-4">
-          <ModalContent />
-        </div>
-      </DrawerContent>
-    </Drawer>
+    <>
+      <Drawer open={isOpen} onOpenChange={onClose}>
+        <DrawerContent className="max-h-[90vh] overflow-y-auto pb-8">
+          <DrawerHeader className="sr-only">
+            <DrawerTitle>{product.name}</DrawerTitle>
+            <DrawerDescription>{product.description}</DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-4">
+            <ModalContent />
+          </div>
+        </DrawerContent>
+      </Drawer>
+      <ParticleBurst trigger={showParticleBurst} />
+      <GameModal
+        isOpen={isGameModalOpen}
+        onClose={() => setIsGameModalOpen(false)}
+        productId={product.id}
+        onGameComplete={handleGameComplete}
+      />
+    </>
   );
 }

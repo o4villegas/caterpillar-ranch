@@ -401,3 +401,20 @@ button, .card, .modal {
 .border-3 {
   border-width: 3px;
 }
+
+/* Product Image Eye Pattern Overlay - Phase 1.5 */
+.product-image {
+  position: relative;
+}
+
+.product-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/patterns/tiny-eyes.svg');
+  background-size: 20px;
+  opacity: 0.03; /* Barely visible - only noticeable on close inspection */
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  border-radius: inherit;
+}

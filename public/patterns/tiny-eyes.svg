@@ -1,0 +1,9 @@
+<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+  <!-- Left eye -->
+  <circle cx="5" cy="10" r="1.5" fill="#F5F5DC" opacity="0.15"/>
+  <circle cx="5" cy="10" r="0.8" fill="#1a1a1a" opacity="0.3"/>
+
+  <!-- Right eye -->
+  <circle cx="15" cy="10" r="1.5" fill="#F5F5DC" opacity="0.15"/>
+  <circle cx="15" cy="10" r="0.8" fill="#1a1a1a" opacity="0.3"/>
+</svg>
