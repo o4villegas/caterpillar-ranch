@@ -3,6 +3,9 @@ import { motion } from "framer-motion";
 import type { Route } from "./+types/home";
 import { mockProducts } from "../lib/mocks/products";
 import { ProductModal } from "../lib/components/ProductModal";
+import { CartIcon } from "../lib/components/CartIcon";
+import { CartDrawer } from "../lib/components/CartDrawer";
+import { useCart } from "../lib/contexts/CartContext";
 import type { Product } from "../lib/types/product";
 import { Button } from "../lib/components/ui/button";
 import { Badge } from "../lib/components/ui/badge";
@@ -23,8 +26,10 @@ export function loader({ context }: Route.LoaderArgs) {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
+  const { addToCart } = useCart();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   const handleOpenModal = (product: Product) => {
     setSelectedProduct(product);
@@ -37,16 +42,28 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     setTimeout(() => setSelectedProduct(null), 300);
   };
 
-  const handleAddToCart = (productId: string, variantId: string, quantity: number) => {
-    // TODO: Implement cart state management in Phase 2
-    console.log('Add to cart:', { productId, variantId, quantity });
+  const handleAddToCart = async (productId: string, variantId: string, quantity: number, earnedDiscount = 0) => {
+    const product = loaderData.products.find((p) => p.id === productId);
+    if (!product) {
+      console.error('Product not found:', productId);
+      return;
+    }
 
-    // For now, just show a console message
-    // In Phase 2, this will integrate with cart state (localStorage + KV)
+    await addToCart(product, variantId, quantity, earnedDiscount);
   };
 
   return (
     <main className="min-h-screen p-8">
+      {/* Cart Icon - Fixed Top Right */}
+      <motion.div
+        className="fixed top-6 right-6 z-50"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.3, type: 'spring', stiffness: 300, damping: 20 }}
+      >
+        <CartIcon onClick={() => setIsCartOpen(true)} />
+      </motion.div>
+
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.header
@@ -181,6 +198,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           onAddToCart={handleAddToCart}
         />
       )}
+
+      {/* Cart Drawer */}
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </main>
   );
 }

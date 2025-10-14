@@ -17,6 +17,7 @@ import { GardenShadows } from "./lib/components/GardenShadows";
 import { EyeInCorner } from "./lib/components/RareEvents/EyeInCorner";
 import { BackgroundBlur } from "./lib/components/RareEvents/BackgroundBlur";
 import { Toaster } from "sonner";
+import { CartProvider } from "./lib/contexts/CartContext";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -69,7 +70,7 @@ export default function App() {
   const rareEvent = useRareEvents();
 
   return (
-    <>
+    <CartProvider>
       {/* Environmental Horror Layer - Phase 1.3 */}
       <NightSky />
       <BarnLight />
@@ -83,7 +84,7 @@ export default function App() {
       <div style={{ position: 'relative', zIndex: 10 }}>
         <Outlet />
       </div>
-    </>
+    </CartProvider>
   );
 }
 

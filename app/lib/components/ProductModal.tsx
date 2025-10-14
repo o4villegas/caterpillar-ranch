@@ -26,7 +26,7 @@ interface ProductModalProps {
   product: Product;
   isOpen: boolean;
   onClose: () => void;
-  onAddToCart: (productId: string, variantId: string, quantity: number) => void;
+  onAddToCart: (productId: string, variantId: string, quantity: number, earnedDiscount?: number) => void;
 }
 
 export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductModalProps) {
@@ -77,7 +77,7 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 600));
 
-    onAddToCart(product.id, selectedVariant.id, quantity);
+    onAddToCart(product.id, selectedVariant.id, quantity, earnedDiscount);
     setIsAdding(false);
 
     // Trigger particle burst effect

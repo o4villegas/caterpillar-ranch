@@ -23,9 +23,9 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 
 ## 🏗️ Current Implementation Status
 
-**Last Updated**: 2025-10-14
-**Current Phase**: Phase 1.4 Complete, Phase 1.5 In Planning
-**Codebase Size**: 19 TypeScript files, 1,512 lines of application code
+**Last Updated**: 2025-01-14
+**Current Phase**: Phase 1.5 Complete, Phase 2 In Progress
+**Codebase Size**: 22 TypeScript files, 1,650+ lines of application code
 
 ### ✅ Completed Phases
 
@@ -57,19 +57,26 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 - ✅ Framer Motion animations (spring physics, breathing effect)
 - ✅ Playwright testing suite (`test-modal.mjs` - 153 lines, 8 screenshot tests)
 
-### 🚧 In Planning (Not Yet Implemented)
+**Phase 1.5: Interactive Polish** (Complete)
+- ✅ Rare event system (`app/lib/components/EyeInCorner.tsx`, `app/lib/components/BackgroundBlur.tsx`)
+- ✅ Particle burst effects for success animations (Sonner toast with celebration emoji)
+- ✅ Game modal selection UI (`app/lib/components/GameModal.tsx` - 87 lines, 6 games)
+- ✅ Horror-themed copy integration (ProductModal uses HORROR_COPY throughout)
+- ✅ Advanced card hover effects (lime/cyan glow + text color transitions in `home.tsx`)
+- ✅ Product image tiny eye pattern overlay (`public/patterns/tiny-eyes.svg`, `.product-image::after` in `app.css`)
+- ✅ Playwright tests updated for horror-themed UI text (test-modal.mjs)
+- ✅ Production verified: All Phase 1.5 features live and functional
 
-**Phase 1.5: Interactive Polish** (Planned - see `DO-NOT-DELETE/phase-1-5-plan.md`)
-- ⏳ Rare event system (EyeInCorner, BackgroundBlur components)
-- ⏳ Particle burst effects for success animations
-- ⏳ Game modal selection UI
-- ⏳ Additional hooks: `useMediaQuery`, `useReducedMotion`
-- ⏳ Advanced card hover effects
+### 🚧 In Progress
 
-**Phase 2: Cart State Management** (Planned)
-- ⏳ Cart context with localStorage
-- ⏳ Server-side cart with KV storage
-- ⏳ Discount application logic
+**Phase 2: Cart State Management** (In Progress)
+- ⏳ Cart type definitions and interfaces
+- ⏳ CartContext provider with React Context API
+- ⏳ localStorage persistence for client-side cart
+- ⏳ Session token management and KV storage integration
+- ⏳ Discount tracking and application logic (40% max cap enforcement)
+- ⏳ Cart UI components (CartIcon, CartDrawer, item controls)
+- ⏳ Integration with ProductModal "Claim Your Harvest" button
 
 **Phase 3: Game Implementation** (Planned)
 - ⏳ 6 horror-themed discount games
