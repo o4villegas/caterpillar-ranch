@@ -79,14 +79,31 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--color-neutral-cream);
 }
 
-/* Drippy header style for brand elements */
+/* Clean top text for "CATERPILLAR" */
+.logo-top {
+  display: block;
+  color: var(--color-ranch-cream);
+  font-weight: 500;
+  font-size: 0.35em;
+  letter-spacing: 0.2em;
+  margin-bottom: -0.15em;
+  text-transform: uppercase;
+}
+
+/* Drippy header style for "RANCCH" brand text */
 .drip-text {
+  display: block;
   color: var(--color-accent-pink);
-  font-weight: 800;
+  font-weight: 900;
+  -webkit-text-stroke: 3px #1a1a1a;
+  paint-order: stroke fill;
+  filter: url(#drip-filter) drop-shadow(0 6px 12px rgba(255, 20, 147, 0.6));
   text-shadow:
-    0 2px 4px rgba(255, 20, 147, 0.4),
-    0 4px 8px rgba(255, 20, 147, 0.2);
-  letter-spacing: 0.05em;
+    0 2px 4px rgba(255, 255, 255, 0.3),  /* Top glossy highlight */
+    0 -1px 2px rgba(255, 255, 255, 0.4), /* Upper edge highlight */
+    0 8px 16px rgba(255, 20, 147, 0.5);  /* Pink glow beneath */
+  letter-spacing: 0.08em;
+  line-height: 1.1;
 }
 
 /* Monospace for game UI (scores, timers) */

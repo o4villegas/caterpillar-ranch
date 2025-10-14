@@ -42,6 +42,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        {/* SVG Filter Definitions for Drip Effect */}
+        <svg style={{ position: 'absolute', width: 0, height: 0 }} aria-hidden="true">
+          <defs>
+            <filter id="drip-filter" x="-50%" y="-50%" width="200%" height="200%">
+              {/* Dilate the text to create thickness */}
+              <feMorphology operator="dilate" radius="1.5" in="SourceAlpha" result="dilated"/>
+              {/* Blur for organic drip effect */}
+              <feGaussianBlur stdDeviation="2" in="dilated" result="blurred"/>
+              {/* Offset downward to create drip */}
+              <feOffset dy="6" in="blurred" result="offsetBlur"/>
+              {/* Composite original text over drip */}
+              <feComposite in="SourceGraphic" in2="offsetBlur" operator="over"/>
+            </filter>
+          </defs>
+        </svg>
         {children}
         <Toaster
           position="bottom-right"

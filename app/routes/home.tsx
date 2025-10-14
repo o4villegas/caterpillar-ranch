@@ -72,8 +72,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          <h1 className="drip-text text-5xl md:text-6xl mb-4">
-            CATERPILLAR RANCCH
+          <h1 className="text-5xl md:text-6xl mb-4">
+            <span className="logo-top">Caterpillar</span>
+            <span className="drip-text">RANCCH</span>
           </h1>
           <p className="text-xl text-ranch-cream opacity-80 mb-2">
             Where Cute Meets Creepy
