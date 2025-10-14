@@ -1,0 +1,214 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    BackgroundBlur Component Architecture                   ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Component: BackgroundBlur ({ show: boolean })                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────┐         │
+│  │ AnimatePresence (manages enter/exit animations)               │         │
+│  │                                                                │         │
+│  │  ┌──────────────────────────────────────────────────────────┐ │         │
+│  │  │ Layer 1: Blur Overlay (z-index: 9998)                   │ │         │
+│  │  │                                                          │ │         │
+│  │  │  - Fixed positioning (inset-0)                          │ │         │
+│  │  │  - backdrop-filter: blur(3px)                           │ │         │
+│  │  │  - Opacity: 0 → 1 (0.3s transition)                     │ │         │
+│  │  │  - pointer-events-none                                  │ │         │
+│  │  │  - aria-hidden="true"                                   │ │         │
+│  │  │                                                          │ │         │
+│  │  │  Reduced Motion:                                        │ │         │
+│  │  │    ✓ backdrop-filter: none                             │ │         │
+│  │  │    ✓ transition: 0.01s                                 │ │         │
+│  │  └──────────────────────────────────────────────────────────┘ │         │
+│  │                                                                │         │
+│  │  ┌──────────────────────────────────────────────────────────┐ │         │
+│  │  │ Layer 2: Vague Shapes (z-index: 9997)                   │ │         │
+│  │  │                                                          │ │         │
+│  │  │  - Fixed positioning (inset-0)                          │ │         │
+│  │  │  - Opacity: 0 → 0.15 (0.3s transition)                  │ │         │
+│  │  │  - pointer-events-none                                  │ │         │
+│  │  │  - aria-hidden="true"                                   │ │         │
+│  │  │                                                          │ │         │
+│  │  │  Background Pattern:                                    │ │         │
+│  │  │    radial-gradient(circle,                             │ │         │
+│  │  │      rgba(155,143,181,0.3) 1px,    ← Lavender dots    │ │         │
+│  │  │      transparent 1px)                                   │ │         │
+│  │  │    background-size: 50px 50px                          │ │         │
+│  │  │                                                          │ │         │
+│  │  │  ┌────────────────────────────────────────────────────┐ │ │         │
+│  │  │  │ Floating Shapes (5 random orbs)                    │ │ │         │
+│  │  │  │                                                    │ │ │         │
+│  │  │  │  Shape Properties:                                 │ │ │         │
+│  │  │  │    - Size: 20px × 20px (w-5 h-5)                  │ │ │         │
+│  │  │  │    - Border-radius: 50% (rounded-full)            │ │ │         │
+│  │  │  │    - Filter: blur-xl                              │ │ │         │
+│  │  │  │    - Position: absolute                           │ │ │         │
+│  │  │  │                                                    │ │ │         │
+│  │  │  │  Colors (alternating):                            │ │ │         │
+│  │  │  │    Even: rgba(155, 143, 181, 0.3)  ← Lavender    │ │ │         │
+│  │  │  │    Odd:  rgba(74, 50, 88, 0.3)     ← Deep Purple │ │ │         │
+│  │  │  │                                                    │ │ │         │
+│  │  │  │  Animation:                                       │ │ │         │
+│  │  │  │    Initial:                                       │ │ │         │
+│  │  │  │      x: Math.random() * window.innerWidth        │ │ │         │
+│  │  │  │      y: Math.random() * window.innerHeight       │ │ │         │
+│  │  │  │      scale: 0                                     │ │ │         │
+│  │  │  │                                                    │ │ │         │
+│  │  │  │    Animate:                                       │ │ │         │
+│  │  │  │      x: [startX → endX] (random)                 │ │ │         │
+│  │  │  │      y: [startY → endY] (random)                 │ │ │         │
+│  │  │  │      scale: [0 → 1 → 0]                          │ │ │         │
+│  │  │  │      duration: 1.5s                               │ │ │         │
+│  │  │  │      ease: easeInOut                              │ │ │         │
+│  │  │  │                                                    │ │ │         │
+│  │  │  │  Reduced Motion:                                  │ │ │         │
+│  │  │  │    ✓ No position change                          │ │ │         │
+│  │  │  │    ✓ scale: 1 (static)                           │ │ │         │
+│  │  │  │    ✓ duration: 0.01s                             │ │ │         │
+│  │  │  └────────────────────────────────────────────────────┘ │ │         │
+│  │  └──────────────────────────────────────────────────────────┘ │         │
+│  └────────────────────────────────────────────────────────────────┘         │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ State Management                                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  shapes: Shape[]                                                             │
+│    ├─ Generated when show = true                                            │
+│    ├─ 5 random shapes with start/end positions                              │
+│    └─ Cleared when show = false (AnimatePresence unmount)                   │
+│                                                                              │
+│  prefersReducedMotion: boolean                                               │
+│    ├─ Checks: window.matchMedia('(prefers-reduced-motion: reduce)')        │
+│    ├─ Updates on media query change                                         │
+│    └─ Disables: blur, animations, position changes                          │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Z-Index Hierarchy                                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  10000+ ← Modals, Dialogs                                                   │
+│   9999  ← EyeInCorner component                                             │
+│   9998  ← BackgroundBlur overlay (THIS COMPONENT - LAYER 1)                 │
+│   9997  ← BackgroundBlur shapes (THIS COMPONENT - LAYER 2)                  │
+│   9000+ ← Toast notifications                                               │
+│    100+ ← Cart, Navigation                                                  │
+│     10  ← Main content                                                      │
+│      1  ← Environmental effects (stars, shadows)                            │
+│      0  ← NightSky background                                               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Timeline (Total Duration: 1.5s)                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  0.0s ┌─────────────────────────────────────────────────────────────┐      │
+│       │ TRIGGER (show = true)                                       │      │
+│       │  - Generate 5 random shape positions                        │      │
+│       │  - AnimatePresence mounts component                         │      │
+│       └─────────────────────────────────────────────────────────────┘      │
+│       │                                                                      │
+│  0.0s │ ┌─────────────────────────────────────────────────────────┐        │
+│       │ │ BLUR OVERLAY FADE IN (0.3s)                             │        │
+│       │ │  - Opacity: 0 → 1                                        │        │
+│       │ │  - backdrop-filter: blur(3px) applied                   │        │
+│       │ └─────────────────────────────────────────────────────────┘        │
+│       │                                                                      │
+│  0.0s │ ┌─────────────────────────────────────────────────────────┐        │
+│       │ │ SHAPES LAYER FADE IN (0.3s)                             │        │
+│       │ │  - Opacity: 0 → 0.15                                    │        │
+│       │ │  - Dot pattern becomes visible                          │        │
+│       │ └─────────────────────────────────────────────────────────┘        │
+│       │                                                                      │
+│  0.0s │ ┌───────────────────────────────────────────────────────────────┐  │
+│       │ │ SHAPES ANIMATION (1.5s)                                       │  │
+│       │ │  - Scale: 0 → 1 → 0 (grow then shrink)                       │  │
+│       │ │  - Position: startX/Y → endX/Y (float across screen)         │  │
+│       │ │  - Easing: easeInOut                                          │  │
+│  0.3s │ │  ← Fully visible                                              │  │
+│  0.75s│ │  ← Peak scale (1.0)                                           │  │
+│  1.5s │ └───────────────────────────────────────────────────────────────┘  │
+│       │                                                                      │
+│  1.5s ┌─────────────────────────────────────────────────────────────┐      │
+│       │ EVENT END (useRareEvents hook sets show = false)            │      │
+│       │  - AnimatePresence triggers exit animations                 │      │
+│       └─────────────────────────────────────────────────────────────┘      │
+│       │                                                                      │
+│  1.5s │ ┌─────────────────────────────────────────────────────────┐        │
+│       │ │ EXIT FADE OUT (0.3s)                                    │        │
+│       │ │  - Blur overlay: Opacity 1 → 0                          │        │
+│       │ │  - Shapes layer: Opacity 0.15 → 0                       │        │
+│  1.8s │ └─────────────────────────────────────────────────────────┘        │
+│       │                                                                      │
+│  1.8s ┌─────────────────────────────────────────────────────────────┐      │
+│       │ UNMOUNT (AnimatePresence removes from DOM)                 │      │
+│       │  - Memory cleanup (shapes cleared)                         │      │
+│       └─────────────────────────────────────────────────────────────┘      │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Performance Characteristics                                                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  GPU Acceleration:                                                           │
+│    ✓ Uses transform (x, y) - GPU accelerated                                │
+│    ✓ Uses opacity - GPU accelerated                                         │
+│    ✓ Uses backdrop-filter - GPU accelerated (modern browsers)               │
+│    ✓ Uses scale - GPU accelerated                                           │
+│    ✗ No layout properties (width, height, top, left)                        │
+│                                                                              │
+│  Memory Usage:                                                               │
+│    - 5 shape objects (minimal state)                                        │
+│    - 2 motion.div elements (overlay + shapes layer)                         │
+│    - 5 motion.div elements (floating shapes)                                │
+│    - Total: 7 animated elements                                             │
+│    - Cleanup: AnimatePresence removes all on unmount                        │
+│                                                                              │
+│  Render Performance:                                                         │
+│    - Initial render: Generate shape positions (< 1ms)                       │
+│    - Animation: 60fps target (transform + opacity only)                     │
+│    - Exit: Smooth fade out, DOM cleanup                                     │
+│                                                                              │
+│  Bundle Impact:                                                              │
+│    - Component: ~2KB (Framer Motion already included)                       │
+│    - No additional dependencies                                             │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Integration Example                                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  // app/root.tsx                                                             │
+│  import { useRareEvents } from './lib/hooks/useRareEvents';                 │
+│  import { BackgroundBlur, EyeInCorner } from './lib/components/RareEvents'; │
+│                                                                              │
+│  export default function App() {                                            │
+│    const rareEvent = useRareEvents(); // Returns: 'eye' | 'darken' | null  │
+│                                                                              │
+│    return (                                                                 │
+│      <>                                                                     │
+│        {/* Environmental horror effects */}                                 │
+│        <NightSky />                                                         │
+│        <BarnLight />                                                        │
+│        <GardenShadows />                                                    │
+│                                                                              │
+│        {/* Rare events (1% chance on navigation) */}                        │
+│        <EyeInCorner show={rareEvent === 'eye'} />                          │
+│        <BackgroundBlur show={rareEvent === 'darken'} />                    │
+│                                                                              │
+│        {/* Main content */}                                                 │
+│        <Outlet />                                                           │
+│      </>                                                                    │
+│    );                                                                       │
+│  }                                                                           │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘

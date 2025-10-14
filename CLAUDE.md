@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Caterpillar Ranch** is a full-stack e-commerce application for print-on-demand merchandise, built on **Cloudflare Workers** using:
 - **Hono** for backend API routes
 - **React Router** (v7) for frontend routing with SSR enabled
-- **ShadCN UI** + **Tailwind CSS** for UI components and styling
+- **ShadCN UI** + **Tailwind CSS v4** for UI components and styling
 - **Vite** for bundling and development
 - **Printful API** (v2) for product fulfillment
 
@@ -18,6 +18,66 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 - UI design mock is preserved in `DO-NOT-DELETE/ui-mock.tsx` - reference this for design patterns and component structure
 - Printful API v2 schema documentation is in `DO-NOT-DELETE/printful-schema.json` (591KB)
 - The app features a unique horror-themed "caterpillar ranch" aesthetic with gamified discount mechanics
+
+---
+
+## 🏗️ Current Implementation Status
+
+**Last Updated**: 2025-10-14
+**Current Phase**: Phase 1.4 Complete, Phase 1.5 In Planning
+**Codebase Size**: 19 TypeScript files, 1,512 lines of application code
+
+### ✅ Completed Phases
+
+**Phase 1.1: Horror Aesthetic Foundation** (Complete)
+- ✅ Color palette defined (`app/lib/constants/colors.ts` - 80 lines)
+- ✅ Horror-themed UI copy system (`app/lib/constants/horror-copy.ts` - 145 lines)
+- ✅ Base styling with Tailwind v4 (`app/app.css` - 403 lines)
+- ✅ Custom animations: breathing, heartbeat-pulse, wiggle-wrong, star-blink
+
+**Phase 1.2: Product Catalog** (Complete)
+- ✅ 4 product designs with mock data (`app/lib/mocks/products.ts` - 117 lines)
+- ✅ Product type system (`app/lib/types/product.ts` - 48 lines)
+- ✅ Homepage with product grid (`app/routes/home.tsx` - 174 lines)
+- ✅ Product images in `/public/products/` (CR-PUNK, CR-ROCK, CR-WEIRD, CR-ANIME)
+
+**Phase 1.3: Environmental Horror Layer** (Complete)
+- ✅ Night sky with blinking stars (`app/lib/components/NightSky.tsx` - 63 lines, 75 stars)
+- ✅ Flickering barn light (`app/lib/components/BarnLight.tsx` - 16 lines, CSS-based)
+- ✅ Garden shadows vignette (`app/lib/components/GardenShadows.tsx` - 16 lines, CSS-based)
+- ✅ Cursor trail effect (`app/lib/hooks/useCursorTrail.ts` - 58 lines, respects prefers-reduced-motion)
+
+**Phase 1.4: Product Detail Modal** (Complete)
+- ✅ Responsive modal system (`app/lib/components/ProductModal.tsx` - 321 lines)
+  - Desktop: Dialog component (Radix UI)
+  - Mobile: Drawer component (Vaul)
+- ✅ Size selection with visual states (selected/available/out-of-stock)
+- ✅ Quantity controls with validation (1-99 range)
+- ✅ Add to Cart with loading states and toast notifications
+- ✅ Framer Motion animations (spring physics, breathing effect)
+- ✅ Playwright testing suite (`test-modal.mjs` - 153 lines, 8 screenshot tests)
+
+### 🚧 In Planning (Not Yet Implemented)
+
+**Phase 1.5: Interactive Polish** (Planned - see `DO-NOT-DELETE/phase-1-5-plan.md`)
+- ⏳ Rare event system (EyeInCorner, BackgroundBlur components)
+- ⏳ Particle burst effects for success animations
+- ⏳ Game modal selection UI
+- ⏳ Additional hooks: `useMediaQuery`, `useReducedMotion`
+- ⏳ Advanced card hover effects
+
+**Phase 2: Cart State Management** (Planned)
+- ⏳ Cart context with localStorage
+- ⏳ Server-side cart with KV storage
+- ⏳ Discount application logic
+
+**Phase 3: Game Implementation** (Planned)
+- ⏳ 6 horror-themed discount games
+- ⏳ Score-to-discount conversion system
+
+**Phase 4: Backend Integration** (Planned)
+- ⏳ Printful API routes in `workers/app.ts`
+- ⏳ Order creation and confirmation flow
 
 ---
 
@@ -859,9 +919,12 @@ export async function loader({ context }) {
 - The schema includes detailed examples for order estimation, catalog browsing, and shipment tracking
 
 ### Styling
-- Uses Tailwind CSS v4 (configured via `@tailwindcss/vite` plugin)
-- Global styles in `app/app.css`
-- ShadCN UI components can be added for pre-built accessible components
+- Uses **Tailwind CSS v4** (configured via `@tailwindcss/vite` plugin)
+  - **No separate `tailwind.config.ts` file** - configuration is inline in `app/app.css` using `@theme` directive
+  - Custom colors defined directly in CSS using CSS custom properties
+  - Utility classes generated automatically from theme
+- Global styles in `app/app.css` (403 lines)
+- ShadCN UI components manually added (no `components.json` file)
 - Utility-first approach with Tailwind classes
 - **Reference the UI mock** in `DO-NOT-DELETE/ui-mock.tsx` for:
   - Complete component examples (product cards, navigation, modals)
@@ -869,6 +932,215 @@ export async function loader({ context }) {
   - Color schemes (lime-400, pink-500, cyan-400, purple-900)
   - Layout patterns (clipping masks, drip effects, floating mascots)
   - Interactive states (hover effects, acceptance animations)
+
+---
+
+## 📦 Actual Component Structure & File Inventory
+
+**Last Verified**: 2025-10-14
+**Total Files**: 19 TypeScript files, 1,512 lines of code
+
+### Application Routes
+```
+app/routes/
+├── home.tsx (174 lines) - Homepage with product grid, uses Framer Motion
+└── routes.ts (3 lines) - Route configuration (index only)
+```
+
+### Environmental Horror Components (Phase 1.3)
+```
+app/lib/components/
+├── NightSky.tsx (63 lines)
+│   └── Generates 75 random stars with blinking animation
+│   └── Uses React state for star positions/timings
+│   └── Respects prefers-reduced-motion
+├── BarnLight.tsx (16 lines)
+│   └── CSS-only flickering light effect
+│   └── Animation defined in app.css (.barn-light class)
+├── GardenShadows.tsx (16 lines)
+    └── CSS-only vignette shadows
+    └── Animation defined in app.css (.garden-shadows class)
+```
+
+### Product Components (Phase 1.4)
+```
+app/lib/components/
+└── ProductModal.tsx (321 lines) - Full-featured responsive modal
+    ├── Desktop: Uses Dialog component (Radix UI)
+    ├── Mobile: Uses Drawer component (Vaul)
+    ├── Size selection with visual states
+    ├── Quantity controls (1-99 validation)
+    ├── Add to Cart with loading/success states
+    ├── Framer Motion animations
+    └── Toast notifications via Sonner
+```
+
+### UI Primitives (shadcn/ui - manually added)
+```
+app/lib/components/ui/
+├── button.tsx (59 lines)
+│   ├── Variants: default, destructive, outline, secondary, ghost, link, horror
+│   ├── Sizes: default, sm, lg, icon
+│   ├── Uses class-variance-authority for variants
+│   └── Custom horror theme colors (ranch-cyan, ranch-lime, ranch-pink)
+├── badge.tsx (40 lines)
+│   ├── Variants: default, secondary, destructive, outline, success, ghost
+│   ├── Includes heartbeat-pulse animation class
+│   └── Used for RAPID-FIRE indicators and product tags
+├── dialog.tsx (120 lines)
+│   ├── Built on @radix-ui/react-dialog
+│   ├── Used for desktop modals
+│   ├── Includes DialogOverlay, DialogContent, DialogHeader, etc.
+│   └── Only lucide-react icon used: X (close button)
+└── drawer.tsx (116 lines)
+    ├── Built on vaul library
+    ├── Used for mobile bottom sheets
+    └── Includes DrawerOverlay, DrawerContent, DrawerHeader, etc.
+```
+
+**Note**: No `components.json` file exists. ShadCN components were added manually, not via CLI.
+
+### Hooks
+```
+app/lib/hooks/
+└── useCursorTrail.ts (58 lines)
+    ├── Creates lime-green fading cursor trail
+    ├── Max 15 trails at once (memory management)
+    ├── 800ms fade-out animation
+    ├── Respects prefers-reduced-motion
+    └── Used in app/root.tsx
+```
+
+**Hooks Planned But Not Implemented**:
+- `useMediaQuery` - For responsive breakpoint detection
+- `useReducedMotion` - For accessibility (currently inline in useCursorTrail)
+- `useRareEvents` - For random horror events
+
+### Constants & Configuration
+```
+app/lib/constants/
+├── colors.ts (80 lines)
+│   ├── COLORS object with primary/accent/purple/neutral palettes
+│   ├── CSS_VARS for stylesheet integration
+│   └── TAILWIND_COLORS for utility class generation
+└── horror-copy.ts (145 lines)
+    ├── HORROR_COPY object with themed UI text
+    ├── Cart, checkout, order, loading, games, errors sections
+    ├── Helper functions: getRandomLoadingMessage(), getRandomWhisper()
+    └── Used throughout app for consistent horror aesthetic
+```
+
+### Types
+```
+app/lib/types/
+└── product.ts (48 lines)
+    ├── ProductSize type ('S' | 'M' | 'L' | 'XL' | 'XXL')
+    ├── ProductVariant interface
+    ├── Product interface
+    ├── CartItem interface (for Phase 2)
+    └── ProductFilters interface (for Phase 2)
+```
+
+### Mock Data
+```
+app/lib/mocks/
+└── products.ts (117 lines)
+    ├── mockProducts array (4 products: CR-PUNK, CR-ROCK, CR-WEIRD, CR-ANIME)
+    ├── Helper functions:
+    │   ├── getProductById(id: string)
+    │   ├── getProductBySlug(slug: string)
+    │   ├── getRapidFireProducts()
+    │   ├── getProductsByTags(tags: string[])
+    │   └── getInStockVariants(productId: string)
+    └── Used in app/routes/home.tsx loader
+```
+
+### Utilities
+```
+app/lib/
+└── utils.ts (6 lines)
+    └── cn() function - Merges Tailwind classes using clsx + tailwind-merge
+    └── Used in all shadcn/ui components
+```
+
+### Core Application Files
+```
+app/
+├── root.tsx (107 lines)
+│   ├── Layout component with HTML shell
+│   ├── Integrates environmental horror components
+│   ├── Sonner Toaster for toast notifications
+│   ├── useCursorTrail hook
+│   └── Global error boundary
+├── entry.server.tsx (43 lines)
+│   ├── SSR implementation
+│   ├── Bot detection (isbot library)
+│   └── Streaming with renderToReadableStream
+└── app.css (403 lines)
+    ├── Tailwind v4 @theme directive with custom colors
+    ├── Custom animations: breathing, heartbeat-pulse, wiggle-wrong, star-blink
+    ├── Environmental horror CSS: barn-light, garden-shadows, cursor-trail
+    ├── Modal animations: backdrop-fade-in, modal-slide-up
+    └── Accessibility: prefers-reduced-motion support
+```
+
+### Static Assets
+```
+public/
+├── favicon.ico (15 KB)
+└── products/
+    ├── CR-ANIME.png (708 KB) - White shirt, kawaii style
+    ├── CR-PUNK.png (292 KB) - Dark gray, aggressive style
+    ├── CR-ROCK.png (500 KB) - Stone gray, vintage style
+    └── CR-WEIRD.png (505 KB) - Lavender, cute+creepy style
+```
+
+### Testing
+```
+/ (root)
+└── test-modal.mjs (153 lines)
+    ├── Playwright test script
+    ├── Tests modal open/close, size selection, quantity controls
+    ├── Tests Add to Cart flow, mobile responsive layout
+    ├── Generates 8 screenshot files
+    └── Run with: node test-modal.mjs
+```
+
+---
+
+## 🔌 Dependencies Usage Matrix
+
+**Actually Used** (verified via grep):
+
+| Package | Version | Used In | Import Count | Purpose |
+|---------|---------|---------|--------------|---------|
+| **framer-motion** | ^12.23.24 | 2 files | 2 imports | ProductModal.tsx, home.tsx animations |
+| **@radix-ui/react-dialog** | ^1.1.15 | 1 file | 1 import | ui/dialog.tsx component |
+| **@radix-ui/react-slot** | ^1.2.3 | 1 file | 1 import | ui/button.tsx asChild prop |
+| **vaul** | ^1.1.2 | 1 file | 1 import | ui/drawer.tsx mobile sheets |
+| **sonner** | ^2.0.7 | 2 files | 2 imports | root.tsx (Toaster), ProductModal.tsx (toast) |
+| **lucide-react** | ^0.545.0 | 1 file | 1 import | ui/dialog.tsx (X icon ONLY) |
+| **clsx** | ^2.1.1 | 1 file | 1 import | utils.ts cn() function |
+| **tailwind-merge** | ^3.3.1 | 1 file | 1 import | utils.ts cn() function |
+| **class-variance-authority** | ^0.7.1 | 2 files | 2 imports | ui/button.tsx, ui/badge.tsx variants |
+| **@playwright/test** | ^1.56.0 | 1 file | 1 import | test-modal.mjs (dev dependency) |
+
+**Installed But NOT Used** (ready for future phases):
+
+| Package | Version | Status |
+|---------|---------|--------|
+| **@radix-ui/react-select** | ^2.2.6 | ❌ Not imported anywhere - ready for future Select component |
+
+**Framer Motion Usage Details**:
+- Only used in 2 files (home.tsx, ProductModal.tsx)
+- Animations: spring physics, breathing effect, stagger children
+- Features: `motion.div`, `AnimatePresence`, `whileHover`, `whileTap`
+- Bundle impact: ~50kb gzipped
+
+**Lucide React Usage**:
+- Only ONE icon used: `X` (close button in dialog)
+- Could be replaced with custom SVG to reduce bundle size
+- Current usage justified for consistency with shadcn/ui
 
 ### Static Assets
 - Place static files in `public/` directory

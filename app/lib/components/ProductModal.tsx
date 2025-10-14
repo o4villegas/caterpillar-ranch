@@ -1,5 +1,24 @@
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import type { Product, ProductVariant } from '../types/product';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from './ui/dialog';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from './ui/drawer';
+import { HORROR_COPY, getRandomLoadingMessage } from '../constants/horror-copy';
 
 interface ProductModalProps {
   product: Product;
@@ -12,7 +31,18 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState(getRandomLoadingMessage());
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Set first in-stock variant as default
   useEffect(() => {
@@ -29,251 +59,266 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
     if (!isOpen) {
       setSelectedVariant(null);
       setQuantity(1);
-      setShowSuccess(false);
       setIsAdding(false);
     }
-  }, [isOpen]);
-
-  // Handle escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
-
-  // Prevent body scroll when modal open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
   }, [isOpen]);
 
   const handleAddToCart = async () => {
     if (!selectedVariant) return;
 
     setIsAdding(true);
+    setLoadingMessage(getRandomLoadingMessage());
 
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 600));
 
     onAddToCart(product.id, selectedVariant.id, quantity);
     setIsAdding(false);
-    setShowSuccess(true);
 
-    // Show success message then close
+    // Show toast notification with horror theme
+    toast.success(HORROR_COPY.success.added, {
+      description: `${quantity}x ${product.name} (${selectedVariant.size}) - The Ranch accepts your selection 🐛`,
+      duration: 3000,
+    });
+
+    // Close modal after brief delay
     setTimeout(() => {
       onClose();
-    }, 1500);
+    }, 800);
   };
-
-  if (!isOpen) return null;
 
   const inStockVariants = product.variants.filter(v => v.inStock);
   const totalPrice = product.price * quantity;
 
-  return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/70 z-40 modal-backdrop"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Modal */}
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
+  // Shared content component
+  const ModalContent = () => (
+    <div className="space-y-6">
+      {/* Product image with Framer Motion */}
+      <motion.div
+        className="relative bg-ranch-purple/20 p-8 rounded-xl"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="modal-content bg-ranch-dark border-2 border-ranch-purple rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto relative shadow-2xl">
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-ranch-purple/50 hover:bg-ranch-purple/70 text-ranch-cream rounded-full transition-colors z-10"
-            aria-label="Close modal"
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
+        {product.isRapidFire && (
+          <div className="absolute top-4 left-4 z-10">
+            <Badge variant="destructive" className="text-xs font-bold">
+              ⚡ RAPID-FIRE
+            </Badge>
+          </div>
+        )}
+        <motion.img
+          src={product.imageUrl}
+          alt={product.name}
+          className="w-full max-w-sm mx-auto"
+          style={{ imageRendering: 'crisp-edges' }}
+          animate={{
+            scale: [1, 1.02, 1],
+          }}
+          transition={{
+            duration: 3,
+            ease: "easeInOut",
+            repeat: Infinity,
+          }}
+        />
+      </motion.div>
 
-          {/* Rapid-fire badge */}
-          {product.isRapidFire && (
-            <div className="absolute top-4 left-4 z-10">
-              <div className="heartbeat-pulse inline-block bg-ranch-pink text-ranch-dark px-3 py-1 rounded-full text-xs font-bold">
-                ⚡ RAPID-FIRE
-              </div>
+      {/* Product details */}
+      <div className="space-y-6 px-1">
+        {/* Title and price */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+        >
+          <h3 className="text-2xl font-bold text-ranch-cream mb-2">
+            {product.name}
+          </h3>
+          <p className="text-ranch-lavender text-sm mb-3">
+            {product.description}
+          </p>
+          <div className="text-3xl font-bold text-ranch-lime">
+            ${totalPrice.toFixed(2)}
+          </div>
+          {quantity > 1 && (
+            <div className="text-sm text-ranch-lavender mt-1">
+              ${product.price} each
             </div>
           )}
+        </motion.div>
 
-          {/* Product image */}
-          <div className="relative bg-ranch-purple/20 p-8">
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              className="w-full max-w-sm mx-auto breathing"
-              style={{ imageRendering: 'crisp-edges' }}
-            />
+        {/* Size selector */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+        >
+          <label className="block text-ranch-cream font-semibold mb-3">
+            Choose Your Offering Size
+          </label>
+          <div className="grid grid-cols-4 gap-2">
+            {product.variants.map((variant) => {
+              const isSelected = selectedVariant?.id === variant.id;
+              const isAvailable = variant.inStock;
+
+              return (
+                <motion.button
+                  key={variant.id}
+                  onClick={() => isAvailable && setSelectedVariant(variant)}
+                  disabled={!isAvailable}
+                  className={`
+                    py-3 px-2 rounded-lg font-bold text-sm transition-all
+                    ${isSelected
+                      ? 'bg-ranch-lime text-ranch-dark border-2 border-ranch-lime shadow-lg'
+                      : isAvailable
+                        ? 'bg-ranch-purple/30 text-ranch-cream border-2 border-ranch-purple hover:bg-ranch-purple/50 hover:border-ranch-lavender'
+                        : 'bg-ranch-dark/50 text-ranch-lavender/40 border-2 border-ranch-purple/30 cursor-not-allowed'
+                    }
+                  `}
+                  whileHover={isAvailable ? { scale: 1.05 } : {}}
+                  whileTap={isAvailable ? { scale: 0.95 } : {}}
+                  aria-pressed={isSelected}
+                  aria-disabled={!isAvailable}
+                >
+                  {variant.size}
+                  {!isAvailable && (
+                    <div className="text-xs mt-1 text-ranch-pink">Claimed</div>
+                  )}
+                </motion.button>
+              );
+            })}
           </div>
-
-          {/* Product details */}
-          <div className="p-6 space-y-6">
-            {/* Title and price */}
-            <div>
-              <h2 id="modal-title" className="text-2xl font-bold text-ranch-cream mb-2">
-                {product.name}
-              </h2>
-              <p className="text-ranch-lavender text-sm mb-3">
-                {product.description}
-              </p>
-              <div className="text-3xl font-bold text-ranch-lime">
-                ${totalPrice.toFixed(2)}
-              </div>
-              {quantity > 1 && (
-                <div className="text-sm text-ranch-lavender mt-1">
-                  ${product.price} each
-                </div>
-              )}
-            </div>
-
-            {/* Size selector */}
-            <div>
-              <label className="block text-ranch-cream font-semibold mb-3">
-                Select Size
-              </label>
-              <div className="grid grid-cols-4 gap-2">
-                {product.variants.map((variant) => {
-                  const isSelected = selectedVariant?.id === variant.id;
-                  const isAvailable = variant.inStock;
-
-                  return (
-                    <button
-                      key={variant.id}
-                      onClick={() => isAvailable && setSelectedVariant(variant)}
-                      disabled={!isAvailable}
-                      className={`
-                        py-3 px-2 rounded-lg font-bold text-sm transition-all
-                        ${isSelected
-                          ? 'bg-ranch-lime text-ranch-dark border-2 border-ranch-lime'
-                          : isAvailable
-                            ? 'bg-ranch-purple/30 text-ranch-cream border-2 border-ranch-purple hover:bg-ranch-purple/50 hover:border-ranch-lavender'
-                            : 'bg-ranch-dark/50 text-ranch-lavender/40 border-2 border-ranch-purple/30 cursor-not-allowed'
-                        }
-                      `}
-                      aria-pressed={isSelected}
-                      aria-disabled={!isAvailable}
-                    >
-                      {variant.size}
-                      {!isAvailable && (
-                        <div className="text-xs mt-1 text-ranch-pink">Out</div>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-              {selectedVariant && (
-                <div className="mt-2 text-sm text-ranch-lavender">
-                  Color: {selectedVariant.color}
-                </div>
-              )}
-            </div>
-
-            {/* Quantity selector */}
-            <div>
-              <label className="block text-ranch-cream font-semibold mb-3">
-                Quantity
-              </label>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={quantity <= 1}
-                  className="w-10 h-10 rounded-lg bg-ranch-purple/30 hover:bg-ranch-purple/50 text-ranch-cream font-bold text-xl border-2 border-ranch-purple transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                  aria-label="Decrease quantity"
-                >
-                  −
-                </button>
-                <div className="flex-1 text-center">
-                  <input
-                    type="number"
-                    min="1"
-                    max="99"
-                    value={quantity}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value) || 1;
-                      setQuantity(Math.max(1, Math.min(99, val)));
-                    }}
-                    className="w-full bg-ranch-purple/20 border-2 border-ranch-purple text-ranch-cream text-center text-lg font-bold py-2 rounded-lg focus:border-ranch-lime focus:outline-none transition-colors"
-                    aria-label="Quantity"
-                  />
-                </div>
-                <button
-                  onClick={() => setQuantity(Math.min(99, quantity + 1))}
-                  disabled={quantity >= 99}
-                  className="w-10 h-10 rounded-lg bg-ranch-purple/30 hover:bg-ranch-purple/50 text-ranch-cream font-bold text-xl border-2 border-ranch-purple transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                  aria-label="Increase quantity"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            {/* Add to cart button */}
-            <button
-              onClick={handleAddToCart}
-              disabled={!selectedVariant || isAdding || inStockVariants.length === 0}
-              className={`
-                w-full py-4 rounded-lg font-bold text-lg transition-all
-                ${showSuccess
-                  ? 'bg-ranch-lime text-ranch-dark'
-                  : 'bg-ranch-cyan hover:bg-ranch-lime text-ranch-dark'
-                }
-                disabled:opacity-50 disabled:cursor-not-allowed
-                ${isAdding ? 'breathing' : ''}
-              `}
+          {selectedVariant && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-2 text-sm text-ranch-lavender"
             >
-              {showSuccess ? (
-                <span className="flex items-center justify-center gap-2">
-                  ✓ Added to Cart!
-                </span>
-              ) : isAdding ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="inline-block w-5 h-5 border-3 border-ranch-dark/30 border-t-ranch-dark rounded-full animate-spin" />
-                  Adding...
-                </span>
-              ) : inStockVariants.length === 0 ? (
-                'Out of Stock'
-              ) : !selectedVariant ? (
-                'Select a Size'
-              ) : (
-                'Add to Cart'
-              )}
-            </button>
+              Color: {selectedVariant.color}
+            </motion.div>
+          )}
+        </motion.div>
 
-            {/* Product tags */}
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-ranch-purple/50">
-              {product.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 bg-ranch-purple/30 text-ranch-lavender text-xs rounded-full"
-                >
-                  #{tag}
-                </span>
-              ))}
+        {/* Quantity selector */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+        >
+          <label className="block text-ranch-cream font-semibold mb-3">
+            How Many Shall Join?
+          </label>
+          <div className="flex items-center gap-3">
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              disabled={quantity <= 1}
+              aria-label="Decrease quantity"
+            >
+              −
+            </Button>
+            <div className="flex-1 text-center">
+              <input
+                type="number"
+                min="1"
+                max="99"
+                value={quantity}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value) || 1;
+                  setQuantity(Math.max(1, Math.min(99, val)));
+                }}
+                className="w-full bg-ranch-purple/20 border-2 border-ranch-purple text-ranch-cream text-center text-lg font-bold py-2 rounded-lg focus:border-ranch-lime focus:outline-none transition-colors"
+                aria-label="Quantity"
+              />
             </div>
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => setQuantity(Math.min(99, quantity + 1))}
+              disabled={quantity >= 99}
+              aria-label="Increase quantity"
+            >
+              +
+            </Button>
           </div>
-        </div>
+        </motion.div>
+
+        {/* Add to cart button */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.4 }}
+        >
+          <Button
+            onClick={handleAddToCart}
+            disabled={!selectedVariant || isAdding || inStockVariants.length === 0}
+            className="w-full h-14 text-lg"
+            size="lg"
+          >
+            {isAdding ? (
+              <span className="flex items-center justify-center gap-2">
+                <motion.span
+                  className="inline-block w-5 h-5 border-3 border-ranch-dark/30 border-t-ranch-dark rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                />
+                {loadingMessage}
+              </span>
+            ) : inStockVariants.length === 0 ? (
+              HORROR_COPY.products.outOfStock
+            ) : !selectedVariant ? (
+              'Choose Your Size'
+            ) : (
+              'Claim Your Harvest'
+            )}
+          </Button>
+        </motion.div>
+
+        {/* Product tags */}
+        <motion.div
+          className="flex flex-wrap gap-2 pt-4 border-t border-ranch-purple/50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 0.4 }}
+        >
+          {product.tags.map((tag) => (
+            <Badge key={tag} variant="ghost" className="text-xs">
+              #{tag}
+            </Badge>
+          ))}
+        </motion.div>
       </div>
-    </>
+    </div>
+  );
+
+  // Desktop: Use Dialog
+  if (!isMobile) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="sr-only">
+            <DialogTitle>{product.name}</DialogTitle>
+            <DialogDescription>{product.description}</DialogDescription>
+          </DialogHeader>
+          <ModalContent />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Mobile: Use Drawer
+  return (
+    <Drawer open={isOpen} onOpenChange={onClose}>
+      <DrawerContent className="max-h-[90vh] overflow-y-auto pb-8">
+        <DrawerHeader className="sr-only">
+          <DrawerTitle>{product.name}</DrawerTitle>
+          <DrawerDescription>{product.description}</DrawerDescription>
+        </DrawerHeader>
+        <div className="px-4 pb-4">
+          <ModalContent />
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 }

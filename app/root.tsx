@@ -10,9 +10,13 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { useCursorTrail } from "./lib/hooks/useCursorTrail";
+import { useRareEvents } from "./lib/hooks/useRareEvents";
 import { NightSky } from "./lib/components/NightSky";
 import { BarnLight } from "./lib/components/BarnLight";
 import { GardenShadows } from "./lib/components/GardenShadows";
+import { EyeInCorner } from "./lib/components/RareEvents/EyeInCorner";
+import { BackgroundBlur } from "./lib/components/RareEvents/BackgroundBlur";
+import { Toaster } from "sonner";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -38,6 +42,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <Toaster
+          position="bottom-right"
+          theme="dark"
+          toastOptions={{
+            style: {
+              background: '#1a1a1a',
+              border: '2px solid rgba(74, 50, 88, 0.5)',
+              color: '#F5F5DC',
+            },
+            className: 'sonner-toast',
+          }}
+        />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -49,12 +65,19 @@ export default function App() {
   // Enable cursor trail effect (environmental horror layer)
   useCursorTrail();
 
+  // Rare events system (1% chance on navigation) - Phase 1.5
+  const rareEvent = useRareEvents();
+
   return (
     <>
       {/* Environmental Horror Layer - Phase 1.3 */}
       <NightSky />
       <BarnLight />
       <GardenShadows />
+
+      {/* Rare Events - Phase 1.5 */}
+      <EyeInCorner show={rareEvent === 'eye'} />
+      <BackgroundBlur show={rareEvent === 'darken'} />
 
       {/* Main app content */}
       <div style={{ position: 'relative', zIndex: 10 }}>
