@@ -800,7 +800,7 @@ useEffect(() => {
 
 ## ⚠️ DEPLOYMENT MANDATE - READ FIRST
 
-**Production URL:** `https://flag-trax-game.lando555.workers.dev/`
+**Production URL:** `https://caterpillar-ranch.lando555.workers.dev/`
 
 **CRITICAL RULES:**
 1. ⛔ **NEVER use `npm run deploy`, `wrangler deploy`, or `wrangler publish`**
@@ -1900,7 +1900,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 git add .
 git commit -m "feat: add product catalog UI with mock data"
 git push origin main
-# Cloudflare will auto-deploy to: https://flag-trax-game.lando555.workers.dev/
+# Cloudflare will auto-deploy to: https://caterpillar-ranch.lando555.workers.dev/
 
 # Share URL with team for approval ✅
 
@@ -1998,7 +1998,7 @@ npx storybook@latest init
 
 ### **STRICT MANDATE - READ FIRST**
 
-**Production URL:** `https://flag-trax-game.lando555.workers.dev/`
+**Production URL:** `https://caterpillar-ranch.lando555.workers.dev/`
 
 **Deployment Rules:**
 1. ⛔ **NEVER run `npm run deploy` or `wrangler deploy` directly**
@@ -2036,7 +2036,7 @@ git push origin main
 ```
 Look for in logs:
 ✅ "Deployment complete"
-✅ "Published flag-trax-game"
+✅ "Deployed caterpillar-ranch"
 ✅ No compilation errors
 ✅ No missing dependencies
 ```
@@ -2044,7 +2044,7 @@ Look for in logs:
 **Step 5: Test only after confirmation**
 ```bash
 # Only after user confirms build success:
-curl https://flag-trax-game.lando555.workers.dev/
+curl https://caterpillar-ranch.lando555.workers.dev/
 # Or visit in browser for manual testing
 ```
 
@@ -2059,10 +2059,10 @@ curl https://flag-trax-game.lando555.workers.dev/
 **How to test:**
 ```bash
 # API endpoint testing:
-curl https://flag-trax-game.lando555.workers.dev/api/catalog/products
+curl https://caterpillar-ranch.lando555.workers.dev/api/catalog/products
 
 # Frontend testing:
-# Open in browser: https://flag-trax-game.lando555.workers.dev/
+# Open in browser: https://caterpillar-ranch.lando555.workers.dev/
 # Test all screens: home, product modal, cart, checkout
 # Verify preview banner shows if USE_MOCKS=true
 ```
