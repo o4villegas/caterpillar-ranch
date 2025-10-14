@@ -124,16 +124,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               </div>
 
               {/* Product Info */}
-              <h2 className="text-lg font-bold mb-2 leading-tight text-ranch-cream">
+              <h2 className="text-lg font-bold mb-2 leading-tight text-ranch-cream group-hover:text-ranch-dark transition-colors duration-300">
                 {product.name}
               </h2>
-              <p className="text-ranch-lavender text-sm mb-4 line-clamp-2">
+              <p className="text-ranch-lavender group-hover:text-ranch-dark/80 text-sm mb-4 line-clamp-2 transition-colors duration-300">
                 {product.description}
               </p>
 
               {/* Price and Action */}
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-ranch-lime">
+                <span className="text-2xl font-bold text-ranch-lime group-hover:text-ranch-dark transition-colors duration-300">
                   ${product.price}
                 </span>
                 <Button
