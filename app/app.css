@@ -79,18 +79,7 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--color-neutral-cream);
 }
 
-/* Clean top text for "CATERPILLAR" */
-.logo-top {
-  display: block;
-  color: var(--color-ranch-cream);
-  font-weight: 500;
-  font-size: 0.35em;
-  letter-spacing: 0.2em;
-  margin-bottom: -0.15em;
-  text-transform: uppercase;
-}
-
-/* Drippy header style for "RANCCH" brand text */
+/* Drippy header style for brand text */
 .drip-text {
   display: block;
   color: var(--color-accent-pink);

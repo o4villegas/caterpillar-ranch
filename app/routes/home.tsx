@@ -72,9 +72,21 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
-          <h1 className="text-5xl md:text-6xl mb-4">
-            <span className="logo-top">Caterpillar</span>
-            <span className="drip-text">RANCCH</span>
+          <h1 className="mb-4">
+            <img
+              src="/cr-logo.gif"
+              alt="Caterpillar Ranch - Horror Tees"
+              width="500"
+              height="250"
+              loading="eager"
+              fetchPriority="high"
+              className="mx-auto"
+              style={{
+                maxWidth: "min(500px, 90vw)",
+                height: "auto",
+                width: "100%"
+              }}
+            />
           </h1>
           <p className="text-xl text-ranch-cream opacity-80 mb-2">
             Where Cute Meets Creepy
