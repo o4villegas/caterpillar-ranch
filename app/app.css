@@ -1,16 +1,225 @@
 @import "tailwindcss" source(".");
 
+/**
+ * Caterpillar Ranch - Horror Aesthetic Styles
+ * "Tim Burton meets Animal Crossing meets Don't Starve"
+ */
+
 @theme {
+  /* Base font with slightly increased letter-spacing for "off" feeling */
   --font-sans:
     "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Horror color palette */
+  --color-primary-cyan: #00CED1;
+  --color-primary-lime: #32CD32;
+  --color-accent-pink: #FF1493;
+  --color-purple-lavender: #9B8FB5;
+  --color-purple-deep: #4A3258;
+  --color-neutral-cream: #F5F5DC;
+  --color-neutral-dark: #1a1a1a;
+}
+
+/* Force dark mode as default (horror aesthetic requirement) */
+html {
+  color-scheme: dark;
+
+  /* Global breathing animation - very subtle */
+  animation: screen-breathe 8s ease-in-out infinite;
+}
+
+@keyframes screen-breathe {
+  0%, 100% {
+    filter: brightness(1.0);
+    transform: scale(1.0);
+  }
+  50% {
+    filter: brightness(0.98);
+    transform: scale(1.002);
+  }
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  /* Dark background - near-black */
+  background-color: var(--color-neutral-dark);
+  color: var(--color-neutral-cream);
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
+  /* Slightly increased letter-spacing for uncanny effect */
+  letter-spacing: 0.02em;
+}
+
+/* Disable breathing animation for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    animation: none !important;
   }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Typography - Horror aesthetic */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--color-neutral-cream);
+}
+
+/* Drippy header style for brand elements */
+.drip-text {
+  color: var(--color-accent-pink);
+  font-weight: 800;
+  text-shadow:
+    0 2px 4px rgba(255, 20, 147, 0.4),
+    0 4px 8px rgba(255, 20, 147, 0.2);
+  letter-spacing: 0.05em;
+}
+
+/* Monospace for game UI (scores, timers) */
+.game-text {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+/* Rounded corners for cute baseline */
+button, .card, .modal {
+  border-radius: 1rem; /* 16px */
+}
+
+/* Glossy highlights for slime effect */
+.glossy {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+}
+
+/* Breathing animation for cards/elements */
+.breathing {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1.0);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+/* Asymmetric wiggle for cart icon */
+.wiggle-wrong {
+  animation: wiggle-wrong 0.6s ease-in-out;
+}
+
+@keyframes wiggle-wrong {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg) translateX(-2px);
+  }
+  75% {
+    transform: rotate(3deg) translateX(1px);
+  }
+}
+
+/* Heartbeat pulse for discount badges */
+.heartbeat-pulse {
+  animation: heartbeat-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes heartbeat-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.1);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.08);
+  }
+  56% {
+    transform: scale(1);
+  }
+}
+
+/* Cursor trail effect */
+.cursor-trail {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(50, 205, 50, 0.4); /* Lime green */
+  pointer-events: none;
+  animation: trail-fade 0.8s ease-out forwards;
+  z-index: 9999;
+}
+
+@keyframes trail-fade {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+/* Page transitions - slightly too smooth (uncanny) */
+.page-transition {
+  animation: fade-in 0.6s cubic-bezier(0.43, 0.13, 0.23, 0.96);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Focus states - accessible but horror-themed */
+*:focus-visible {
+  outline: 2px solid var(--color-primary-lime);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* Selection color - horror palette */
+::selection {
+  background-color: var(--color-accent-pink);
+  color: var(--color-neutral-dark);
+}
+
+/* Scrollbar styling - horror theme */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-neutral-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-purple-lavender);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-cyan);
 }

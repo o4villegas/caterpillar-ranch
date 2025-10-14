@@ -1,0 +1,525 @@
+# Caterpillar Ranch - Development Guide for Autonomous Agents
+
+**Project Type:** Gamified E-Commerce Platform  
+**Template Base:** `react-router-hono-fullstack-template` (Cloudflare Workers)  
+**Target:** Gen Z shoppers buying novelty tee shirts  
+**Core Philosophy:** Optional games enhance shopping, never block it
+
+---
+
+## Project Overview
+
+Build a shopping site where customers can **optionally** play quick games (20-45 seconds) to earn discounts (10-40% off) on novelty t-shirts. If they don't want to play, they can buy at full price with one click. All games are skill-based, transparent, and mobile-optimized.
+
+**The #1 Rule:** Never make games feel mandatory or manipulative. "Skip and Buy Now" should always be visible and easy.
+
+---
+
+## Tech Stack (Already in Template)
+
+- **Frontend:** React Router 7 with SSR
+- **API:** Hono framework
+- **Database:** Cloudflare D1 (SQL)
+- **Cache/Sessions:** Cloudflare KV
+- **Real-time:** Durable Objects (for countdowns)
+- **Deployment:** 100% Cloudflare Workers (edge)
+
+**Do NOT add:** Express, Next.js, traditional Node.js servers, MongoDB, Redis, or any non-Cloudflare services.
+
+---
+
+## What Success Looks Like
+
+### 1. Homepage (`routes/_index.tsx`)
+
+**Good:**
+- Clean grid of product cards (4 columns desktop, 2 mobile)
+- Each card shows: image, name, price, "RAPID-FIRE" badge if applicable
+- Daily challenge banner at top (dismissible)
+- Leaderboard link in header
+- Fast load time (<1 second)
+
+**Bad:**
+- Cluttered interface with pop-ups
+- Games blocking the view of products
+- Slow image loading
+- Mobile doesn't work well
+
+**Key Behavior:**
+When user clicks a product card → navigate to `/products/{id}`
+
+---
+
+### 2. Product Detail Page (`routes/products.$id.tsx`)
+
+**Good:**
+- Large product image (left/top on mobile)
+- Product name, description, price clearly visible
+- Two prominent buttons:
+  - **"Buy Now - $35"** (full price, one click to cart)
+  - **"Play Game - Earn up to 40% Off"** (opens game modal)
+- If it's a rapid-fire item: countdown timer starts immediately (30% → 10% over 80 seconds)
+- Game modal is clean, focused, shows difficulty rating before starting
+
+**Bad:**
+- Game starts automatically without asking
+- "Buy Now" button is hidden or hard to find
+- Countdown timer is confusing or fake-looking
+- Product info is buried below game
+
+**Key Behavior:**
+- Rapid-fire timer uses Durable Objects for real-time countdown
+- Game results determine discount percentage (10-40%)
+- After game, show discount earned and update "Buy Now" button price
+- Allow retry if user wants (track attempts in session)
+
+---
+
+### 3. Game Components (`components/games/`)
+
+Build three game types as React components:
+
+**Memory Match Game:**
+- 6 pairs of cards (12 total)
+- 30 second timer
+- Target: 30% success rate for earning 15+ points
+- Show matches found / total needed
+
+**Reflex Challenge:**
+- Targets appear randomly on screen
+- 20 second timer
+- Click accuracy + speed = score
+- Target: 20% achieve 25+ points
+
+**Pattern Puzzle:**
+- Complete design patterns (like mini Sudoku)
+- 45 second timer
+- Target: 10% achieve 40+ points
+
+**All Games Must:**
+- Work perfectly on mobile (touch-friendly)
+- Show clear timer countdown
+- Display score in real-time
+- Have "Give Up" button (user can exit anytime)
+- Send score to API for validation before awarding discount
+- Never use localStorage or sessionStorage (use React state only)
+
+**Score to Discount Conversion:**
+```
+45-50 points → 40% off
+35-44 points → 30% off
+20-34 points → 20% off
+10-19 points → 10% off
+0-9 points → 0% off (can retry)
+```
+
+---
+
+### 4. Cart & Checkout (`routes/checkout.tsx`)
+
+**Good:**
+- Shows items with earned discounts clearly
+- Subtotal, discount amount, total all visible
+- At bottom: "Wait! Play one last game for up to 10% more off" (optional box)
+- Last resort game is hardest difficulty
+- If user earned 35% already, max they can earn is 5% more (40% total cap)
+- Shipping address form (standard fields)
+- "Complete Purchase" button submits to Printful API
+
+**Bad:**
+- Last resort game blocks checkout
+- Unclear what discount is applied
+- Can stack discounts above 40%
+- Requires login/account
+
+**Key Behavior:**
+- Calculate total discount respecting 40% maximum
+- Create Printful order via API with discounted retail_price
+- Immediately confirm order (don't leave in draft)
+- Show order confirmation with tracking info
+
+---
+
+### 5. Leaderboard (`routes/leaderboard.tsx`)
+
+**Good:**
+- Three tabs: "Top Points", "Biggest Discounts", "Most Active"
+- Shows top 20 for each category
+- Highlights current user's rank (if they've played)
+- Updates every 30 seconds (polling, not WebSocket needed here)
+- Anonymous nicknames (generated: "FastCaterpillar23")
+
+**Bad:**
+- Only shows top 3 (demotivating)
+- Requires login to see
+- Doesn't update
+- Shows real names (privacy issue)
+
+**Key Behavior:**
+- Query D1 for rankings
+- Session-based tracking (no accounts needed)
+- Allow user to set custom nickname (optional)
+
+---
+
+### 6. API Routes (`app/routes/api/`)
+
+**Structure Needed:**
+
+**`api/products.ts`**
+- GET `/api/products` → fetch from D1 cache (refresh if >1 hour old)
+- GET `/api/products/:id` → single product detail
+- Background job: sync from Printful every 6 hours
+
+**`api/games.submit.ts`**
+- POST `/api/games/submit` 
+- Validate score server-side (check timing, max scores)
+- Return discount percentage earned
+- Update session in KV
+
+**`api/checkout.ts`**
+- POST `/api/checkout/create-order`
+- Create order in Printful (draft)
+- Apply earned discount to retail_price
+- Confirm order immediately
+- Return order ID and tracking
+
+**`api/leaderboard.ts`**
+- GET `/api/leaderboard?category=points|discounts|active`
+- Query D1, return top 20
+- Cache results for 30 seconds
+
+**Anti-Pattern to Avoid:**
+- Don't create REST endpoints for every tiny action
+- Don't expose internal IDs or sensitive data
+- Don't trust client-side scores without validation
+
+---
+
+### 7. Database Schema (D1)
+
+**Tables Needed:**
+
+**`products`**
+- id, printful_id, name, description, price, image_url, catalog_variant_id, is_rapid_fire, cached_at
+
+**`leaderboard`**
+- id, session_id, nickname, total_points, total_discount_won, games_played, created_at, updated_at
+
+**`daily_challenges`**
+- id, challenge_date, challenge_type, discount_percentage, active, created_at
+
+**Indexes:**
+- leaderboard(total_points DESC)
+- products(is_rapid_fire)
+- daily_challenges(challenge_date, active)
+
+**Keep it Simple:**
+- No complex relations
+- Denormalize if it makes queries faster
+- Use timestamps for everything
+
+---
+
+### 8. Session Management (KV)
+
+**Session Data Structure:**
+```javascript
+{
+  sessionId: "uuid-v4",
+  points: 0,
+  gamesPlayed: [
+    { game: "memory", score: 25, discount: 20, timestamp: "..." }
+  ],
+  currentCart: [
+    { productId: 123, discount: 20, quantity: 1 }
+  ],
+  nickname: "FastCaterpillar23",
+  lastActivity: timestamp
+}
+```
+
+**KV Keys:**
+- `session:{sessionId}` → session data (24 hour TTL)
+- `rapid:{productId}:{sessionId}` → rapid-fire timer state (2 minute TTL)
+- `daily:{date}:{sessionId}` → daily challenge completion
+
+**Important:**
+- Generate session ID on first visit (cookie)
+- Don't store passwords or PII
+- Expire old sessions automatically
+
+---
+
+### 9. Durable Objects
+
+**`RapidFireTimer` Class:**
+
+**Purpose:** Manage countdown timers for rapid-fire products
+
+**Key Methods:**
+- `fetch(request)` → handle both HTTP and WebSocket
+- `getCurrentDiscount()` → calculate current discount (30% at start, decreases to 10%)
+- `lockInDiscount(sessionId)` → freeze discount for this user
+- WebSocket support for live updates
+
+**Behavior:**
+- Each rapid-fire product gets its own Durable Object instance
+- Timer starts at 30%, decreases 1% every 4 seconds
+- Multiple users can view same countdown (broadcast via WebSocket)
+- When user "locks in", create session-specific frozen discount
+
+**`DailyChallengeManager` Class:**
+
+**Purpose:** Rotate daily challenges at midnight UTC
+
+**Key Methods:**
+- `fetch(request)` → return today's challenge
+- `rotateChallenge()` → scheduled at midnight, picks new challenge
+- `checkCompletion(sessionId)` → see if user completed today's challenge
+
+**Behavior:**
+- Only one challenge per 24 hours
+- Track completions in KV
+- Award site-wide discount codes
+
+---
+
+### 10. Mobile-First Design
+
+**Required:**
+- All touch targets minimum 44x44px
+- Games work with touch (no hover states required)
+- Product grid: 2 columns on mobile, 4 on desktop
+- Images: lazy load, use appropriate sizes
+- Forms: use native inputs (email, tel, etc.)
+
+**Test Viewports:**
+- Mobile: 375x667 (iPhone SE)
+- Tablet: 768x1024 (iPad)
+- Desktop: 1440x900
+
+---
+
+### 11. What Good Code Looks Like
+
+**Good Patterns:**
+
+✅ **React Components:** Small, focused, single responsibility
+✅ **API Handlers:** Validate input, handle errors, return consistent format
+✅ **Type Safety:** Use TypeScript, define interfaces
+✅ **Error Handling:** Try-catch on all external calls (Printful, D1, KV)
+✅ **Loading States:** Show spinners while fetching
+✅ **Optimistic UI:** Update UI immediately, rollback if fails
+
+**Bad Patterns:**
+
+❌ Storing state in localStorage/sessionStorage (use React state + KV)
+❌ Long files (>300 lines)
+❌ Inline styles (use Tailwind classes)
+❌ Hardcoded values (use constants)
+❌ Trusting client input (always validate server-side)
+❌ Blocking game modals (always allow escape/close)
+
+---
+
+### 12. Testing Success Criteria
+
+**Frontend:**
+- All pages load in <2 seconds
+- Games are playable and fun
+- Mobile works perfectly (test on real device if possible)
+- No console errors
+- Images load progressively
+
+**Backend:**
+- API responses in <200ms (except Printful calls)
+- Game score validation catches cheating
+- Session management works across page loads
+- Leaderboard updates correctly
+- Printful orders create successfully
+
+**User Experience:**
+- Can browse products without games
+- "Skip game" button always visible
+- Games feel optional, not forced
+- Discount applied correctly at checkout
+- 40% maximum never exceeded
+
+---
+
+### 13. Common Pitfalls to Avoid
+
+**1. Making Games Mandatory**
+- Bad: Modal blocks entire screen, can't close
+- Good: Clear X button, "Buy Now at Full Price" visible
+
+**2. Complicated Game Logic**
+- Bad: 500 lines in one component
+- Good: Separate game state, rendering, and scoring
+
+**3. Trusting Client Scores**
+- Bad: Client sends score, we apply discount
+- Good: Client sends game events, server validates and calculates score
+
+**4. Slow API Calls**
+- Bad: Fetch from Printful on every page load
+- Good: Cache in D1, background refresh
+
+**5. Poor Mobile Experience**
+- Bad: Desktop-only layouts, tiny buttons
+- Good: Touch-friendly, mobile-first responsive
+
+**6. Exceeding 40% Discount**
+- Bad: User stacks discounts to 60%
+- Good: Server enforces 40% ceiling in checkout logic
+
+---
+
+### 14. Printful Integration
+
+**Key Endpoints to Use:**
+
+**Fetch Products:**
+- `GET https://api.printful.com/v2/catalog-products`
+- Cache results in D1
+- Refresh every 6 hours
+
+**Create Order:**
+- `POST https://api.printful.com/v2/orders`
+- Include recipient address
+- Set `retail_price` with discount applied
+- No need for design data (products pre-configured in Printful)
+
+**Confirm Order:**
+- `POST https://api.printful.com/v2/orders/{id}/confirm`
+- Do this immediately after creation
+- Returns tracking info
+
+**Important:**
+- Store API key in Workers secrets (never in code)
+- Handle rate limits (120 requests per 60 seconds)
+- Graceful error handling (Printful might be down)
+
+---
+
+### 15. File Structure Expectations
+
+```
+app/
+├── routes/
+│   ├── _index.tsx (homepage)
+│   ├── products.$id.tsx (product detail)
+│   ├── checkout.tsx (cart & checkout)
+│   ├── leaderboard.tsx (rankings)
+│   └── api/
+│       ├── products.ts
+│       ├── games.submit.ts
+│       ├── checkout.ts
+│       └── leaderboard.ts
+├── components/
+│   ├── games/
+│   │   ├── MemoryGame.tsx
+│   │   ├── ReflexGame.tsx
+│   │   └── PuzzleGame.tsx
+│   ├── ProductCard.tsx
+│   ├── RapidFireTimer.tsx
+│   └── Leaderboard.tsx
+├── lib/
+│   ├── printful.ts (API client)
+│   ├── session.ts (session helpers)
+│   └── game-scoring.ts (validation logic)
+└── root.tsx
+
+worker/
+├── durable-objects/
+│   ├── RapidFireTimer.ts
+│   └── DailyChallengeManager.ts
+└── index.ts
+
+db/
+└── schema.sql
+```
+
+---
+
+### 16. Deploy & Environment
+
+**Environment Variables (wrangler.toml):**
+- `PRINTFUL_API_KEY` - Your Printful private token
+- `ENVIRONMENT` - "production" or "development"
+
+**Cloudflare Services to Create:**
+- D1 Database: `caterpillar_db`
+- KV Namespace: `CATERPILLAR_KV`
+- Durable Objects bindings for both classes
+
+**Deploy Command:**
+```bash
+npx wrangler deploy
+```
+
+---
+
+### 17. Definition of Done
+
+A feature is "done" when:
+
+✅ Works on mobile (375px width)
+✅ No console errors
+✅ Handles errors gracefully (network failures, API errors)
+✅ Loading states shown appropriately
+✅ Respects 40% discount maximum
+✅ Games feel optional, not forced
+✅ Code is readable and commented where complex
+✅ No hardcoded values (use constants)
+✅ TypeScript types are defined
+
+---
+
+### 18. What to Build First (Recommended Order)
+
+**Phase 1 - Foundation:**
+1. Product listing page (fetch from Printful, cache in D1)
+2. Product detail page (no games yet, just static)
+3. Basic cart and checkout (no games, full price)
+
+**Phase 2 - Core Games:**
+4. Memory game component
+5. Game scoring API with validation
+6. Integrate game into product detail page
+7. Apply discount at checkout
+
+**Phase 3 - Advanced Features:**
+8. Rapid-fire countdown (Durable Object + WebSocket)
+9. Leaderboard (D1 queries + UI)
+10. Daily challenges (Durable Object + rotation)
+11. Last resort checkout game
+
+**Phase 4 - Polish:**
+12. Mobile optimization pass
+13. Error handling improvements
+14. Loading state refinements
+15. SEO meta tags
+
+---
+
+## Final Notes for Autonomous Agents
+
+**Remember:**
+- This is for Gen Z → fast, mobile-first, no BS
+- Games are optional → never force them
+- 40% is the maximum discount → enforce server-side
+- Clean design > feature overload
+- Working mobile experience > perfect desktop
+
+**When in Doubt:**
+- Keep it simple
+- Make games optional
+- Validate on server
+- Cache aggressively
+- Test on mobile
+
+**Success = A shopping site that's fun but not annoying, where earning discounts feels like a fair achievement.**
+
+Good luck! 🐛🎮
