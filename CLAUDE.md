@@ -435,26 +435,9 @@ useEffect(() => {
 - Shadows/shapes occasionally move at screen edges
 - Very slow (20s+ animations), barely noticeable
 
-**Ambient Sound**:
-```javascript
-// Web Audio API - subtle background audio
-const ambientAudio = new Audio('/sounds/ambient-crickets.mp3');
-ambientAudio.loop = true;
-ambientAudio.volume = 0.15; // Very quiet
-
-// Add occasional unidentifiable sounds
-const randomSound = () => {
-  const sounds = ['distant-call-1.mp3', 'rustle.mp3', 'whisper.mp3'];
-  const audio = new Audio(`/sounds/${sounds[Math.floor(Math.random() * sounds.length)]}`);
-  audio.volume = 0.1;
-  audio.play();
-};
-
-setInterval(randomSound, 45000 + Math.random() * 60000); // Random 45-105s
-```
-- Crickets loop continuously (can be muted by user)
-- Random distant sounds every 1-2 minutes
-- User mute preference stored in localStorage
+**Ambient Sound** (Phase 1 MVP: OMITTED):
+- Sound features will be added in a future phase
+- MVP focuses on visual environmental horror only
 
 #### Product Pages
 
@@ -724,26 +707,25 @@ useEffect(() => {
 #### Technical Implementation Checklist
 
 **CSS Animations**:
-- [ ] Keyframe animations for stars, shadows, breathing
-- [ ] Custom easing curves for "uncanny" timing
+- [x] Keyframe animations for stars, shadows, breathing
+- [x] Custom easing curves for "uncanny" timing
 - [ ] GPU-accelerated transforms (use `will-change` sparingly)
 
 **React State Management**:
-- [ ] Random event triggers (useEffect with intervals)
+- [x] Random event triggers (useEffect with intervals) - stars, barn light, shadows
 - [ ] Rare event probability checks (Math.random())
-- [ ] Cleanup intervals on unmount
+- [x] Cleanup intervals on unmount
 
-**Web Audio API**:
-- [ ] Ambient sound loops (crickets, wind)
-- [ ] Random sound effects (whispers, calls)
-- [ ] User mute controls (localStorage preference)
-- [ ] Volume controls (start at 15-30%)
+**Web Audio API** (Future Phase):
+- [ ] Ambient sound loops (crickets, wind) - OMITTED IN MVP
+- [ ] Random sound effects (whispers, calls) - OMITTED IN MVP
+- [ ] User mute controls (localStorage preference) - OMITTED IN MVP
+- [ ] Volume controls (start at 15-30%) - OMITTED IN MVP
 
 **Performance Considerations**:
-- [ ] Limit concurrent animations (max 5-10 at once)
-- [ ] Use `requestAnimationFrame` for cursor trail
-- [ ] Lazy load sound files
-- [ ] Respect `prefers-reduced-motion` media query:
+- [x] Limit concurrent animations (max 5-10 at once)
+- [x] Use `requestAnimationFrame` for cursor trail (via useCursorTrail hook)
+- [x] Respect `prefers-reduced-motion` media query:
 ```css
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

@@ -10,6 +10,9 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { useCursorTrail } from "./lib/hooks/useCursorTrail";
+import { NightSky } from "./lib/components/NightSky";
+import { BarnLight } from "./lib/components/BarnLight";
+import { GardenShadows } from "./lib/components/GardenShadows";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -46,7 +49,19 @@ export default function App() {
   // Enable cursor trail effect (environmental horror layer)
   useCursorTrail();
 
-  return <Outlet />;
+  return (
+    <>
+      {/* Environmental Horror Layer - Phase 1.3 */}
+      <NightSky />
+      <BarnLight />
+      <GardenShadows />
+
+      {/* Main app content */}
+      <div style={{ position: 'relative', zIndex: 10 }}>
+        <Outlet />
+      </div>
+    </>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
