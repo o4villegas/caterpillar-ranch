@@ -121,11 +121,8 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
             </Badge>
           </div>
         )}
-        <motion.img
-          src={product.imageUrl}
-          alt={product.name}
-          className="w-full max-w-sm mx-auto"
-          style={{ imageRendering: 'crisp-edges' }}
+        <motion.picture
+          className="block w-full max-w-sm mx-auto"
           animate={{
             scale: [1, 1.02, 1],
           }}
@@ -134,7 +131,18 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
             ease: "easeInOut",
             repeat: Infinity,
           }}
-        />
+        >
+          <source
+            srcSet={product.imageUrl.replace('.png', '.webp')}
+            type="image/webp"
+          />
+          <motion.img
+            src={product.imageUrl}
+            alt={product.name}
+            className="w-full"
+            style={{ imageRendering: 'crisp-edges' }}
+          />
+        </motion.picture>
       </motion.div>
 
       {/* Product details */}

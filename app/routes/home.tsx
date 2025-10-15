@@ -17,6 +17,13 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
+export function links() {
+  return [
+    // Preload logo to mitigate 2.4MB file size impact on LCP
+    { rel: "preload", as: "image", href: "/cr-logo.gif" },
+  ];
+}
+
 export function loader({ context }: Route.LoaderArgs) {
   const cloudflare = context.cloudflare as { env: Env };
   return {
