@@ -100,9 +100,9 @@ export interface CartContextValue {
   addDiscount: (discount: Discount) => Promise<void>;
   clearCart: () => Promise<void>;
 
-  // Server sync (for game discounts)
-  syncToServer: () => Promise<void>;
-  syncFromServer: () => Promise<void>;
+  // Server sync (for game discounts) - TODO Phase 4: Cross-device cart sync
+  // syncToServer: () => Promise<void>;
+  // syncFromServer: () => Promise<void>;
 }
 
 /**

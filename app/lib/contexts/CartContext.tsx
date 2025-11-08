@@ -340,16 +340,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setSessionToken(null);
   }, []);
 
-  // Server sync (placeholder for Phase 3 - KV integration)
-  const syncToServer = useCallback(async () => {
-    // TODO: Phase 3 - Implement server sync via /api/cart/sync
-    console.log('syncToServer: Not yet implemented (Phase 3)');
-  }, []);
+  // Server sync (placeholder for Phase 4 - KV integration for cross-device cart)
+  // const syncToServer = useCallback(async () => {
+  //   // TODO: Phase 4 - Implement server sync via /api/cart/sync
+  //   console.log('syncToServer: Not yet implemented (Phase 4)');
+  // }, []);
 
-  const syncFromServer = useCallback(async () => {
-    // TODO: Phase 3 - Implement server sync via /api/cart/sync
-    console.log('syncFromServer: Not yet implemented (Phase 3)');
-  }, []);
+  // const syncFromServer = useCallback(async () => {
+  //   // TODO: Phase 4 - Implement server sync via /api/cart/sync
+  //   console.log('syncFromServer: Not yet implemented (Phase 4)');
+  // }, []);
 
   const value: CartContextValue = {
     cart,
@@ -363,8 +363,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     removeDiscount,
     addDiscount,
     clearCart,
-    syncToServer,
-    syncFromServer,
+    // syncToServer,    // TODO Phase 4: Cross-device cart sync
+    // syncFromServer,  // TODO Phase 4: Cross-device cart sync
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
