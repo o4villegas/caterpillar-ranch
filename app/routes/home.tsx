@@ -1,13 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import type { Route } from "./+types/home";
 import { mockProducts } from "../lib/mocks/products";
-import { ProductModal } from "../lib/components/ProductModal";
 import { CartIcon } from "../lib/components/CartIcon";
 import { CartDrawer } from "../lib/components/CartDrawer";
-import { useCart } from "../lib/contexts/CartContext";
-import type { Product } from "../lib/types/product";
-import { Button } from "../lib/components/ui/button";
 import { Badge } from "../lib/components/ui/badge";
 
 export function meta({}: Route.MetaArgs) {
@@ -19,7 +16,9 @@ export function meta({}: Route.MetaArgs) {
 
 export function links() {
   return [
-    // Preload logo to mitigate 2.4MB file size impact on LCP
+    // Preload WebP logo (1.1MB vs 2.4MB GIF) to improve LCP
+    { rel: "preload", as: "image", href: "/cr-logo.webp", type: "image/webp" },
+    // Preload GIF fallback for older browsers
     { rel: "preload", as: "image", href: "/cr-logo.gif" },
   ];
 }
@@ -33,31 +32,8 @@ export function loader({ context }: Route.LoaderArgs) {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const { addToCart } = useCart();
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [isCartOpen, setIsCartOpen] = useState(false);
-
-  const handleOpenModal = (product: Product) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    // Delay clearing product to allow exit animation
-    setTimeout(() => setSelectedProduct(null), 300);
-  };
-
-  const handleAddToCart = async (productId: string, variantId: string, quantity: number, earnedDiscount = 0) => {
-    const product = loaderData.products.find((p) => p.id === productId);
-    if (!product) {
-      console.error('Product not found:', productId);
-      return;
-    }
-
-    await addToCart(product, variantId, quantity, earnedDiscount);
-  };
 
   return (
     <main className="min-h-screen p-8">
@@ -80,20 +56,23 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
           <h1 className="mb-4">
-            <img
-              src="/cr-logo.gif"
-              alt="Caterpillar Ranch - Horror Tees"
-              width="500"
-              height="250"
-              loading="eager"
-              fetchPriority="high"
-              className="mx-auto"
-              style={{
-                maxWidth: "min(500px, 90vw)",
-                height: "auto",
-                width: "100%"
-              }}
-            />
+            <picture>
+              <source srcSet="/cr-logo.webp" type="image/webp" />
+              <img
+                src="/cr-logo.gif"
+                alt="Caterpillar Ranch - Horror Tees"
+                width="500"
+                height="250"
+                loading="eager"
+                fetchPriority="high"
+                className="mx-auto"
+                style={{
+                  maxWidth: "min(500px, 90vw)",
+                  height: "auto",
+                  width: "100%"
+                }}
+              />
+            </picture>
           </h1>
           <p className="text-xl text-ranch-cream opacity-80 mb-2">
             Where Cute Meets Creepy
@@ -106,9 +85,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         {/* Product Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {loaderData.products.map((product, index) => (
-            <motion.div
+            <motion.button
               key={product.id}
-              className="card bg-ranch-purple/20 p-4 rounded-2xl border-2 border-ranch-purple hover:border-ranch-lavender transition-all duration-300 cursor-pointer relative overflow-hidden group"
+              onClick={() => navigate(`/products/${product.slug}`)}
+              className="card bg-ranch-purple/20 p-4 rounded-2xl border-2 border-ranch-purple hover:border-ranch-lavender transition-all duration-300 cursor-pointer relative overflow-hidden group text-left w-full"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
@@ -122,6 +102,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 transition: { type: "spring", stiffness: 300, damping: 20 }
               }}
               whileTap={{ scale: 0.98 }}
+              aria-label={`View ${product.name}`}
             >
               {/* Border glow on hover */}
               <motion.div
@@ -168,18 +149,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 {product.description}
               </p>
 
-              {/* Price and Action */}
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-ranch-lime group-hover:text-ranch-dark transition-colors duration-300">
-                  ${product.price}
-                </span>
-                <Button
-                  onClick={() => handleOpenModal(product)}
-                  size="sm"
-                  className="shadow-lg"
-                >
-                  View Details
-                </Button>
+              {/* Price */}
+              <div className="text-2xl font-bold text-ranch-lime group-hover:text-ranch-dark transition-colors duration-300">
+                ${product.price}
               </div>
 
               {/* Stock Status (if any variant out of stock) */}
@@ -195,7 +167,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   </Badge>
                 </motion.div>
               )}
-            </motion.div>
+            </motion.button>
           ))}
         </div>
 
@@ -208,16 +180,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </div>
         )}
       </div>
-
-      {/* Product Detail Modal */}
-      {selectedProduct && (
-        <ProductModal
-          product={selectedProduct}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onAddToCart={handleAddToCart}
-        />
-      )}
 
       {/* Cart Drawer */}
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
