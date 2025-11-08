@@ -23,9 +23,9 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 
 ## 🏗️ Current Implementation Status
 
-**Last Updated**: 2025-01-14
-**Current Phase**: Phase 1.5 Complete, Phase 2 In Progress
-**Codebase Size**: 22 TypeScript files, 1,650+ lines of application code
+**Last Updated**: 2025-01-15
+**Current Phase**: Phase 2 Complete, Phase 3 In Progress
+**Codebase Size**: 37 TypeScript files, 4,049 lines of application code
 
 ### ✅ Completed Phases
 
@@ -67,24 +67,49 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 - ✅ Playwright tests updated for horror-themed UI text (test-modal.mjs)
 - ✅ Production verified: All Phase 1.5 features live and functional
 
+**Phase 2: Cart State Management** (✅ Complete)
+- ✅ Cart type definitions and interfaces (`app/lib/types/cart.ts` - 116 lines)
+- ✅ CartContext provider with React Context API (`app/lib/contexts/CartContext.tsx` - 383 lines)
+  - useReducer for state management
+  - localStorage persistence (auto-save on cart changes)
+  - 40% max discount cap enforcement in calculateTotals()
+- ✅ Cart UI components:
+  - CartIcon (`app/lib/components/CartIcon.tsx` - 112 lines)
+    - Item count badge with spring animation
+    - Wiggle animation on item add
+    - Discount percentage indicator
+  - CartDrawer (`app/lib/components/CartDrawer.tsx` - 264 lines)
+    - Responsive drawer (Vaul library)
+    - Item list with thumbnails
+    - Quantity controls (+/- buttons)
+    - Remove item functionality
+    - Totals breakdown with discount display
+    - 40% cap warning badge
+- ✅ Dedicated product route (`app/routes/product.tsx` - 388 lines)
+  - Full-page product view at `/products/:slug`
+  - Size and quantity selection
+  - Game modal integration
+  - Add to cart with discount application
+  - Particle burst animation on success
+  - SEO meta tags (Open Graph, Twitter Card)
+- ✅ ParticleBurst component (`app/lib/components/ParticleBurst.tsx` - 127 lines)
+  - Canvas-based particle system
+  - Physics simulation (gravity, velocity)
+  - Horror color palette (lime, cyan, pink)
+- ✅ Integration with homepage (CartIcon + CartDrawer)
+- ⏳ Session token management and KV storage (placeholders for Phase 3)
+- ⏳ Server sync API routes (placeholders for Phase 3)
+
 ### 🚧 In Progress
 
-**Phase 2: Cart State Management** (In Progress)
-- ⏳ Cart type definitions and interfaces
-- ⏳ CartContext provider with React Context API
-- ⏳ localStorage persistence for client-side cart
-- ⏳ Session token management and KV storage integration
-- ⏳ Discount tracking and application logic (40% max cap enforcement)
-- ⏳ Cart UI components (CartIcon, CartDrawer, item controls)
-- ⏳ Integration with ProductModal "Claim Your Harvest" button
-
-**Phase 3: Game Implementation** (Planned)
-- ⏳ 6 horror-themed discount games
+**Phase 3: Game Implementation & Backend Integration** (In Progress)
+- ✅ Game modal selection UI (`app/lib/components/GameModal.tsx` - 87 lines)
+- ⏳ 6 horror-themed discount games (implementation pending)
 - ⏳ Score-to-discount conversion system
-
-**Phase 4: Backend Integration** (Planned)
 - ⏳ Printful API routes in `workers/app.ts`
 - ⏳ Order creation and confirmation flow
+- ⏳ KV storage for cart sessions
+- ⏳ Server-side discount validation
 
 ---
 
@@ -912,6 +937,44 @@ export async function loader({ context }) {
 }
 ```
 
+**Using the Cart System (Phase 2):**
+```typescript
+// In any component, access cart via context
+import { useCart } from '~/lib/contexts/CartContext';
+
+export default function MyComponent() {
+  const { cart, totals, addToCart, removeFromCart } = useCart();
+
+  // Add item to cart with optional discount
+  await addToCart(product, variantId, quantity, earnedDiscount);
+
+  // Access cart state
+  console.log(totals.total); // Final price after discounts
+  console.log(totals.effectiveDiscountPercent); // Actual % (capped at 40)
+  console.log(cart.items); // All cart items
+  console.log(cart.discounts); // All earned discounts
+
+  // Remove item
+  await removeFromCart(itemId);
+
+  // Update quantity
+  await updateQuantity(itemId, newQuantity);
+}
+```
+
+**Cart Provider Setup** (already configured in `app/root.tsx`):
+```typescript
+import { CartProvider } from '~/lib/contexts/CartContext';
+
+export default function App() {
+  return (
+    <CartProvider>
+      {/* Your app components */}
+    </CartProvider>
+  );
+}
+```
+
 **TypeScript Types:**
 - Run `npm run cf-typegen` after modifying `wrangler.jsonc` to update Cloudflare types
 - `worker-configuration.d.ts` is auto-generated and contains Workers type definitions
@@ -944,14 +1007,29 @@ export async function loader({ context }) {
 
 ## 📦 Actual Component Structure & File Inventory
 
-**Last Verified**: 2025-10-14
-**Total Files**: 19 TypeScript files, 1,512 lines of code
+**Last Verified**: 2025-01-15
+**Total Files**: 37 TypeScript files, 4,049 lines of code
 
 ### Application Routes
 ```
 app/routes/
-├── home.tsx (174 lines) - Homepage with product grid, uses Framer Motion
-└── routes.ts (3 lines) - Route configuration (index only)
+├── home.tsx (184 lines) - Homepage with product grid
+│   ├── Integrates CartIcon and CartDrawer
+│   ├── Product card grid with hover animations
+│   ├── Navigation to product detail pages
+│   └── Uses Framer Motion for animations
+├── product.tsx (388 lines) - Dedicated product detail page
+│   ├── Full-page product view at /products/:slug
+│   ├── Size and quantity selection UI
+│   ├── Game modal integration (play to earn discount)
+│   ├── Add to cart with discount application
+│   ├── Particle burst animation on success
+│   ├── Auto-navigation back to homepage after add
+│   ├── SEO meta tags (Open Graph, Twitter Card)
+│   └── Uses CartContext for state management
+└── routes.ts (7 lines) - Route configuration
+    ├── index("routes/home.tsx")
+    └── route("products/:slug", "routes/product.tsx")
 ```
 
 ### Environmental Horror Components (Phase 1.3)
@@ -982,6 +1060,35 @@ app/lib/components/
     └── Toast notifications via Sonner
 ```
 
+### Cart System Components (Phase 2)
+```
+app/lib/components/
+├── CartIcon.tsx (112 lines)
+│   ├── Fixed position top-right corner
+│   ├── Shopping bag SVG icon
+│   ├── Item count badge with spring animation
+│   ├── Wiggle animation on item add (wiggle-wrong from app.css)
+│   ├── Heartbeat pulse on hover
+│   ├── Discount percentage indicator
+│   └── Framer Motion AnimatePresence for badge
+├── CartDrawer.tsx (264 lines)
+│   ├── Built with Vaul drawer library
+│   ├── Responsive drawer from right/bottom
+│   ├── Cart items list with thumbnails
+│   ├── Quantity controls (+/- buttons, remove)
+│   ├── Empty state with horror messaging
+│   ├── Totals breakdown (subtotal, discount, total)
+│   ├── 40% discount cap warning badge
+│   ├── "Proceed to Harvest" checkout button (placeholder)
+│   └── Framer Motion layout animations
+└── ParticleBurst.tsx (127 lines)
+    ├── Canvas-based particle system
+    ├── 40 particles per burst
+    ├── Physics simulation (velocity, gravity)
+    ├── Color palette: lime, cyan, pink
+    ├── Triggered on successful cart add
+    └── requestAnimationFrame for 60fps
+
 ### UI Primitives (shadcn/ui - manually added)
 ```
 app/lib/components/ui/
@@ -1010,18 +1117,28 @@ app/lib/components/ui/
 ### Hooks
 ```
 app/lib/hooks/
-└── useCursorTrail.ts (58 lines)
-    ├── Creates lime-green fading cursor trail
-    ├── Max 15 trails at once (memory management)
-    ├── 800ms fade-out animation
-    ├── Respects prefers-reduced-motion
-    └── Used in app/root.tsx
+├── useCursorTrail.ts (58 lines)
+│   ├── Creates lime-green fading cursor trail
+│   ├── Max 15 trails at once (memory management)
+│   ├── 800ms fade-out animation
+│   ├── Respects prefers-reduced-motion
+│   └── Used in app/root.tsx
+├── useRareEvents.ts (43 lines) - Phase 1.5
+│   ├── 1% chance on navigation (location.pathname change)
+│   ├── Returns RareEventType: 'eye' | 'darken' | 'whisper' | null
+│   ├── Auto-clears event after 1.5-2s duration
+│   └── Used in app/root.tsx to trigger EyeInCorner, BackgroundBlur
+├── useMediaQuery.ts (34 lines)
+│   ├── Generic media query hook
+│   ├── Uses window.matchMedia with change listener
+│   ├── Returns boolean for query match
+│   └── Usage: useMediaQuery('(min-width: 768px)')
+└── useReducedMotion.ts (31 lines)
+    ├── Detects user's prefers-reduced-motion preference
+    ├── Uses window.matchMedia('(prefers-reduced-motion: reduce)')
+    ├── Returns boolean for accessibility
+    └── Can be used to disable/simplify animations
 ```
-
-**Hooks Planned But Not Implemented**:
-- `useMediaQuery` - For responsive breakpoint detection
-- `useReducedMotion` - For accessibility (currently inline in useCursorTrail)
-- `useRareEvents` - For random horror events
 
 ### Constants & Configuration
 ```
@@ -1040,12 +1157,47 @@ app/lib/constants/
 ### Types
 ```
 app/lib/types/
-└── product.ts (48 lines)
-    ├── ProductSize type ('S' | 'M' | 'L' | 'XL' | 'XXL')
-    ├── ProductVariant interface
-    ├── Product interface
-    ├── CartItem interface (for Phase 2)
-    └── ProductFilters interface (for Phase 2)
+├── product.ts (48 lines)
+│   ├── ProductSize type ('S' | 'M' | 'L' | 'XL' | 'XXL')
+│   ├── ProductVariant interface
+│   ├── Product interface
+│   └── ProductFilters interface
+└── cart.ts (116 lines) - Phase 2
+    ├── CartItem interface (with product, variant, quantity, earnedDiscount)
+    ├── Discount interface (with gameType, expiry, applied state)
+    ├── Cart interface (items + discounts)
+    ├── CartSession interface (for KV storage - Phase 3)
+    ├── CartTotals interface (with 40% cap calculation)
+    ├── CartAction union type (8 action types for reducer)
+    ├── CartContextValue interface (provider API)
+    └── CartItemWithPrice helper type
+```
+
+### Cart Context (Phase 2)
+```
+app/lib/contexts/
+└── CartContext.tsx (383 lines)
+    ├── CartProvider component wrapping app
+    ├── useReducer for state management (cartReducer)
+    ├── 8 action types: ADD_ITEM, REMOVE_ITEM, UPDATE_QUANTITY,
+    │   APPLY_DISCOUNT, REMOVE_DISCOUNT, ADD_DISCOUNT,
+    │   CLEAR_CART, LOAD_CART, SYNC_FROM_SERVER
+    ├── localStorage persistence:
+    │   - Auto-save cart on every change
+    │   - Auto-load on mount
+    │   - Key: 'caterpillar-ranch-cart'
+    ├── calculateTotals() function:
+    │   - Calculates subtotal, discount, total
+    │   - Enforces 40% maximum discount cap
+    │   - Returns effectiveDiscountPercent
+    ├── Cart actions (async functions):
+    │   - addToCart, removeFromCart, updateQuantity
+    │   - applyDiscount, removeDiscount, addDiscount
+    │   - clearCart, syncToServer, syncFromServer
+    ├── Server sync placeholders (Phase 3):
+    │   - syncToServer() - TODO
+    │   - syncFromServer() - TODO
+    └── useCart() hook for consuming components
 ```
 
 ### Mock Data
@@ -1073,12 +1225,17 @@ app/lib/
 ### Core Application Files
 ```
 app/
-├── root.tsx (107 lines)
+├── root.tsx (134 lines)
 │   ├── Layout component with HTML shell
-│   ├── Integrates environmental horror components
+│   ├── SVG filter definitions for drip effect
 │   ├── Sonner Toaster for toast notifications
+│   ├── App component wraps everything in CartProvider
+│   ├── Integrates environmental horror components:
+│   │   - NightSky, BarnLight, GardenShadows
+│   │   - EyeInCorner, BackgroundBlur (rare events)
 │   ├── useCursorTrail hook
-│   └── Global error boundary
+│   ├── useRareEvents hook (1% navigation trigger)
+│   └── Global error boundary with horror messaging
 ├── entry.server.tsx (43 lines)
 │   ├── SSR implementation
 │   ├── Bot detection (isbot library)
