@@ -165,19 +165,7 @@ export function GameResults({ score, onRetry, onApplyDiscount, className }: Game
           </Button>
         )}
 
-        {/* Secondary action: Retry even if earned discount */}
-        {discountPercent > 0 && discountPercent < 40 && (
-          <Button
-            onClick={onRetry}
-            variant="outline"
-            size="lg"
-            className="w-full border-ranch-lavender text-ranch-lavender hover:bg-ranch-lavender/10"
-          >
-            Try for Better Score
-          </Button>
-        )}
-
-        {/* Tertiary action: Accept current discount (don't retry) */}
+        {/* Secondary action: Accept current discount (don't retry) */}
         {canRetry && discountPercent === 0 && (
           <Button
             onClick={() => onApplyDiscount(0)}
