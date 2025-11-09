@@ -7,6 +7,7 @@ interface GameModalProps {
   isOpen: boolean;
   onClose: () => void;
   productId: string;
+  productSlug: string;
   onGameComplete: (discount: number) => void;
 }
 
@@ -20,7 +21,7 @@ const GAMES = [
   { id: 'metamorphosis', name: 'Metamorphosis Queue', emoji: '🦋', duration: 25, route: 'metamorphosis-queue' },
 ];
 
-export function GameModal({ isOpen, onClose, productId, onGameComplete }: GameModalProps) {
+export function GameModal({ isOpen, onClose, productId, productSlug, onGameComplete }: GameModalProps) {
   const navigate = useNavigate();
 
   const handleSkip = () => {
@@ -28,9 +29,9 @@ export function GameModal({ isOpen, onClose, productId, onGameComplete }: GameMo
   };
 
   const handleGameSelect = (gameRoute: string) => {
-    // Navigate to game route with product as query parameter
-    // Game will handle discount earning and return navigation
-    navigate(`/games/${gameRoute}?product=${productId}`);
+    // Navigate to game route with product slug as query parameter
+    // Game will handle discount earning and return navigation to /products/{slug}
+    navigate(`/games/${gameRoute}?product=${productSlug}`);
     onClose(); // Close modal immediately as we're navigating away
   };
 

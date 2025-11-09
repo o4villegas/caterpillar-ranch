@@ -364,6 +364,7 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
           isOpen={isGameModalOpen}
           onClose={() => setIsGameModalOpen(false)}
           productId={product.id}
+          productSlug={product.slug}
           onGameComplete={handleGameComplete}
         />
       </>
@@ -389,6 +390,7 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
         isOpen={isGameModalOpen}
         onClose={() => setIsGameModalOpen(false)}
         productId={product.id}
+        productSlug={product.slug}
         onGameComplete={handleGameComplete}
       />
     </>

@@ -380,6 +380,7 @@ export default function ProductPage() {
         isOpen={isGameModalOpen}
         onClose={() => setIsGameModalOpen(false)}
         productId={product.id}
+        productSlug={product.slug}
         onGameComplete={handleGameComplete}
       />
     </div>
