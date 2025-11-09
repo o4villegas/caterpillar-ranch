@@ -8,4 +8,5 @@ export default [
   route("games/bug-telegram", "routes/games.bug-telegram.tsx"),
   route("games/hungry-caterpillar", "routes/games.hungry-caterpillar.tsx"),
   route("games/midnight-garden", "routes/games.midnight-garden.tsx"),
+  route("games/metamorphosis-queue", "routes/games.metamorphosis-queue.tsx"),
 ] satisfies RouteConfig;
