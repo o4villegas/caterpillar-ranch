@@ -60,13 +60,22 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               />
             </picture>
           </h1>
-          <p className="text-xl text-ranch-cream opacity-80 mb-2">
-            Where Cute Meets Creepy
-          </p>
-          <p className="text-sm text-ranch-lavender">
-            Play games to unlock discounts up to 40% off. The caterpillars are watching...
-          </p>
         </motion.header>
+
+        {/* Concept Explanation */}
+        <motion.div
+          className="text-center mb-12 max-w-2xl mx-auto"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <p className="text-lg text-ranch-cream leading-relaxed">
+            Play mini-games to earn up to 40% off your order.
+          </p>
+          <p className="text-sm text-ranch-lavender mt-1">
+            Higher scores unlock bigger discounts.
+          </p>
+        </motion.div>
 
         {/* Product Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

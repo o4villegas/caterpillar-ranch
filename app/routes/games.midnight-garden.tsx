@@ -267,16 +267,13 @@ export default function MidnightGardenRoute() {
         {/* Game UI - Before start */}
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
-              <h2 className="text-xl text-ranch-cyan mb-3">How to Play</h2>
-              <ul className="text-ranch-cream text-sm space-y-2 text-left">
-                <li>✨ Click good omens (fireflies, flowers, blessed caterpillars): <strong className="text-ranch-lime">+4 points</strong></li>
-                <li>🕷️ Avoid bad signs (spiders, withered flowers, cursed caterpillars): <strong className="text-ranch-pink">-5 points</strong></li>
-                <li>⏱️ Items fade after 1.5 seconds</li>
-                <li>⚠️ Missed good omens: <strong className="text-ranch-pink">-1 point</strong></li>
-                <li>😈 At 15+ points, bad signs start disguising themselves...</li>
-                <li>🎯 Get 25+ points for 30% off!</li>
-              </ul>
+            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
+              <p className="text-lg text-ranch-cream leading-relaxed text-center">
+                Click good omens, avoid bad signs
+              </p>
+              <p className="text-sm text-ranch-lavender mt-1 text-center">
+                Watch out - things get confusing at high scores
+              </p>
             </div>
             <button
               onClick={handleStartGame}

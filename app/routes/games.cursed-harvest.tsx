@@ -246,15 +246,13 @@ export default function CursedHarvestRoute() {
         {/* Game UI - Before start */}
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
-              <h2 className="text-xl text-ranch-cyan mb-3">How to Play</h2>
-              <ul className="text-ranch-cream text-sm space-y-2 text-left">
-                <li>🃏 Tap cards to flip and reveal mutated crops</li>
-                <li>🎯 Match pairs to earn <strong className="text-ranch-lime">+8 points</strong></li>
-                <li>⚡ Match within 3 seconds for <strong className="text-ranch-cyan">+2 speed bonus</strong></li>
-                <li>⏱ You have 30 seconds</li>
-                <li>🎯 Get 35+ points for 30% off!</li>
-              </ul>
+            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
+              <p className="text-lg text-ranch-cream leading-relaxed text-center">
+                Match pairs of mutated crops
+              </p>
+              <p className="text-sm text-ranch-lavender mt-1 text-center">
+                Find all pairs before time runs out
+              </p>
             </div>
             <button
               onClick={handleStartGame}

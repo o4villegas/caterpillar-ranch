@@ -358,18 +358,13 @@ export default function MetamorphosisQueueRoute() {
         {/* Game UI - Before start */}
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
-              <h2 className="text-xl text-ranch-cyan mb-3">How to Play</h2>
-              <ul className="text-ranch-cream text-sm space-y-2 text-left">
-                <li>🥚 Watch cocoons pulse through color stages</li>
-                <li>💜 Purple → 💗 Pink → 💚 <strong className="text-ranch-lime">GREEN (CLICK NOW!)</strong> → ❤️ Red</li>
-                <li>⏱️ Green window lasts only 0.4 seconds!</li>
-                <li>🎯 Perfect timing (green): <strong className="text-ranch-lime">+10 points</strong></li>
-                <li>✅ Good timing (near green): <strong className="text-ranch-cyan">+5 points</strong></li>
-                <li>❌ Early/late click: <strong className="text-ranch-pink">-3 points</strong></li>
-                <li>💀 Missed transformation: <strong className="text-ranch-pink">-5 points</strong></li>
-                <li>🦋 Get 40+ points for 10% off!</li>
-              </ul>
+            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
+              <p className="text-lg text-ranch-cream leading-relaxed text-center">
+                Click cocoons at the green flash
+              </p>
+              <p className="text-sm text-ranch-lavender mt-1 text-center">
+                Perfect timing earns maximum points
+              </p>
             </div>
             <button
               onClick={handleStartGame}

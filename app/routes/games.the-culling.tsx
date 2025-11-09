@@ -196,14 +196,13 @@ export default function TheCullingRoute() {
         {/* Game UI - Before start */}
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
-              <h2 className="text-xl text-ranch-cyan mb-3">How to Play</h2>
-              <ul className="text-ranch-cream text-sm space-y-2 text-left">
-                <li>🐛 <strong className="text-ranch-pink">Invasive:</strong> Red eyes - Tap to cull (+5 points)</li>
-                <li>🐛 <strong className="text-ranch-lime">Good:</strong> Green eyes - Don't tap (-3 points)</li>
-                <li>⏱ You have 25 seconds</li>
-                <li>🎯 Get 45+ points for 40% off!</li>
-              </ul>
+            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
+              <p className="text-lg text-ranch-cream leading-relaxed text-center">
+                Tap invasive caterpillars with red eyes
+              </p>
+              <p className="text-sm text-ranch-lavender mt-1 text-center">
+                Avoid the good ones
+              </p>
             </div>
             <button
               onClick={() => game.startGame()}

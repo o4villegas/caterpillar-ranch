@@ -15,9 +15,7 @@ export function Header() {
             to="/"
             className="flex items-center gap-2 group"
           >
-            <h1 className="text-2xl font-bold drip-text">
-              Caterpillar Rancch
-            </h1>
+            {/* Header text removed - logo exists on homepage */}
           </Link>
 
           {/* Cart Icon */}

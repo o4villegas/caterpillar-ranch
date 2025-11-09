@@ -350,17 +350,13 @@ export default function HungryCaterpillarRoute() {
         {/* Game UI - Before start */}
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
-              <h2 className="text-xl text-ranch-cyan mb-3">How to Play</h2>
-              <ul className="text-ranch-cream text-sm space-y-2 text-left">
-                <li>🎮 Use arrow keys or swipe to move</li>
-                <li>🍃 Eat leaves to grow: <strong className="text-ranch-lime">+5 points</strong></li>
-                <li>📏 Length bonus: <strong className="text-ranch-cyan">+2 per segment</strong> at end</li>
-                <li>🏆 Perfect run (10+ segments, no crashes): <strong className="text-ranch-pink">+15 bonus</strong></li>
-                <li>⏱ You have 45 seconds</li>
-                <li>🎯 Get 40+ points for 30% off!</li>
-                <li>⚠️ Don't hit walls or yourself!</li>
-              </ul>
+            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
+              <p className="text-lg text-ranch-cream leading-relaxed text-center">
+                Eat leaves to grow longer
+              </p>
+              <p className="text-sm text-ranch-lavender mt-1 text-center">
+                Don't crash into walls or yourself
+              </p>
             </div>
             <button
               onClick={handleStartGame}

@@ -281,16 +281,13 @@ export default function BugTelegramRoute() {
         {/* Game UI - Before start */}
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
-              <h2 className="text-xl text-ranch-cyan mb-3">How to Play</h2>
-              <ul className="text-ranch-cream text-sm space-y-2 text-left">
-                <li>⌨️ Type words exactly as they appear (case doesn't matter)</li>
-                <li>✅ Correct word: <strong className="text-ranch-lime">+3 points</strong></li>
-                <li>🎯 No typos: <strong className="text-ranch-cyan">+2 accuracy bonus</strong></li>
-                <li>⚡ Type within 3 seconds: <strong className="text-ranch-cyan">+2 speed bonus</strong></li>
-                <li>⏱ You have 30 seconds</li>
-                <li>🎯 Get 35+ points for 30% off!</li>
-              </ul>
+            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
+              <p className="text-lg text-ranch-cream leading-relaxed text-center">
+                Type bug messages before they escape
+              </p>
+              <p className="text-sm text-ranch-lavender mt-1 text-center">
+                Speed and accuracy earn bonus points
+              </p>
             </div>
             <button
               onClick={handleStartGame}
