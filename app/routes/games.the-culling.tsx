@@ -1,0 +1,291 @@
+/**
+ * The Culling - Whack-A-Mole Game
+ *
+ * Horror-themed game where players "cull" invasive caterpillars
+ * - 25 second duration
+ * - 3x3 grid of holes
+ * - Hit invasive caterpillars: +5 points
+ * - Hit good caterpillars: -3 points (penalty)
+ * - Tuned for high success rate: 40% discount achievable by ~90% of players
+ */
+
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router';
+import { GameTimer } from '../lib/components/Games/GameTimer';
+import { GameScore } from '../lib/components/Games/GameScore';
+import { GameResults } from '../lib/components/Games/GameResults';
+import { useGameState } from '../lib/components/Games/hooks/useGameState';
+import { getDiscountResult } from '../lib/components/Games/utils/scoreConversion';
+import { useCart } from '../lib/contexts/CartContext';
+import type { Route } from './+types/games.the-culling';
+
+// Caterpillar types
+type CaterpillarType = 'invasive' | 'good';
+
+interface Caterpillar {
+  id: number;
+  holeIndex: number;
+  type: CaterpillarType;
+  isVisible: boolean;
+}
+
+const GAME_DURATION = 25; // seconds
+const APPEARANCE_INTERVAL = 800; // ms between spawns (tuned for easier difficulty)
+const VISIBILITY_DURATION = 1200; // ms caterpillar stays visible
+const GOOD_CATERPILLAR_CHANCE = 0.2; // 20% chance of good caterpillar
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: 'The Culling - Caterpillar Ranch' },
+    { name: 'description', content: 'Cull the invasive caterpillars!' }
+  ];
+}
+
+export default function TheCullingRoute() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const productSlug = searchParams.get('product');
+
+  const { addDiscount } = useCart();
+  const game = useGameState(GAME_DURATION);
+
+  const [caterpillars, setCaterpillars] = useState<Caterpillar[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const [bestScore, setBestScore] = useState(0);
+
+  const nextCaterpillarId = useRef(0);
+  const spawnTimerRef = useRef<number | undefined>(undefined);
+  const caterpillarTimersRef = useRef<Map<number, number>>(new Map());
+
+  // Load best score from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('game:the-culling:best-score');
+    if (saved) setBestScore(parseInt(saved, 10));
+  }, []);
+
+  // Save best score to localStorage
+  useEffect(() => {
+    if (game.score > bestScore) {
+      setBestScore(game.score);
+      localStorage.setItem('game:the-culling:best-score', game.score.toString());
+    }
+  }, [game.score, bestScore]);
+
+  // Spawn caterpillar function
+  const spawnCaterpillar = useCallback(() => {
+    // Random hole (0-8)
+    const holeIndex = Math.floor(Math.random() * 9);
+
+    // Determine type
+    const type: CaterpillarType = Math.random() < GOOD_CATERPILLAR_CHANCE ? 'good' : 'invasive';
+
+    const id = nextCaterpillarId.current++;
+    const newCaterpillar: Caterpillar = {
+      id,
+      holeIndex,
+      type,
+      isVisible: true
+    };
+
+    setCaterpillars(prev => [...prev, newCaterpillar]);
+
+    // Auto-hide after visibility duration
+    const hideTimer = window.setTimeout(() => {
+      setCaterpillars(prev => prev.filter(c => c.id !== id));
+      caterpillarTimersRef.current.delete(id);
+    }, VISIBILITY_DURATION);
+
+    caterpillarTimersRef.current.set(id, hideTimer);
+  }, []);
+
+  // Spawn caterpillars during gameplay
+  useEffect(() => {
+    if (game.status !== 'playing') {
+      // Clear all timers when not playing
+      if (spawnTimerRef.current) window.clearInterval(spawnTimerRef.current);
+      caterpillarTimersRef.current.forEach(timer => window.clearTimeout(timer));
+      caterpillarTimersRef.current.clear();
+      setCaterpillars([]);
+      return;
+    }
+
+    // Spawn caterpillars at intervals
+    spawnTimerRef.current = window.setInterval(() => {
+      spawnCaterpillar();
+    }, APPEARANCE_INTERVAL);
+
+    return () => {
+      if (spawnTimerRef.current) window.clearInterval(spawnTimerRef.current);
+    };
+  }, [game.status, spawnCaterpillar]);
+
+  // Show results when game completes
+  useEffect(() => {
+    if (game.status === 'completed') {
+      setShowResults(true);
+    }
+  }, [game.status]);
+
+  const handleCaterpillarClick = useCallback((caterpillar: Caterpillar) => {
+    if (game.status !== 'playing') return;
+
+    // Remove caterpillar immediately
+    setCaterpillars(prev => prev.filter(c => c.id !== caterpillar.id));
+
+    // Clear its hide timer
+    const timer = caterpillarTimersRef.current.get(caterpillar.id);
+    if (timer) {
+      window.clearTimeout(timer);
+      caterpillarTimersRef.current.delete(caterpillar.id);
+    }
+
+    // Apply score
+    if (caterpillar.type === 'invasive') {
+      game.addPoints(5); // Correct hit
+    } else {
+      game.subtractPoints(3); // Penalty for hitting good caterpillar
+    }
+  }, [game]);
+
+  const handleRetry = useCallback(() => {
+    setShowResults(false);
+    game.resetGame();
+    setTimeout(() => game.startGame(), 100);
+  }, [game]);
+
+  const handleApplyDiscount = useCallback((discount: number) => {
+    if (discount > 0 && productSlug) {
+      // Add discount to cart
+      addDiscount({
+        id: `game-culling-${Date.now()}`,
+        productId: productSlug,
+        discountPercent: discount,
+        gameType: 'culling',
+        earnedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+        applied: false
+      });
+    }
+
+    // Return to product page
+    if (productSlug) {
+      navigate(`/products/${productSlug}`);
+    } else {
+      navigate('/');
+    }
+  }, [productSlug, addDiscount, navigate]);
+
+  return (
+    <div className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-ranch-lime mb-2">
+            The Culling
+          </h1>
+          <p className="text-ranch-lavender text-sm">
+            Tap invasive caterpillars (red eyes) before they burrow!
+          </p>
+          {bestScore > 0 && (
+            <p className="text-ranch-cyan text-xs mt-1">
+              Best Score: {bestScore}
+            </p>
+          )}
+        </div>
+
+        {/* Game UI - Before start */}
+        {game.status === 'idle' && (
+          <div className="text-center space-y-6">
+            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
+              <h2 className="text-xl text-ranch-cyan mb-3">How to Play</h2>
+              <ul className="text-ranch-cream text-sm space-y-2 text-left">
+                <li>🐛 <strong className="text-ranch-pink">Invasive:</strong> Red eyes - Tap to cull (+5 points)</li>
+                <li>🐛 <strong className="text-ranch-lime">Good:</strong> Green eyes - Don't tap (-3 points)</li>
+                <li>⏱ You have 25 seconds</li>
+                <li>🎯 Get 45+ points for 40% off!</li>
+              </ul>
+            </div>
+            <button
+              onClick={() => game.startGame()}
+              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg font-bold text-lg hover:bg-ranch-cyan transition-colors"
+            >
+              Start The Culling
+            </button>
+          </div>
+        )}
+
+        {/* Game UI - Playing */}
+        {game.status === 'playing' && (
+          <div className="space-y-4">
+            {/* HUD */}
+            <div className="flex gap-4">
+              <GameTimer timeLeft={game.timeLeft} className="flex-1" />
+              <GameScore score={game.score} showProgress={true} className="flex-1" />
+            </div>
+
+            {/* Game Board - 3x3 Grid */}
+            <div className="grid grid-cols-3 gap-3 p-4 bg-ranch-purple/10 rounded-lg border-2 border-ranch-purple">
+              {Array.from({ length: 9 }).map((_, index) => {
+                const caterpillar = caterpillars.find(
+                  c => c.holeIndex === index && c.isVisible
+                );
+
+                return (
+                  <div
+                    key={index}
+                    className="aspect-square bg-ranch-dark border-2 border-ranch-purple/50 rounded-lg relative overflow-hidden"
+                  >
+                    {/* Hole */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-16 h-8 bg-ranch-purple/30 rounded-full" />
+                    </div>
+
+                    {/* Caterpillar */}
+                    {caterpillar && (
+                      <button
+                        onClick={() => handleCaterpillarClick(caterpillar)}
+                        className="absolute inset-0 flex items-center justify-center caterpillar-pop-up"
+                      >
+                        <div className="text-5xl relative">
+                          🐛
+                          {/* Eyes overlay */}
+                          <div className={`absolute inset-0 flex items-center justify-center text-xl ${
+                            caterpillar.type === 'invasive' ? 'text-red-500' : 'text-green-500'
+                          }`}>
+                            👀
+                          </div>
+                        </div>
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Game Results */}
+        {showResults && (
+          <GameResults
+            score={game.score}
+            onRetry={handleRetry}
+            onApplyDiscount={handleApplyDiscount}
+          />
+        )}
+      </div>
+
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes pop-up {
+          0% { transform: translateY(100%); opacity: 0; }
+          20% { transform: translateY(-10%); opacity: 1; }
+          100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .caterpillar-pop-up {
+          animation: pop-up 0.3s ease-out;
+        }
+      `}</style>
+    </div>
+  );
+}
