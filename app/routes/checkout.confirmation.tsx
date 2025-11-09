@@ -133,7 +133,7 @@ export default function CheckoutConfirmationPage() {
               {order.shipping.email}
             </p>
             <p className="text-sm text-ranch-lavender mt-4">
-              {HORROR_COPY.order.trackingInfo}
+              {HORROR_COPY.order.tracking}
             </p>
           </motion.div>
 
