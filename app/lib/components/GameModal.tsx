@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 
@@ -9,27 +10,28 @@ interface GameModalProps {
   onGameComplete: (discount: number) => void;
 }
 
-// Game list for Phase 3 implementation
+// Game list with route mappings
 const GAMES = [
-  { id: 'culling', name: 'The Culling', emoji: '🐛', duration: 25 },
-  { id: 'harvest', name: 'Cursed Harvest', emoji: '🌽', duration: 30 },
-  { id: 'telegram', name: 'Bug Telegram', emoji: '📟', duration: 30 },
-  { id: 'snake', name: 'Hungry Caterpillar', emoji: '🐛', duration: 45 },
-  { id: 'garden', name: 'Midnight Garden', emoji: '🌙', duration: 25 },
-  { id: 'metamorphosis', name: 'Metamorphosis', emoji: '🦋', duration: 25 },
+  { id: 'culling', name: 'The Culling', emoji: '🐛', duration: 25, route: 'the-culling' },
+  { id: 'harvest', name: 'Cursed Harvest', emoji: '🌽', duration: 30, route: 'cursed-harvest' },
+  { id: 'telegram', name: 'Bug Telegram', emoji: '📟', duration: 30, route: 'bug-telegram' },
+  { id: 'snake', name: 'Hungry Caterpillar', emoji: '🐛', duration: 45, route: 'hungry-caterpillar' },
+  { id: 'garden', name: 'Midnight Garden', emoji: '🌙', duration: 25, route: 'midnight-garden' },
+  { id: 'metamorphosis', name: 'Metamorphosis Queue', emoji: '🦋', duration: 25, route: 'metamorphosis-queue' },
 ];
 
 export function GameModal({ isOpen, onClose, productId, onGameComplete }: GameModalProps) {
+  const navigate = useNavigate();
+
   const handleSkip = () => {
     onClose();
   };
 
-  const handleGameSelect = (gameId: string) => {
-    // TODO: Phase 3 - Launch actual game
-    // For now, simulate game completion with random discount
-    const discount = Math.floor(Math.random() * 21) + 20; // 20-40%
-    onGameComplete(discount);
-    onClose();
+  const handleGameSelect = (gameRoute: string) => {
+    // Navigate to game route with product as query parameter
+    // Game will handle discount earning and return navigation
+    navigate(`/games/${gameRoute}?product=${productId}`);
+    onClose(); // Close modal immediately as we're navigating away
   };
 
   return (
@@ -49,7 +51,7 @@ export function GameModal({ isOpen, onClose, productId, onGameComplete }: GameMo
             {GAMES.map((game, index) => (
               <motion.button
                 key={game.id}
-                onClick={() => handleGameSelect(game.id)}
+                onClick={() => handleGameSelect(game.route)}
                 whileHover={{ scale: 1.05, rotate: index % 2 === 0 ? -2 : 2 }}
                 whileTap={{ scale: 0.95 }}
                 className="p-6 bg-ranch-purple/30 rounded-lg border-2 border-ranch-purple hover:border-ranch-cyan transition-all"
