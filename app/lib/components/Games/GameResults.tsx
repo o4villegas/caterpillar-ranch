@@ -144,38 +144,15 @@ export function GameResults({ score, onRetry, onApplyDiscount, className }: Game
 
       {/* Action Buttons */}
       <motion.div variants={itemVariants} className="flex flex-col gap-3 w-full max-w-sm mt-4">
-        {/* Primary action: Apply discount or retry */}
-        {discountPercent > 0 ? (
-          <Button
-            onClick={() => onApplyDiscount(discountPercent)}
-            variant="horror"
-            size="lg"
-            className="w-full text-lg"
-          >
-            Claim Discount & Return
-          </Button>
-        ) : (
-          <Button
-            onClick={onRetry}
-            variant="horror"
-            size="lg"
-            className="w-full text-lg"
-          >
-            Try Again
-          </Button>
-        )}
-
-        {/* Secondary action: Accept current discount (don't retry) */}
-        {canRetry && discountPercent === 0 && (
-          <Button
-            onClick={() => onApplyDiscount(0)}
-            variant="ghost"
-            size="sm"
-            className="w-full text-ranch-lavender hover:text-ranch-cream"
-          >
-            Skip Game
-          </Button>
-        )}
+        {/* Primary action: Apply discount (or proceed without discount if failed) */}
+        <Button
+          onClick={() => onApplyDiscount(discountPercent)}
+          variant="horror"
+          size="lg"
+          className="w-full text-lg"
+        >
+          {discountPercent > 0 ? 'Claim Discount & Return' : 'Return to Product'}
+        </Button>
       </motion.div>
 
       {/* Score breakdown hint (for transparency) */}
