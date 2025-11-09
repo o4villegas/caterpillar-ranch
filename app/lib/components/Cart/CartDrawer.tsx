@@ -1,4 +1,5 @@
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription } from '../ui/drawer';
+import { useNavigate } from 'react-router';
 import { useCart } from '../../contexts/CartContext';
 import { CartItem } from './CartItem';
 import { CartSummary } from './CartSummary';
@@ -11,6 +12,7 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
+  const navigate = useNavigate();
   const { cart, totals } = useCart();
   const hasItems = cart.items.length > 0;
 
@@ -50,8 +52,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   className="w-full mt-4 bg-ranch-cyan hover:bg-ranch-lime text-ranch-dark font-bold text-lg"
                   size="lg"
                   onClick={() => {
-                    // TODO: Navigate to checkout in Phase 6
-                    console.log('Checkout clicked - Phase 6 implementation');
+                    onClose(); // Close drawer
+                    navigate('/checkout'); // Navigate to checkout
                   }}
                 >
                   Complete the Harvest
