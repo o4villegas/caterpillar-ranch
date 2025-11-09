@@ -30,9 +30,9 @@ interface Caterpillar {
 }
 
 const GAME_DURATION = 25; // seconds
-const APPEARANCE_INTERVAL = 800; // ms between spawns (tuned for easier difficulty)
-const VISIBILITY_DURATION = 1200; // ms caterpillar stays visible
-const GOOD_CATERPILLAR_CHANCE = 0.2; // 20% chance of good caterpillar
+const APPEARANCE_INTERVAL = 700; // ms between spawns (12% faster)
+const VISIBILITY_DURATION = 1000; // ms caterpillar stays visible (17% faster)
+const GOOD_CATERPILLAR_CHANCE = 0.25; // 25% chance of good caterpillar (more tricky)
 
 export function meta({}: Route.MetaArgs) {
   return [

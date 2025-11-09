@@ -37,8 +37,8 @@ interface Card {
 }
 
 const GAME_DURATION = 30; // seconds
-const MISMATCH_FLIP_DELAY = 800; // ms
-const SPEED_BONUS_WINDOW = 3000; // ms - 3 seconds for speed bonus
+const MISMATCH_FLIP_DELAY = 600; // ms (25% faster - harder to remember)
+const SPEED_BONUS_WINDOW = 2500; // ms - 2.5 seconds for speed bonus (17% harder)
 
 export function meta({}: Route.MetaArgs) {
   return [

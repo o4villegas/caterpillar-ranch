@@ -20,7 +20,7 @@ import type { Route } from './+types/games.hungry-caterpillar';
 const GRID_SIZE = 15; // 15x15 grid
 const CELL_SIZE = 20; // pixels
 const GAME_DURATION = 45; // seconds
-const MOVE_INTERVAL = 150; // ms between moves (faster = harder)
+const MOVE_INTERVAL = 120; // ms between moves (20% faster - harder)
 const INITIAL_LENGTH = 3;
 
 type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';

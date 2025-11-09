@@ -37,8 +37,8 @@ const NUM_COCOONS = 5;
 const DORMANT_DURATION = 2000; // Rest between cycles
 const PURPLE_DURATION = 2000; // Warning stage
 const PINK_DURATION = 1500; // Approaching transformation
-const GREEN_DURATION = 400; // Perfect timing window (0.4s)
-const GREEN_BUFFER = 200; // +/- 0.2s around green for "good" timing
+const GREEN_DURATION = 300; // Perfect timing window (0.3s - 25% harder)
+const GREEN_BUFFER = 150; // +/- 0.15s around green for "good" timing (25% harder)
 const RED_DURATION = 800; // Too late window
 const RESULT_DISPLAY_DURATION = 1500; // How long to show result
 

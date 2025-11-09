@@ -47,8 +47,8 @@ interface Item {
 }
 
 const GAME_DURATION = 25; // seconds
-const ITEM_LIFETIME = 1500; // ms - items visible for 1.5 seconds
-const SPAWN_INTERVAL = 600; // ms - spawn new item every 0.6 seconds
+const ITEM_LIFETIME = 1200; // ms - items visible for 1.2 seconds (20% faster)
+const SPAWN_INTERVAL = 500; // ms - spawn new item every 0.5 seconds (17% faster)
 const MIN_ITEMS = 2; // minimum items on screen
 const MAX_ITEMS = 4; // maximum items on screen
 const CONFUSION_THRESHOLD = 15; // points - when bad signs start disguising
@@ -329,8 +329,8 @@ export default function MidnightGardenRoute() {
                       left: `${item.x}%`,
                       top: `${item.y}%`,
                       transform: 'translate(-50%, -50%)',
-                      minWidth: '44px', // Touch-friendly size
-                      minHeight: '44px',
+                      minWidth: '48px', // WCAG AAA touch target size
+                      minHeight: '48px',
                     }}
                     aria-label={item.name}
                   >

@@ -36,9 +36,9 @@ interface Word {
 }
 
 const GAME_DURATION = 30; // seconds
-const WORD_SPAWN_INTERVAL = 2000; // ms between word spawns (tuned for 15 words in 30s)
-const WORD_SCROLL_DURATION = 6000; // ms for word to scroll from top to bottom
-const SPEED_BONUS_WINDOW = 3000; // ms - 3 seconds for speed bonus
+const WORD_SPAWN_INTERVAL = 1800; // ms between word spawns (10% faster - more words)
+const WORD_SCROLL_DURATION = 5000; // ms for word to scroll from top to bottom (17% faster)
+const SPEED_BONUS_WINDOW = 2500; // ms - 2.5 seconds for speed bonus (17% harder)
 const ESCAPE_THRESHOLD = 95; // percentage - word escapes at this position
 
 export function meta({}: Route.MetaArgs) {
