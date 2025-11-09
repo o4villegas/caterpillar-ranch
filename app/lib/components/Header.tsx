@@ -15,7 +15,7 @@ export function Header() {
             to="/"
             className="flex items-center gap-2 group"
           >
-            <h1 className="text-2xl font-bold text-ranch-pink drip-text group-hover:text-ranch-cyan transition-colors">
+            <h1 className="text-2xl font-bold drip-text">
               Caterpillar Rancch
             </h1>
           </Link>

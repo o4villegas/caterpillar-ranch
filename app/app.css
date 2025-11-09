@@ -79,19 +79,12 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--color-neutral-cream);
 }
 
-/* Drippy header style for brand text - Fredoka for playful-modern aesthetic */
+/* Subtle header style for brand text - uses body font for consistency */
 .drip-text {
   display: block;
-  font-family: "Fredoka", var(--font-sans);
-  color: var(--color-accent-pink);
+  font-family: var(--font-sans);
+  color: #2a2a2a;
   font-weight: 700;
-  -webkit-text-stroke: 3px #1a1a1a;
-  paint-order: stroke fill;
-  filter: url(#drip-filter) drop-shadow(0 3px 6px rgba(255, 20, 147, 0.3));
-  text-shadow:
-    0 2px 4px rgba(255, 255, 255, 0.2),  /* Subtle top highlight */
-    0 -1px 2px rgba(255, 255, 255, 0.25), /* Upper edge highlight */
-    0 4px 8px rgba(255, 20, 147, 0.25);  /* Soft pink glow */
   letter-spacing: 0.08em;
   line-height: 1.1;
 }
