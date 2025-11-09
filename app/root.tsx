@@ -29,7 +29,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Fredoka:wght@300..700&display=swap",
   },
 ];
 
@@ -47,12 +47,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <svg style={{ position: 'absolute', width: 0, height: 0 }} aria-hidden="true">
           <defs>
             <filter id="drip-filter" x="-50%" y="-50%" width="200%" height="200%">
-              {/* Dilate the text to create thickness */}
+              {/* Dilate the text to create thickness (reduced for subtlety) */}
               <feMorphology operator="dilate" radius="1.5" in="SourceAlpha" result="dilated"/>
-              {/* Blur for organic drip effect */}
-              <feGaussianBlur stdDeviation="2" in="dilated" result="blurred"/>
-              {/* Offset downward to create drip */}
-              <feOffset dy="6" in="blurred" result="offsetBlur"/>
+              {/* Blur for organic drip effect (reduced from 2 to 1) */}
+              <feGaussianBlur stdDeviation="1" in="dilated" result="blurred"/>
+              {/* Offset downward to create drip (reduced from 6 to 3) */}
+              <feOffset dy="3" in="blurred" result="offsetBlur"/>
               {/* Composite original text over drip */}
               <feComposite in="SourceGraphic" in2="offsetBlur" operator="over"/>
             </filter>
