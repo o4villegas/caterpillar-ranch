@@ -62,7 +62,7 @@ export function meta({ data }: Route.MetaArgs) {
 
 export default function ProductPage() {
   const { product } = useLoaderData<typeof loader>();
-  const { addToCart } = useCart();
+  const { addToCart, cart } = useCart();
   const navigate = useNavigate();
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
@@ -72,6 +72,19 @@ export default function ProductPage() {
   const [showParticleBurst, setShowParticleBurst] = useState(false);
   const [isGameModalOpen, setIsGameModalOpen] = useState(false);
   const [earnedDiscount, setEarnedDiscount] = useState(0);
+
+  // Load discount from CartContext (if user completed a game)
+  useEffect(() => {
+    const productDiscounts = cart.discounts.filter(
+      (d) => d.productId === product.id || d.productId === product.slug
+    );
+
+    if (productDiscounts.length > 0) {
+      // Apply highest discount
+      const maxDiscount = Math.max(...productDiscounts.map((d) => d.discountPercent));
+      setEarnedDiscount(maxDiscount);
+    }
+  }, [cart.discounts, product.id, product.slug]);
 
   // Set first in-stock variant as default
   useEffect(() => {
