@@ -18,6 +18,7 @@ import { EyeInCorner } from "./lib/components/RareEvents/EyeInCorner";
 import { BackgroundBlur } from "./lib/components/RareEvents/BackgroundBlur";
 import { Toaster } from "sonner";
 import { CartProvider } from "./lib/contexts/CartContext";
+import { Header } from "./lib/components/Header";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -97,6 +98,7 @@ export default function App() {
 
       {/* Main app content */}
       <div style={{ position: 'relative', zIndex: 10 }}>
+        <Header />
         <Outlet />
       </div>
     </CartProvider>

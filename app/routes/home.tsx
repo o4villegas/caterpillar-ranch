@@ -1,10 +1,7 @@
-import { useState } from "react";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import type { Route } from "./+types/home";
 import { mockProducts } from "../lib/mocks/products";
-import { CartIcon } from "../lib/components/CartIcon";
-import { CartDrawer } from "../lib/components/CartDrawer";
 import { Badge } from "../lib/components/ui/badge";
 
 export function meta({}: Route.MetaArgs) {
@@ -33,20 +30,9 @@ export function loader({ context }: Route.LoaderArgs) {
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
-  const [isCartOpen, setIsCartOpen] = useState(false);
 
   return (
     <main className="min-h-screen p-8">
-      {/* Cart Icon - Fixed Top Right */}
-      <motion.div
-        className="fixed top-6 right-6 z-50"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.3, type: 'spring', stiffness: 300, damping: 20 }}
-      >
-        <CartIcon onClick={() => setIsCartOpen(true)} />
-      </motion.div>
-
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.header
@@ -180,9 +166,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </div>
         )}
       </div>
-
-      {/* Cart Drawer */}
-      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </main>
   );
 }
