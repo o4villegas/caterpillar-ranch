@@ -13,9 +13,14 @@ export function Header() {
           {/* Logo/Brand */}
           <Link
             to="/"
-            className="flex items-center gap-2 group"
+            className="flex items-center gap-2 group transition-all hover:scale-105"
           >
-            {/* Header text removed - logo exists on homepage */}
+            <span className="text-2xl" role="img" aria-label="Caterpillar">
+              🐛
+            </span>
+            <span className="text-xl font-bold text-ranch-pink group-hover:text-ranch-lime transition-colors tracking-wider">
+              RANCCH
+            </span>
           </Link>
 
           {/* Cart Icon */}
