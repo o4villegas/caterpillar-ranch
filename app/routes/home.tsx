@@ -32,7 +32,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen px-4 md:px-8 py-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.header
