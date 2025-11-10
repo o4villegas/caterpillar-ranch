@@ -15,7 +15,7 @@ export function Header() {
             to="/"
             className="group transition-all hover:scale-105"
           >
-            <span className="text-2xl font-bold" style={{ fontFamily: 'Pacifico, cursive', color: '#000000' }}>
+            <span className="text-2xl font-bold text-ranch-pink" style={{ fontFamily: 'Pacifico, cursive' }}>
               Caterpillar Ranch
             </span>
           </Link>

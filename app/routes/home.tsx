@@ -77,22 +77,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </p>
         </motion.div>
 
-        {/* Leaderboard Link */}
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <Link
-            to="/leaderboard"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-ranch-purple/30 border-2 border-ranch-purple text-ranch-cream font-bold rounded-lg hover:bg-ranch-purple/50 hover:border-ranch-lime hover:text-ranch-lime transition-all hover:scale-105"
-          >
-            <span className="text-xl">🏆</span>
-            <span>View Leaderboards</span>
-          </Link>
-        </motion.div>
-
         {/* Product Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {loaderData.products.map((product, index) => (
@@ -173,6 +157,22 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </motion.button>
           ))}
         </div>
+
+        {/* Leaderboard Link */}
+        <motion.div
+          className="text-center mt-12"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <Link
+            to="/leaderboard"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-ranch-purple/30 border-2 border-ranch-purple text-ranch-cream font-bold rounded-lg hover:bg-ranch-purple/50 hover:border-ranch-lime hover:text-ranch-lime transition-all hover:scale-105"
+          >
+            <span className="text-xl">🏆</span>
+            <span>View Leaderboards</span>
+          </Link>
+        </motion.div>
 
         {/* Debug Info (Dev Only) */}
         {import.meta.env.DEV && (
