@@ -16,14 +16,13 @@ import { Button } from '../ui/button';
 
 interface GameResultsProps {
   score: number;
-  onRetry: () => void;
   onApplyDiscount: (discount: number) => void;
   className?: string;
 }
 
-export function GameResults({ score, onRetry, onApplyDiscount, className }: GameResultsProps) {
+export function GameResults({ score, onApplyDiscount, className }: GameResultsProps) {
   const result = getDiscountResult(score);
-  const { discountPercent, message, canRetry } = result;
+  const { discountPercent, message } = result;
 
   // Animation variants for celebration/disappointment
   const containerVariants = {

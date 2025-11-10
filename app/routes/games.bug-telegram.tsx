@@ -53,7 +53,7 @@ export default function BugTelegramRoute() {
   const [searchParams] = useSearchParams();
   const productSlug = searchParams.get('product');
 
-  const { addDiscount } = useCart();
+  const { addDiscount, removeDiscount, cart } = useCart();
   const game = useGameState(GAME_DURATION);
 
   const [words, setWords] = useState<Word[]>([]);
@@ -230,18 +230,18 @@ export default function BugTelegramRoute() {
     game.startGame();
   }, [game]);
 
-  const handleRetry = useCallback(() => {
-    setShowResults(false);
-    setWords([]);
-    setCurrentInput('');
-    setTypoMade(false);
-    wordQueueIndex.current = 0;
-    game.resetGame();
-    setTimeout(() => game.startGame(), 100);
-  }, [game]);
-
   const handleApplyDiscount = useCallback((discount: number) => {
     if (discount > 0 && productSlug) {
+      // Remove existing discount for this product (replace, not accumulate)
+      const existingDiscount = cart.discounts.find(
+        (d) => d.productId === productSlug
+      );
+
+      if (existingDiscount) {
+        removeDiscount(existingDiscount.id);
+      }
+
+      // Add new discount
       addDiscount({
         id: `game-telegram-${Date.now()}`,
         productId: productSlug,
@@ -258,7 +258,7 @@ export default function BugTelegramRoute() {
     } else {
       navigate('/');
     }
-  }, [productSlug, addDiscount, navigate]);
+  }, [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]);
 
   return (
     <div className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4">
@@ -383,7 +383,6 @@ export default function BugTelegramRoute() {
         {showResults && (
           <GameResults
             score={game.score}
-            onRetry={handleRetry}
             onApplyDiscount={handleApplyDiscount}
           />
         )}

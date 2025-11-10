@@ -51,7 +51,7 @@ export default function HungryCaterpillarRoute() {
   const [searchParams] = useSearchParams();
   const productSlug = searchParams.get('product');
 
-  const { addDiscount } = useCart();
+  const { addDiscount, removeDiscount, cart } = useCart();
   const game = useGameState(GAME_DURATION);
 
   const [gameState, setGameState] = useState<GameState>({
@@ -290,27 +290,18 @@ export default function HungryCaterpillarRoute() {
     game.startGame();
   }, [game]);
 
-  const handleRetry = useCallback(() => {
-    setShowResults(false);
-    setGameState({
-      snake: [
-        { x: 7, y: 7 },
-        { x: 6, y: 7 },
-        { x: 5, y: 7 },
-      ],
-      direction: 'RIGHT',
-      food: { x: 10, y: 10 },
-      gameOver: false,
-      foodEaten: 0,
-      showTransformation: false,
-    });
-    setNextDirection('RIGHT');
-    game.resetGame();
-    setTimeout(() => game.startGame(), 100);
-  }, [game]);
-
   const handleApplyDiscount = useCallback((discount: number) => {
     if (discount > 0 && productSlug) {
+      // Remove existing discount for this product (replace, not accumulate)
+      const existingDiscount = cart.discounts.find(
+        (d) => d.productId === productSlug
+      );
+
+      if (existingDiscount) {
+        removeDiscount(existingDiscount.id);
+      }
+
+      // Add new discount
       addDiscount({
         id: `game-snake-${Date.now()}`,
         productId: productSlug,
@@ -327,7 +318,7 @@ export default function HungryCaterpillarRoute() {
     } else {
       navigate('/');
     }
-  }, [productSlug, addDiscount, navigate]);
+  }, [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]);
 
   return (
     <div className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4">
@@ -494,7 +485,6 @@ export default function HungryCaterpillarRoute() {
         {showResults && (
           <GameResults
             score={game.score}
-            onRetry={handleRetry}
             onApplyDiscount={handleApplyDiscount}
           />
         )}

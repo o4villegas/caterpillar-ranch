@@ -19,6 +19,7 @@ import { HORROR_COPY, getRandomLoadingMessage } from '../constants/horror-copy';
 import { ParticleBurst } from './ParticleBurst';
 import { GameModal } from './GameModal';
 import { ProductView } from './ProductView';
+import { useGamePlaySession } from '../hooks/useGamePlaySession';
 
 interface ProductModalProps {
   product: Product;
@@ -36,6 +37,8 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
   const [showParticleBurst, setShowParticleBurst] = useState(false);
   const [isGameModalOpen, setIsGameModalOpen] = useState(false);
   const [earnedDiscount, setEarnedDiscount] = useState(0);
+
+  const { wasPlayedInSession, markAsPlayed } = useGamePlaySession();
 
   // Detect mobile viewport
   useEffect(() => {
@@ -98,7 +101,13 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
     setEarnedDiscount(discount);
   };
 
+  const handlePlayGame = () => {
+    markAsPlayed(product.id);
+    setIsGameModalOpen(true);
+  };
+
   const inStockVariants = product.variants.filter(v => v.inStock);
+  const canPlayGame = !wasPlayedInSession(product.id);
 
   // Desktop: Use Dialog
   if (!isMobile) {
@@ -117,10 +126,11 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
               quantity={quantity}
               setQuantity={setQuantity}
               earnedDiscount={earnedDiscount}
+              canPlayGame={canPlayGame}
               isAdding={isAdding}
               loadingMessage={loadingMessage}
               inStockVariants={inStockVariants}
-              onPlayGame={() => setIsGameModalOpen(true)}
+              onPlayGame={handlePlayGame}
               onAddToCart={handleAddToCart}
             />
           </DialogContent>
@@ -154,10 +164,11 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
               quantity={quantity}
               setQuantity={setQuantity}
               earnedDiscount={earnedDiscount}
+              canPlayGame={canPlayGame}
               isAdding={isAdding}
               loadingMessage={loadingMessage}
               inStockVariants={inStockVariants}
-              onPlayGame={() => setIsGameModalOpen(true)}
+              onPlayGame={handlePlayGame}
               onAddToCart={handleAddToCart}
             />
           </div>

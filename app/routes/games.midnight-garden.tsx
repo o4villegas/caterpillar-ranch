@@ -65,7 +65,7 @@ export default function MidnightGardenRoute() {
   const [searchParams] = useSearchParams();
   const productSlug = searchParams.get('product');
 
-  const { addDiscount } = useCart();
+  const { addDiscount, removeDiscount, cart } = useCart();
   const game = useGameState(GAME_DURATION);
 
   const [items, setItems] = useState<Item[]>([]);
@@ -216,15 +216,18 @@ export default function MidnightGardenRoute() {
     game.startGame();
   }, [game]);
 
-  const handleRetry = useCallback(() => {
-    setShowResults(false);
-    setItems([]);
-    game.resetGame();
-    setTimeout(() => game.startGame(), 100);
-  }, [game]);
-
   const handleApplyDiscount = useCallback((discount: number) => {
     if (discount > 0 && productSlug) {
+      // Remove existing discount for this product (replace, not accumulate)
+      const existingDiscount = cart.discounts.find(
+        (d) => d.productId === productSlug
+      );
+
+      if (existingDiscount) {
+        removeDiscount(existingDiscount.id);
+      }
+
+      // Add new discount
       addDiscount({
         id: `game-garden-${Date.now()}`,
         productId: productSlug,
@@ -241,7 +244,7 @@ export default function MidnightGardenRoute() {
     } else {
       navigate('/');
     }
-  }, [productSlug, addDiscount, navigate]);
+  }, [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]);
 
   // Determine if confusion mode is active (bad signs disguise as good)
   const confusionActive = game.score >= CONFUSION_THRESHOLD;
@@ -381,7 +384,6 @@ export default function MidnightGardenRoute() {
         {showResults && (
           <GameResults
             score={game.score}
-            onRetry={handleRetry}
             onApplyDiscount={handleApplyDiscount}
           />
         )}

@@ -6,6 +6,7 @@ import type { Route } from './+types/product';
 import type { ProductVariant } from '~/lib/types/product';
 import { getProductBySlug } from '~/lib/mocks/products';
 import { useCart } from '~/lib/contexts/CartContext';
+import { useGamePlaySession } from '~/lib/hooks/useGamePlaySession';
 import { HORROR_COPY, getRandomLoadingMessage } from '~/lib/constants/horror-copy';
 import { ParticleBurst } from '~/lib/components/ParticleBurst';
 import { GameModal } from '~/lib/components/GameModal';
@@ -62,6 +63,7 @@ export function meta({ data }: Route.MetaArgs) {
 export default function ProductPage() {
   const { product } = useLoaderData<typeof loader>();
   const { addToCart, cart } = useCart();
+  const { wasPlayedInSession, markAsPlayed } = useGamePlaySession();
   const navigate = useNavigate();
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
@@ -74,14 +76,22 @@ export default function ProductPage() {
 
   // Load discount from CartContext (if user completed a game)
   useEffect(() => {
+    // Filter for this product and exclude expired discounts
     const productDiscounts = cart.discounts.filter(
-      (d) => d.productId === product.id || d.productId === product.slug
+      (d) =>
+        (d.productId === product.id || d.productId === product.slug) &&
+        new Date(d.expiresAt) > new Date()
     );
 
     if (productDiscounts.length > 0) {
-      // Apply highest discount
-      const maxDiscount = Math.max(...productDiscounts.map((d) => d.discountPercent));
-      setEarnedDiscount(maxDiscount);
+      // Get latest discount (most recently earned)
+      const latestDiscount = productDiscounts.reduce((latest, current) => {
+        return new Date(current.earnedAt) > new Date(latest.earnedAt) ? current : latest;
+      });
+      setEarnedDiscount(latestDiscount.discountPercent);
+    } else {
+      // Reset if no valid discounts
+      setEarnedDiscount(0);
     }
   }, [cart.discounts, product.id, product.slug]);
 
@@ -127,7 +137,16 @@ export default function ProductPage() {
     setEarnedDiscount(discount);
   };
 
+  const handlePlayGame = () => {
+    // Mark product as played in current session (prevents replay in same session)
+    markAsPlayed(product.id);
+    setIsGameModalOpen(true);
+  };
+
   const inStockVariants = product.variants.filter(v => v.inStock);
+
+  // Determine if Play Game button should show (not played in current session)
+  const canPlayGame = !wasPlayedInSession(product.id);
 
   return (
     <div className="min-h-screen bg-ranch-dark py-8 px-4 md:px-8">
@@ -152,10 +171,11 @@ export default function ProductPage() {
           quantity={quantity}
           setQuantity={setQuantity}
           earnedDiscount={earnedDiscount}
+          canPlayGame={canPlayGame}
           isAdding={isAdding}
           loadingMessage={loadingMessage}
           inStockVariants={inStockVariants}
-          onPlayGame={() => setIsGameModalOpen(true)}
+          onPlayGame={handlePlayGame}
           onAddToCart={handleAddToCart}
         />
       </div>

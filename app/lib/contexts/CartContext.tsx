@@ -46,20 +46,23 @@ function cartReducer(state: Cart, action: CartAction): Cart {
         return state;
       }
 
-      // Check if item already exists in cart
+      // Check if item already exists in cart (must match product, variant, AND discount)
+      // Different discounts create separate cart lines per user requirement
       const existingItemIndex = state.items.findIndex(
-        (item) => item.product.id === product.id && item.variantId === variantId
+        (item) =>
+          item.product.id === product.id &&
+          item.variantId === variantId &&
+          item.earnedDiscount === earnedDiscount
       );
 
       if (existingItemIndex >= 0) {
-        // Update quantity of existing item
+        // Update quantity of existing item (discount already matches from findIndex)
         const updatedItems = [...state.items];
         const existingItem = updatedItems[existingItemIndex];
         updatedItems[existingItemIndex] = {
           ...existingItem,
           quantity: Math.min(99, existingItem.quantity + quantity),
-          // Keep the higher discount if new one is earned
-          earnedDiscount: Math.max(existingItem.earnedDiscount, earnedDiscount),
+          // earnedDiscount stays the same (guaranteed equal since we matched on it)
         };
 
         return {

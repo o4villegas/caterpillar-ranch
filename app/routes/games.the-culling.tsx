@@ -46,7 +46,7 @@ export default function TheCullingRoute() {
   const [searchParams] = useSearchParams();
   const productSlug = searchParams.get('product');
 
-  const { addDiscount } = useCart();
+  const { addDiscount, removeDiscount, cart } = useCart();
   const game = useGameState(GAME_DURATION);
 
   const [caterpillars, setCaterpillars] = useState<Caterpillar[]>([]);
@@ -147,15 +147,18 @@ export default function TheCullingRoute() {
     }
   }, [game]);
 
-  const handleRetry = useCallback(() => {
-    setShowResults(false);
-    game.resetGame();
-    setTimeout(() => game.startGame(), 100);
-  }, [game]);
-
   const handleApplyDiscount = useCallback((discount: number) => {
     if (discount > 0 && productSlug) {
-      // Add discount to cart
+      // Remove existing discount for this product (replace, not accumulate)
+      const existingDiscount = cart.discounts.find(
+        (d) => d.productId === productSlug
+      );
+
+      if (existingDiscount) {
+        removeDiscount(existingDiscount.id);
+      }
+
+      // Add new discount
       addDiscount({
         id: `game-culling-${Date.now()}`,
         productId: productSlug,
@@ -173,7 +176,7 @@ export default function TheCullingRoute() {
     } else {
       navigate('/');
     }
-  }, [productSlug, addDiscount, navigate]);
+  }, [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]);
 
   return (
     <div className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4">
@@ -267,7 +270,6 @@ export default function TheCullingRoute() {
         {showResults && (
           <GameResults
             score={game.score}
-            onRetry={handleRetry}
             onApplyDiscount={handleApplyDiscount}
           />
         )}

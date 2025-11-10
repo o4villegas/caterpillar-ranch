@@ -60,7 +60,7 @@ export default function MetamorphosisQueueRoute() {
   const [searchParams] = useSearchParams();
   const productSlug = searchParams.get('product');
 
-  const { addDiscount } = useCart();
+  const { addDiscount, removeDiscount, cart } = useCart();
   const game = useGameState(GAME_DURATION);
 
   const [cocoons, setCocoons] = useState<Cocoon[]>([]);
@@ -274,15 +274,18 @@ export default function MetamorphosisQueueRoute() {
     game.startGame();
   }, [game]);
 
-  const handleRetry = useCallback(() => {
-    setShowResults(false);
-    setCocoons([]);
-    game.resetGame();
-    setTimeout(() => game.startGame(), 100);
-  }, [game]);
-
   const handleApplyDiscount = useCallback((discount: number) => {
     if (discount > 0 && productSlug) {
+      // Remove existing discount for this product (replace, not accumulate)
+      const existingDiscount = cart.discounts.find(
+        (d) => d.productId === productSlug
+      );
+
+      if (existingDiscount) {
+        removeDiscount(existingDiscount.id);
+      }
+
+      // Add new discount
       addDiscount({
         id: `game-metamorphosis-${Date.now()}`,
         productId: productSlug,
@@ -299,7 +302,7 @@ export default function MetamorphosisQueueRoute() {
     } else {
       navigate('/');
     }
-  }, [productSlug, addDiscount, navigate]);
+  }, [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]);
 
   // Helper to get cocoon background color
   const getCocoonColor = (state: CocoonState): string => {
@@ -464,7 +467,6 @@ export default function MetamorphosisQueueRoute() {
         {showResults && (
           <GameResults
             score={game.score}
-            onRetry={handleRetry}
             onApplyDiscount={handleApplyDiscount}
           />
         )}

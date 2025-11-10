@@ -22,6 +22,7 @@ interface ProductViewProps {
   quantity: number;
   setQuantity: (quantity: number) => void;
   earnedDiscount: number;
+  canPlayGame: boolean;
   isAdding: boolean;
   loadingMessage: string;
   inStockVariants: ProductVariant[];
@@ -36,6 +37,7 @@ export function ProductView({
   quantity,
   setQuantity,
   earnedDiscount,
+  canPlayGame,
   isAdding,
   loadingMessage,
   inStockVariants,
@@ -221,8 +223,8 @@ export function ProductView({
           transition={{ delay: 0.4, duration: 0.4 }}
           className="space-y-3"
         >
-          {/* Play Game button (if no discount earned yet) */}
-          {earnedDiscount === 0 && (
+          {/* Play Game button (if not played in current session) */}
+          {canPlayGame && (
             <Button
               onClick={onPlayGame}
               variant="outline"

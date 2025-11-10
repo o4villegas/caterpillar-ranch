@@ -52,7 +52,7 @@ export default function CursedHarvestRoute() {
   const [searchParams] = useSearchParams();
   const productSlug = searchParams.get('product');
 
-  const { addDiscount } = useCart();
+  const { addDiscount, removeDiscount, cart } = useCart();
   const game = useGameState(GAME_DURATION);
 
   const [cards, setCards] = useState<Card[]>([]);
@@ -194,19 +194,18 @@ export default function CursedHarvestRoute() {
     game.startGame();
   }, [game, shuffleCards]);
 
-  const handleRetry = useCallback(() => {
-    setShowResults(false);
-    const shuffled = shuffleCards();
-    setCards(shuffled);
-    setFlippedCards([]);
-    firstFlipTimeRef.current = null;
-    processingRef.current = false;
-    game.resetGame();
-    setTimeout(() => game.startGame(), 100);
-  }, [game, shuffleCards]);
-
   const handleApplyDiscount = useCallback((discount: number) => {
     if (discount > 0 && productSlug) {
+      // Remove existing discount for this product (replace, not accumulate)
+      const existingDiscount = cart.discounts.find(
+        (d) => d.productId === productSlug
+      );
+
+      if (existingDiscount) {
+        removeDiscount(existingDiscount.id);
+      }
+
+      // Add new discount
       addDiscount({
         id: `game-harvest-${Date.now()}`,
         productId: productSlug,
@@ -223,7 +222,7 @@ export default function CursedHarvestRoute() {
     } else {
       navigate('/');
     }
-  }, [productSlug, addDiscount, navigate]);
+  }, [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]);
 
   return (
     <div className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4">
@@ -314,7 +313,6 @@ export default function CursedHarvestRoute() {
         {showResults && (
           <GameResults
             score={game.score}
-            onRetry={handleRetry}
             onApplyDiscount={handleApplyDiscount}
           />
         )}
