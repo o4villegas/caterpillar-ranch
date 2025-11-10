@@ -36,3 +36,12 @@ export function useDailyChallengeContext(): DailyChallengeContextValue {
   }
   return context;
 }
+
+/**
+ * Optional version that returns null if provider is not available.
+ * Use this in components that may render outside the provider tree.
+ */
+export function useDailyChallengeOptional(): DailyChallengeContextValue | null {
+  const context = useContext(DailyChallengeContext);
+  return context;
+}

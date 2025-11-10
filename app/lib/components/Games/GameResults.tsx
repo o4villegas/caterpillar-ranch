@@ -14,7 +14,7 @@ import { motion } from 'framer-motion';
 import { cn } from '../../utils';
 import { getDiscountResult, formatDiscount } from './utils/scoreConversion';
 import { Button } from '../ui/button';
-import { useDailyChallengeContext } from '../../contexts/DailyChallengeContext';
+import { useDailyChallengeOptional } from '../../contexts/DailyChallengeContext';
 
 interface GameResultsProps {
   score: number;
@@ -27,13 +27,15 @@ export function GameResults({ score, onRetry, onApplyDiscount, className }: Game
   const result = getDiscountResult(score);
   const { discountPercent, message, canRetry } = result;
 
-  // Increment daily challenge progress when game is completed
-  const { incrementProgress } = useDailyChallengeContext();
+  // Safely access daily challenge context (may be null if not in provider tree)
+  const challengeContext = useDailyChallengeOptional();
 
   useEffect(() => {
-    // Increment progress once when results are shown
-    incrementProgress();
-  }, []); // Empty dependency array - only run once on mount
+    // Increment progress once when results are shown (only if context is available)
+    if (challengeContext?.incrementProgress) {
+      challengeContext.incrementProgress();
+    }
+  }, [challengeContext]); // Run when context becomes available
 
   // Animation variants for celebration/disappointment
   const containerVariants = {
