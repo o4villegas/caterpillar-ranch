@@ -4,7 +4,6 @@ import type { Route } from "./+types/home";
 import { mockProducts } from "../lib/mocks/products";
 import { Badge } from "../lib/components/ui/badge";
 import { RapidFireBadge } from "../lib/components/RapidFireBadge";
-import { DailyChallengeCard } from "../lib/components/DailyChallengeCard";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -78,11 +77,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             Higher scores unlock bigger discounts.
           </p>
         </motion.div>
-
-        {/* Daily Challenge Card */}
-        <div className="mb-8">
-          <DailyChallengeCard />
-        </div>
 
         {/* Leaderboard Link */}
         <motion.div

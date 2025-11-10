@@ -9,12 +9,10 @@
  * - Celebration/disappointment animations
  */
 
-import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '../../utils';
 import { getDiscountResult, formatDiscount } from './utils/scoreConversion';
 import { Button } from '../ui/button';
-import { useDailyChallengeOptional } from '../../contexts/DailyChallengeContext';
 
 interface GameResultsProps {
   score: number;
@@ -26,16 +24,6 @@ interface GameResultsProps {
 export function GameResults({ score, onRetry, onApplyDiscount, className }: GameResultsProps) {
   const result = getDiscountResult(score);
   const { discountPercent, message, canRetry } = result;
-
-  // Safely access daily challenge context (may be null if not in provider tree)
-  const challengeContext = useDailyChallengeOptional();
-
-  useEffect(() => {
-    // Increment progress once when results are shown (only if context is available)
-    if (challengeContext?.incrementProgress) {
-      challengeContext.incrementProgress();
-    }
-  }, [challengeContext]); // Run when context becomes available
 
   // Animation variants for celebration/disappointment
   const containerVariants = {

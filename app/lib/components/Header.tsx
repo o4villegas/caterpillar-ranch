@@ -13,13 +13,10 @@ export function Header() {
           {/* Logo/Brand */}
           <Link
             to="/"
-            className="flex items-center gap-2 group transition-all hover:scale-105"
+            className="group transition-all hover:scale-105"
           >
-            <span className="text-2xl" role="img" aria-label="Caterpillar">
-              🐛
-            </span>
-            <span className="text-xl font-bold text-ranch-pink group-hover:text-ranch-lime transition-colors tracking-wider">
-              RANCCH
+            <span className="text-2xl font-bold" style={{ fontFamily: 'Pacifico, cursive', color: '#000000' }}>
+              Caterpillar Ranch
             </span>
           </Link>
 

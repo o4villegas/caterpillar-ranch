@@ -79,16 +79,6 @@ export const HORROR_COPY = {
     maxDiscount: 'Maximum Blessing Reached (40%)',
   },
 
-  // Daily Challenge
-  dailyChallenge: {
-    title: 'Today\'s Ranch Challenge',
-    description: 'Complete to earn exclusive discount',
-    progress: (current: number, goal: number) => `${current} / ${goal} completed`,
-    completed: 'Challenge Conquered!',
-    reward: (percentage: number) => `${percentage}% Off Site-Wide`,
-    comeBackTomorrow: 'Return Tomorrow for a New Challenge',
-  },
-
   // Leaderboard
   leaderboard: {
     title: 'The Ranch Leaderboard',
