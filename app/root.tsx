@@ -18,6 +18,7 @@ import { EyeInCorner } from "./lib/components/RareEvents/EyeInCorner";
 import { BackgroundBlur } from "./lib/components/RareEvents/BackgroundBlur";
 import { Toaster } from "sonner";
 import { CartProvider } from "./lib/contexts/CartContext";
+import { DailyChallengeProvider } from "./lib/contexts/DailyChallengeContext";
 import { Header } from "./lib/components/Header";
 
 export const links: Route.LinksFunction = () => [
@@ -87,20 +88,22 @@ export default function App() {
 
   return (
     <CartProvider>
-      {/* Environmental Horror Layer - Phase 1.3 */}
-      <NightSky />
-      <BarnLight />
-      <GardenShadows />
+      <DailyChallengeProvider>
+        {/* Environmental Horror Layer - Phase 1.3 */}
+        <NightSky />
+        <BarnLight />
+        <GardenShadows />
 
-      {/* Rare Events - Phase 1.5 */}
-      <EyeInCorner show={rareEvent === 'eye'} />
-      <BackgroundBlur show={rareEvent === 'darken'} />
+        {/* Rare Events - Phase 1.5 */}
+        <EyeInCorner show={rareEvent === 'eye'} />
+        <BackgroundBlur show={rareEvent === 'darken'} />
 
-      {/* Main app content */}
-      <div style={{ position: 'relative', zIndex: 10 }}>
-        <Header />
-        <Outlet />
-      </div>
+        {/* Main app content */}
+        <div style={{ position: 'relative', zIndex: 10 }}>
+          <Header />
+          <Outlet />
+        </div>
+      </DailyChallengeProvider>
     </CartProvider>
   );
 }

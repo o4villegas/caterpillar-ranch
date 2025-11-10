@@ -4,6 +4,7 @@ import type { Route } from "./+types/home";
 import { mockProducts } from "../lib/mocks/products";
 import { Badge } from "../lib/components/ui/badge";
 import { RapidFireBadge } from "../lib/components/RapidFireBadge";
+import { DailyChallengeCard } from "../lib/components/DailyChallengeCard";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -78,12 +79,17 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </p>
         </motion.div>
 
+        {/* Daily Challenge Card */}
+        <div className="mb-8">
+          <DailyChallengeCard />
+        </div>
+
         {/* Leaderboard Link */}
         <motion.div
           className="text-center mb-12"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.5, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
           <Link
             to="/leaderboard"
