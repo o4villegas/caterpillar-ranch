@@ -13,6 +13,7 @@ import type { Product, ProductVariant } from '../types/product';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { HORROR_COPY } from '../constants/horror-copy';
+import { RapidFireBadge } from './RapidFireBadge';
 
 interface ProductViewProps {
   product: Product;
@@ -55,9 +56,7 @@ export function ProductView({
       >
         {product.isRapidFire && (
           <div className="absolute top-4 left-4 z-10">
-            <Badge variant="destructive" className="text-xs font-bold">
-              ⚡ RAPID-FIRE
-            </Badge>
+            <RapidFireBadge />
           </div>
         )}
         <motion.picture

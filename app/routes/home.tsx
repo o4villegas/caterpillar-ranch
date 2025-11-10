@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import type { Route } from "./+types/home";
 import { mockProducts } from "../lib/mocks/products";
 import { Badge } from "../lib/components/ui/badge";
+import { RapidFireBadge } from "../lib/components/RapidFireBadge";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -113,9 +114,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               {/* Rapid-Fire Badge */}
               {product.isRapidFire && (
                 <div className="mb-2">
-                  <Badge variant="destructive" className="text-xs font-bold">
-                    ⚡ RAPID-FIRE
-                  </Badge>
+                  <RapidFireBadge />
                 </div>
               )}
 
