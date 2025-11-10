@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import type { Route } from "./+types/home";
 import { mockProducts } from "../lib/mocks/products";
 import { Badge } from "../lib/components/ui/badge";
-import { RapidFireBadge } from "../lib/components/RapidFireBadge";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -127,12 +126,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-300"
                 aria-hidden="true"
               />
-              {/* Rapid-Fire Badge */}
-              {product.isRapidFire && (
-                <div className="mb-2">
-                  <RapidFireBadge />
-                </div>
-              )}
 
               {/* Product Image */}
               <div className="relative overflow-hidden rounded-lg mb-4 bg-ranch-purple/10 product-image">
@@ -185,7 +178,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         {import.meta.env.DEV && (
           <div className="mt-12 p-4 bg-ranch-purple/10 rounded-lg">
             <p className="text-xs opacity-50">
-              ENV: {loaderData.message} | Products: {loaderData.products.length} | Rapid-Fire: {loaderData.products.filter(p => p.isRapidFire).length}
+              ENV: {loaderData.message} | Products: {loaderData.products.length}
             </p>
           </div>
         )}

@@ -20,7 +20,6 @@ export interface Product {
   description: string;
   price: number; // Base price in dollars
   imageUrl: string; // Path to product image
-  isRapidFire: boolean; // True if countdown timer applies
   variants: ProductVariant[];
   tags: string[]; // e.g., ['horror', 'punk', 'rock']
   createdAt?: string; // ISO date string
@@ -41,7 +40,6 @@ export interface CartItem {
  */
 export interface ProductFilters {
   tags?: string[];
-  isRapidFire?: boolean;
   inStock?: boolean;
   minPrice?: number;
   maxPrice?: number;

@@ -62,7 +62,6 @@ export const HORROR_COPY = {
     outOfStock: 'Temporarily Out of the Colony',
     lowStock: 'Few Remaining in the Ranch',
     newArrival: 'Fresh from the Ranch',
-    rapidFire: 'Rapid-Fire Discount',
     addedToCart: 'Added to Your Growing Collection',
   },
 

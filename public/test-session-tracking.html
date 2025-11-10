@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session Tracking Test</title>
+  <style>
+    body {
+      font-family: monospace;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #32CD32;
+    }
+    button {
+      background: #32CD32;
+      color: #1a1a1a;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #00CED1;
+    }
+    .output {
+      background: #2a2a2a;
+      padding: 20px;
+      margin: 20px 0;
+      border-left: 3px solid #32CD32;
+    }
+    .status {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+    }
+    .status.available {
+      background: #32CD3220;
+      border: 2px solid #32CD32;
+    }
+    .status.played {
+      background: #FF149320;
+      border: 2px solid #FF1493;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐛 Session Tracking Test</h1>
+  <p>This tests the useGamePlaySession hook logic in isolation</p>
+
+  <div class="output">
+    <h3>Product: cr-punk</h3>
+    <div id="status" class="status available">Status: Can play game</div>
+    <button onclick="markAsPlayed()">Mark as Played (simulates clicking Play Game)</button>
+    <button onclick="checkStatus()">Check Status</button>
+    <button onclick="clearSession()">Clear sessionStorage (simulates tab close/reopen)</button>
+  </div>
+
+  <div class="output">
+    <h3>SessionStorage Contents:</h3>
+    <pre id="storage-contents">Loading...</pre>
+  </div>
+
+  <div class="output">
+    <h3>Expected Behavior:</h3>
+    <ul>
+      <li>✅ Initially: Button shows "Can play game"</li>
+      <li>✅ After "Mark as Played": Button shows "Already played this session"</li>
+      <li>✅ After "Clear sessionStorage": Button shows "Can play game" again</li>
+      <li>✅ This simulates: Open tab → Play game → Button hidden → Close tab → Open new tab → Button shows</li>
+    </ul>
+  </div>
+
+  <script>
+    const SESSION_KEY = 'caterpillar-ranch-played-games';
+    const PRODUCT_ID = 'cr-punk';
+
+    function loadPlayedProducts() {
+      try {
+        const stored = sessionStorage.getItem(SESSION_KEY);
+        return stored ? new Set(JSON.parse(stored)) : new Set();
+      } catch (error) {
+        console.error('Failed to load:', error);
+        return new Set();
+      }
+    }
+
+    function savePlayedProducts(playedSet) {
+      try {
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify([...playedSet]));
+        updateDisplay();
+      } catch (error) {
+        console.error('Failed to save:', error);
+      }
+    }
+
+    function markAsPlayed() {
+      const played = loadPlayedProducts();
+      played.add(PRODUCT_ID);
+      savePlayedProducts(played);
+      console.log('Marked as played:', PRODUCT_ID);
+    }
+
+    function checkStatus() {
+      const played = loadPlayedProducts();
+      const wasPlayed = played.has(PRODUCT_ID);
+
+      const statusDiv = document.getElementById('status');
+      if (wasPlayed) {
+        statusDiv.className = 'status played';
+        statusDiv.textContent = 'Status: Already played this session (button would be HIDDEN)';
+      } else {
+        statusDiv.className = 'status available';
+        statusDiv.textContent = 'Status: Can play game (button would SHOW)';
+      }
+
+      updateDisplay();
+    }
+
+    function clearSession() {
+      sessionStorage.removeItem(SESSION_KEY);
+      console.log('Cleared sessionStorage');
+      updateDisplay();
+      checkStatus();
+    }
+
+    function updateDisplay() {
+      const contents = sessionStorage.getItem(SESSION_KEY);
+      document.getElementById('storage-contents').textContent =
+        contents ? JSON.stringify(JSON.parse(contents), null, 2) : '(empty)';
+    }
+
+    // Initial check
+    checkStatus();
+    setInterval(updateDisplay, 1000);
+  </script>
+</body>
+</html>

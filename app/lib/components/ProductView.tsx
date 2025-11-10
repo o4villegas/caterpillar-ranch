@@ -13,7 +13,6 @@ import type { Product, ProductVariant } from '../types/product';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { HORROR_COPY } from '../constants/horror-copy';
-import { RapidFireBadge } from './RapidFireBadge';
 
 interface ProductViewProps {
   product: Product;
@@ -56,11 +55,6 @@ export function ProductView({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       >
-        {product.isRapidFire && (
-          <div className="absolute top-4 left-4 z-10">
-            <RapidFireBadge />
-          </div>
-        )}
         <motion.picture
           className="block w-full max-w-sm mx-auto"
           animate={{
