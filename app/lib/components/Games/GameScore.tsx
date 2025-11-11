@@ -41,7 +41,7 @@ export function GameScore({ score, showProgress = true, className }: GameScorePr
     >
       {/* Score display */}
       <div className="flex flex-col items-center">
-        <span className="text-xs text-ranch-lavender uppercase tracking-wide">Score</span>
+        <span className="text-sm text-ranch-lavender uppercase tracking-wide">Score</span>
         <AnimatePresence mode="wait">
           <motion.span
             key={score}
@@ -67,7 +67,7 @@ export function GameScore({ score, showProgress = true, className }: GameScorePr
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-1 px-3 py-1 rounded-full bg-ranch-lime/20 border border-ranch-lime"
         >
-          <span className="text-ranch-lime text-sm font-bold">{currentDiscount}% Discount</span>
+          <span className="text-ranch-lime text-base font-bold">{currentDiscount}% Discount</span>
         </motion.div>
       )}
 
@@ -76,7 +76,7 @@ export function GameScore({ score, showProgress = true, className }: GameScorePr
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-xs text-ranch-lavender text-center"
+          className="text-sm text-ranch-lavender text-center"
         >
           {nextThreshold.pointsNeeded} more for {nextThreshold.discountPercent}% off
         </motion.div>
@@ -88,7 +88,7 @@ export function GameScore({ score, showProgress = true, className }: GameScorePr
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-          className="text-xs text-ranch-lime font-bold text-center"
+          className="text-sm text-ranch-lime font-bold text-center"
         >
           🎉 MAX DISCOUNT!
         </motion.div>

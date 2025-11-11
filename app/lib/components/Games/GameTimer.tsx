@@ -47,7 +47,7 @@ export function GameTimer({ timeLeft, className }: GameTimerProps) {
 
       {/* Time display */}
       <div className="flex flex-col">
-        <span className="text-xs text-ranch-lavender uppercase tracking-wide">Time Left</span>
+        <span className="text-sm text-ranch-lavender uppercase tracking-wide">Time Left</span>
         <motion.span
           className={cn('text-2xl font-mono font-bold tabular-nums', getTimeColor())}
           key={timeLeft} // Trigger animation on change

@@ -352,7 +352,7 @@ export default function MetamorphosisQueueRoute() {
             Click cocoons at the exact moment of emergence
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-xs mt-1">
+            <p className="text-ranch-cyan text-sm mt-1">
               Best Score: {bestScore}
             </p>
           )}
@@ -365,7 +365,7 @@ export default function MetamorphosisQueueRoute() {
               <p className="text-lg text-ranch-cream leading-relaxed text-center">
                 Click cocoons at the green flash
               </p>
-              <p className="text-sm text-ranch-lavender mt-1 text-center">
+              <p className="text-base text-ranch-lavender mt-1 text-center">
                 Perfect timing earns maximum points
               </p>
             </div>
@@ -425,7 +425,7 @@ export default function MetamorphosisQueueRoute() {
                       <div className="text-center">
                         <div className="text-4xl mb-1">{cocoon.resultEmoji}</div>
                         <div
-                          className={`text-xs font-bold ${
+                          className={`text-sm font-bold ${
                             cocoon.result === 'perfect'
                               ? 'text-ranch-lime'
                               : cocoon.result === 'good'

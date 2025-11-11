@@ -26,7 +26,7 @@ export function CartEmpty() {
       <h3 className="text-2xl text-ranch-cream mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
         The Ranch Awaits Your Selection
       </h3>
-      <p className="text-ranch-lavender text-center max-w-sm mb-6" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
+      <p className="text-ranch-lavender text-center max-w-sm mb-6" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
         Your cart is empty. The caterpillars are waiting patiently for their new home...
       </p>
 
@@ -34,7 +34,7 @@ export function CartEmpty() {
       <div className="w-full max-w-xs h-px bg-gradient-to-r from-transparent via-ranch-purple to-transparent mb-6" />
 
       {/* Hint text */}
-      <p className="text-sm text-ranch-lavender/70 text-center max-w-sm" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
+      <p className="text-base text-ranch-lavender/70 text-center max-w-sm" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
         Browse the harvest below. Each purchase supports the Ranch's growth. 🦋
       </p>
     </motion.div>

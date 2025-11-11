@@ -332,7 +332,7 @@ export default function HungryCaterpillarRoute() {
             Eat leaves and grow as large as possible before the transformation
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-xs mt-1">
+            <p className="text-ranch-cyan text-sm mt-1">
               Best Score: {bestScore}
             </p>
           )}
@@ -345,7 +345,7 @@ export default function HungryCaterpillarRoute() {
               <p className="text-lg text-ranch-cream leading-relaxed text-center">
                 Eat leaves to grow longer
               </p>
-              <p className="text-sm text-ranch-lavender mt-1 text-center">
+              <p className="text-base text-ranch-lavender mt-1 text-center">
                 Don't crash into walls or yourself
               </p>
             </div>
@@ -368,7 +368,7 @@ export default function HungryCaterpillarRoute() {
             </div>
 
             {/* Stats */}
-            <div className="flex justify-between text-ranch-lavender text-sm px-2">
+            <div className="flex justify-between text-ranch-lavender text-base px-2">
               <span>Length: {gameState.snake.length}</span>
               <span>Eaten: {gameState.foodEaten} 🍃</span>
             </div>
@@ -446,7 +446,7 @@ export default function HungryCaterpillarRoute() {
                   <div className="text-center">
                     <div className="text-6xl mb-2">😱</div>
                     <p className="text-ranch-pink text-xl font-bold">COLLISION!</p>
-                    <p className="text-ranch-lavender text-sm mt-1">
+                    <p className="text-ranch-lavender text-base mt-1">
                       Length: {gameState.snake.length} segments
                     </p>
                   </div>
@@ -455,7 +455,7 @@ export default function HungryCaterpillarRoute() {
             </div>
 
             {/* Mobile Controls Hint */}
-            <p className="text-ranch-lavender text-xs text-center">
+            <p className="text-ranch-lavender text-sm text-center">
               Swipe or use arrow keys to move
             </p>
           </div>
@@ -474,7 +474,7 @@ export default function HungryCaterpillarRoute() {
               <p className="text-ranch-lavender">
                 Final Length: {gameState.snake.length} segments
               </p>
-              <p className="text-ranch-cyan text-sm mt-2">
+              <p className="text-ranch-cyan text-base mt-2">
                 {gameState.snake.length >= 10 ? '✨ Perfect Run Bonus! +15' : ''}
               </p>
             </div>

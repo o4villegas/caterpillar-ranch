@@ -158,7 +158,7 @@ export default function ProductPage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           whileHover={{ x: -4 }}
-          style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}
+          style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
         >
           <span className="text-xl">←</span>
           <span>Back to Products</span>

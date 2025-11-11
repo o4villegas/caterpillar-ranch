@@ -17,7 +17,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex h-12 w-full items-center justify-between rounded-lg border-2 border-ranch-purple bg-ranch-dark px-4 py-3 text-sm font-semibold text-ranch-cream",
+      "flex h-12 w-full items-center justify-between rounded-lg border-2 border-ranch-purple bg-ranch-dark px-4 py-3 text-base font-semibold text-ranch-cream",
       "hover:border-ranch-lavender hover:bg-ranch-purple/20",
       "focus:outline-none focus:ring-2 focus:ring-ranch-lime focus:ring-offset-2 focus:ring-offset-ranch-dark",
       "disabled:cursor-not-allowed disabled:opacity-50",
@@ -112,7 +112,7 @@ const SelectLabel = React.forwardRef<
   <SelectPrimitive.Label
     ref={ref}
     className={cn(
-      "px-3 py-2 text-xs font-bold uppercase tracking-wider text-ranch-lavender",
+      "px-3 py-2 text-sm font-bold uppercase tracking-wider text-ranch-lavender",
       className
     )}
     {...props}
@@ -127,7 +127,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-pointer select-none items-center rounded-md py-2 pl-3 pr-8 text-sm font-semibold outline-none",
+      "relative flex w-full cursor-pointer select-none items-center rounded-md py-2 pl-3 pr-8 text-base font-semibold outline-none",
       "hover:bg-ranch-lime/10 hover:text-ranch-lime",
       "focus:bg-ranch-lime/20 focus:text-ranch-lime",
       "data-[state=checked]:bg-ranch-lime/30 data-[state=checked]:text-ranch-lime",

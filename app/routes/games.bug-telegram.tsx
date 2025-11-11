@@ -272,7 +272,7 @@ export default function BugTelegramRoute() {
             Type words to intercept coded bug messages before they escape
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-xs mt-1">
+            <p className="text-ranch-cyan text-sm mt-1">
               Best Score: {bestScore}
             </p>
           )}
@@ -285,7 +285,7 @@ export default function BugTelegramRoute() {
               <p className="text-lg text-ranch-cream leading-relaxed text-center">
                 Type bug messages before they escape
               </p>
-              <p className="text-sm text-ranch-lavender mt-1 text-center">
+              <p className="text-base text-ranch-lavender mt-1 text-center">
                 Speed and accuracy earn bonus points
               </p>
             </div>
@@ -371,7 +371,7 @@ export default function BugTelegramRoute() {
                 }}
               />
               {typoMade && (
-                <p className="text-ranch-pink text-xs text-center">
+                <p className="text-ranch-pink text-sm text-center">
                   Typo detected! Accuracy bonus lost for this word.
                 </p>
               )}

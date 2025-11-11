@@ -236,7 +236,7 @@ export default function CursedHarvestRoute() {
             Match pairs of mutated crops from The Ranch's cursed garden
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-xs mt-1">
+            <p className="text-ranch-cyan text-sm mt-1">
               Best Score: {bestScore}
             </p>
           )}
@@ -249,7 +249,7 @@ export default function CursedHarvestRoute() {
               <p className="text-lg text-ranch-cream leading-relaxed text-center">
                 Match pairs of mutated crops
               </p>
-              <p className="text-sm text-ranch-lavender mt-1 text-center">
+              <p className="text-base text-ranch-lavender mt-1 text-center">
                 Find all pairs before time runs out
               </p>
             </div>

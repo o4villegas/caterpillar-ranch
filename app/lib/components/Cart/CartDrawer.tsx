@@ -23,7 +23,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           <DrawerTitle className="text-2xl text-ranch-pink drip-text" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             {hasItems ? 'Your Order is Growing' : 'The Ranch Awaits'}
           </DrawerTitle>
-          <DrawerDescription className="text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
+          <DrawerDescription className="text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
             {hasItems
               ? `${totals.itemCount} ${totals.itemCount === 1 ? 'item' : 'items'} growing in your cart`
               : 'Select your harvest to begin'
@@ -65,7 +65,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   variant="ghost"
                   className="w-full mt-2 text-ranch-lavender hover:text-ranch-cream"
                   onClick={onClose}
-                  style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}
+                  style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
                 >
                   Continue Browsing
                 </Button>

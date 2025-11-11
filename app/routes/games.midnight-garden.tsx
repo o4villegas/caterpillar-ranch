@@ -261,7 +261,7 @@ export default function MidnightGardenRoute() {
             Click the good omens, avoid the bad signs
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-xs mt-1">
+            <p className="text-ranch-cyan text-sm mt-1">
               Best Score: {bestScore}
             </p>
           )}
@@ -274,7 +274,7 @@ export default function MidnightGardenRoute() {
               <p className="text-lg text-ranch-cream leading-relaxed text-center">
                 Click good omens, avoid bad signs
               </p>
-              <p className="text-sm text-ranch-lavender mt-1 text-center">
+              <p className="text-base text-ranch-lavender mt-1 text-center">
                 Watch out - things get confusing at high scores
               </p>
             </div>
@@ -299,7 +299,7 @@ export default function MidnightGardenRoute() {
             {/* Confusion warning */}
             {confusionActive && (
               <div className="bg-ranch-pink/20 border border-ranch-pink rounded-lg p-2 text-center">
-                <p className="text-ranch-pink text-xs font-bold">
+                <p className="text-ranch-pink text-sm font-bold">
                   ⚠️ The garden grows restless... Trust your instincts!
                 </p>
               </div>
@@ -351,12 +351,12 @@ export default function MidnightGardenRoute() {
                       {item.emoji}
                       {/* Visual feedback */}
                       {item.result === 'success' && (
-                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-ranch-lime text-sm font-bold">
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-ranch-lime text-base font-bold">
                           +4
                         </span>
                       )}
                       {item.result === 'penalty' && (
-                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-ranch-pink text-sm font-bold">
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-ranch-pink text-base font-bold">
                           -5
                         </span>
                       )}
