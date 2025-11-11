@@ -4,11 +4,12 @@
  * Implements the universal score-to-discount mapping for all games.
  * Specification from CLAUDE.md (Score-to-Discount Conversion - All Games):
  *
- * 45-50 points → 40% off
- * 35-44 points → 30% off
- * 20-34 points → 20% off
- * 10-19 points → 10% off
- * 0-9 points  → 0% off (can retry)
+ * 60+ points → 15% off (perfect/near-perfect play)
+ * 50-59 points → 12% off (excellent play)
+ * 40-49 points → 9% off (very good play)
+ * 30-39 points → 6% off (good play)
+ * 20-29 points → 3% off (decent play)
+ * 0-19 points  → 0% off (can retry)
  */
 
 export interface DiscountResult {
@@ -20,14 +21,15 @@ export interface DiscountResult {
 /**
  * Calculate discount percentage based on game score
  *
- * @param score - Final game score (0-50+)
- * @returns Discount percentage (0, 10, 20, 30, or 40)
+ * @param score - Final game score (0-60+)
+ * @returns Discount percentage (0, 3, 6, 9, 12, or 15)
  */
 export function calculateDiscount(score: number): number {
-  if (score >= 45) return 40;
-  if (score >= 35) return 30;
-  if (score >= 20) return 20;
-  if (score >= 10) return 10;
+  if (score >= 60) return 15;
+  if (score >= 50) return 12;
+  if (score >= 40) return 9;
+  if (score >= 30) return 6;
+  if (score >= 20) return 3;
   return 0;
 }
 
@@ -42,10 +44,11 @@ export function getDiscountResult(score: number): DiscountResult {
 
   // Horror-themed success messages
   const messages: Record<number, string> = {
-    40: "The Ranch is VERY pleased! Maximum blessing earned! 🐛💚",
-    30: "Excellent performance! The colony approves! 🌿",
-    20: "Well done! The caterpillars nod in approval. 🐛",
-    10: "A decent offering. The Ranch accepts. ✨",
+    15: "The Ranch is VERY pleased! Maximum blessing earned! 🐛💚",
+    12: "Excellent performance! The colony approves! 🌿",
+    9: "Well done! The caterpillars nod in approval. 🐛",
+    6: "A decent offering. The Ranch accepts. ✨",
+    3: "The Ranch notices your effort... 👀",
     0: "The Ranch is... unimpressed. Try again? 🌙",
   };
 
@@ -59,8 +62,8 @@ export function getDiscountResult(score: number): DiscountResult {
 /**
  * Format discount for display
  *
- * @param discountPercent - Discount percentage (0-40)
- * @returns Formatted string (e.g., "40% Off")
+ * @param discountPercent - Discount percentage (0-15)
+ * @returns Formatted string (e.g., "15% Off")
  */
 export function formatDiscount(discountPercent: number): string {
   if (discountPercent === 0) return "No Discount";
@@ -76,10 +79,11 @@ export function formatDiscount(discountPercent: number): string {
  */
 export function getNextThreshold(currentScore: number): { threshold: number; pointsNeeded: number; discountPercent: number } | null {
   const thresholds = [
-    { threshold: 45, discountPercent: 40 },
-    { threshold: 35, discountPercent: 30 },
-    { threshold: 20, discountPercent: 20 },
-    { threshold: 10, discountPercent: 10 },
+    { threshold: 60, discountPercent: 15 },
+    { threshold: 50, discountPercent: 12 },
+    { threshold: 40, discountPercent: 9 },
+    { threshold: 30, discountPercent: 6 },
+    { threshold: 20, discountPercent: 3 },
   ];
 
   for (const { threshold, discountPercent } of thresholds) {

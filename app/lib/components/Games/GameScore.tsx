@@ -24,10 +24,11 @@ export function GameScore({ score, showProgress = true, className }: GameScorePr
 
   // Color based on current discount level
   const getScoreColor = () => {
-    if (currentDiscount >= 40) return 'text-ranch-lime'; // Max discount
-    if (currentDiscount >= 30) return 'text-ranch-cyan'; // Great
-    if (currentDiscount >= 20) return 'text-yellow-400'; // Good
-    if (currentDiscount >= 10) return 'text-ranch-lavender'; // Okay
+    if (currentDiscount >= 15) return 'text-ranch-lime'; // Max discount
+    if (currentDiscount >= 12) return 'text-ranch-cyan'; // Great
+    if (currentDiscount >= 9) return 'text-yellow-400'; // Good
+    if (currentDiscount >= 6) return 'text-ranch-lavender'; // Okay
+    if (currentDiscount >= 3) return 'text-ranch-cream'; // Minimal
     return 'text-ranch-cream'; // No discount yet
   };
 
@@ -83,7 +84,7 @@ export function GameScore({ score, showProgress = true, className }: GameScorePr
       )}
 
       {/* Max discount reached */}
-      {showProgress && !nextThreshold && currentDiscount === 40 && (
+      {showProgress && !nextThreshold && currentDiscount === 15 && (
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}

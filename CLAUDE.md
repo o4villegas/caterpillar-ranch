@@ -73,7 +73,7 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 - ✅ CartContext provider with React Context API (`app/lib/contexts/CartContext.tsx` - 383 lines)
   - useReducer for state management
   - localStorage persistence (auto-save on cart changes)
-  - 40% max discount cap enforcement in calculateTotals()
+  - 15% max discount cap enforcement in calculateTotals()
 - ✅ Cart UI components:
   - CartIcon (`app/lib/components/CartIcon.tsx` - 112 lines)
     - Item count badge with spring animation
@@ -85,7 +85,7 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
     - Quantity controls (+/- buttons)
     - Remove item functionality
     - Totals breakdown with discount display
-    - 40% cap warning badge
+    - 15% cap warning badge
 - ✅ Dedicated product route (`app/routes/product.tsx` - 388 lines)
   - Full-page product view at `/products/:slug`
   - Size and quantity selection
@@ -193,7 +193,7 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
    - Target: Gen Z shoppers buying novelty t-shirts
    - Philosophy: **Optional games enhance shopping, NEVER block it**
    - Discount mechanics: Product games, rapid-fire timers, daily challenges, last resort game
-   - **40% maximum discount cap** (enforced server-side)
+   - **15% maximum discount cap** (enforced server-side)
    - Success = authentic, fun shopping experience without manipulation
 
 2. **Game Design & Horror Aesthetic** (from `DO-NOT-DELETE/game-details.pdf`):
@@ -214,7 +214,7 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 
 **Good UX:**
 - ✅ User clicks product → sees clear "Buy Now - $35" button
-- ✅ Separate "Play Game - Earn up to 40% Off" button (optional)
+- ✅ Separate "Play Game - Earn a Discount" button (optional, vague language)
 - ✅ Game modal has obvious close/skip button
 - ✅ Cart shows "Play one last game?" as optional box (not blocking checkout)
 
@@ -233,14 +233,17 @@ Build 6 horror-themed games. All must work on mobile (touch-friendly, 320px-428p
 ### Score-to-Discount Conversion (All Games)
 
 ```
-45-50 points → 40% off
-35-44 points → 30% off
-20-34 points → 20% off
-10-19 points → 10% off
-0-9 points → 0% off (can retry)
+60+ points → 15% off (perfect/near-perfect play)
+50-59 points → 12% off (excellent play)
+40-49 points → 9% off (very good play)
+30-39 points → 6% off (good play)
+20-29 points → 3% off (decent play)
+0-19 points → 0% off (can retry)
 ```
 
-**Note**: Maximum discount is 40% across all games combined. Server enforces this at checkout.
+**Note**: Maximum discount is 15% across all games combined. Server enforces this at checkout.
+
+**Game Difficulty Philosophy**: Games are designed to be challenging. Maximum discount (15%) requires near-perfect or perfect gameplay (60+ points). This makes discounts feel earned and exclusive, not handed out freely.
 
 ---
 
@@ -259,7 +262,7 @@ Build 6 horror-themed games. All must work on mobile (touch-friendly, 320px-428p
 **Scoring**:
 - Hit invasive caterpillar: +5 points
 - Hit good caterpillar: -3 points
-- Target for 30% success rate: 25+ points (requires 5+ successful culls)
+- Target scores: 60+ for 15% (12+ perfect culls), 50-59 for 12%, 40-49 for 9%, 30-39 for 6%, 20-29 for 3%
 
 **Horror Elements**:
 - Caterpillars have too many eyes
@@ -289,7 +292,7 @@ Build 6 horror-themed games. All must work on mobile (touch-friendly, 320px-428p
 **Scoring**:
 - Each matched pair: +8 points
 - Bonus for speed: +2 points if matched within 3 seconds of first flip
-- Target for 30% success rate: 30+ points (4+ pairs matched)
+- Target scores: 60+ for 15% (all 6 pairs with speed bonuses), 50-59 for 12%, 40-49 for 9%, 30-39 for 6%, 20-29 for 3%
 
 **Horror Elements**:
 - Card backs: pulsing, organic texture (like skin)
@@ -326,7 +329,7 @@ Build 6 horror-themed games. All must work on mobile (touch-friendly, 320px-428p
 - Correct word: +3 points
 - Correct word with no typos: +5 points
 - Speed bonus: +2 if typed within 3 seconds
-- Target for 30% success rate: 35+ points (7+ words perfectly typed)
+- Target scores: 60+ for 15% (10+ perfect words with speed bonuses), 50-59 for 12%, 40-49 for 9%, 30-39 for 6%, 20-29 for 3%
 
 **Horror Elements**:
 - Words are bug-related: "MOLT", "SWARM", "PUPATE", "HATCH", "INFEST"
@@ -359,7 +362,7 @@ Build 6 horror-themed games. All must work on mobile (touch-friendly, 320px-428p
 - Each food eaten: +5 points
 - Length bonus: +2 points per body segment at end
 - Perfect run (no collisions, 10+ segments): +15 bonus
-- Target for 30% success rate: 40+ points (8+ food, 10+ segments)
+- Target scores: 60+ for 15% (perfect run, 12+ food, 15+ segments), 50-59 for 12%, 40-49 for 9%, 30-39 for 6%, 20-29 for 3%
 
 **Horror Elements**:
 - Caterpillar head: too many eyes, mandibles that "chew"
@@ -393,7 +396,7 @@ Build 6 horror-themed games. All must work on mobile (touch-friendly, 320px-428p
 - Good omen clicked: +4 points
 - Bad sign clicked: -5 points
 - Miss good omen: -1 point (fades away)
-- Target for 30% success rate: 25+ points (7+ good clicks, <2 bad clicks)
+- Target scores: 60+ for 15% (15+ good clicks, 0-1 bad clicks), 50-59 for 12%, 40-49 for 9%, 30-39 for 6%, 20-29 for 3%
 
 **Good Omens** (glowing, pulsing):
 - Firefly (brightest, easiest to identify)
@@ -436,7 +439,7 @@ Build 6 horror-themed games. All must work on mobile (touch-friendly, 320px-428p
 - Good timing (clicked within 0.2s of green): +5 points
 - Early/late click: -3 points
 - Missed transformation: -5 points
-- Target for 10% success rate: 40+ points (4+ perfect, 5+ good)
+- Target scores: 60+ for 15% (6+ perfect, minimal errors), 50-59 for 12%, 40-49 for 9%, 30-39 for 6%, 20-29 for 3%
 
 **Horror Elements**:
 - Cocoons: translucent, see silhouette thrashing inside
@@ -1148,7 +1151,7 @@ app/lib/components/
 │   ├── Quantity controls (+/- buttons, remove)
 │   ├── Empty state with horror messaging
 │   ├── Totals breakdown (subtotal, discount, total)
-│   ├── 40% discount cap warning badge
+│   ├── 15% discount cap warning badge
 │   ├── "Proceed to Harvest" checkout button (placeholder)
 │   └── Framer Motion layout animations
 └── ParticleBurst.tsx (127 lines)
@@ -1237,7 +1240,7 @@ app/lib/types/
     ├── Discount interface (with gameType, expiry, applied state)
     ├── Cart interface (items + discounts)
     ├── CartSession interface (for KV storage - Phase 3)
-    ├── CartTotals interface (with 40% cap calculation)
+    ├── CartTotals interface (with 15% cap calculation)
     ├── CartAction union type (8 action types for reducer)
     ├── CartContextValue interface (provider API)
     └── CartItemWithPrice helper type
@@ -1258,7 +1261,7 @@ app/lib/contexts/
     │   - Key: 'caterpillar-ranch-cart'
     ├── calculateTotals() function:
     │   - Calculates subtotal, discount, total
-    │   - Enforces 40% maximum discount cap
+    │   - Enforces 15% maximum discount cap
     │   - Returns effectiveDiscountPercent
     ├── Cart actions (async functions):
     │   - addToCart, removeFromCart, updateQuantity
@@ -1544,7 +1547,7 @@ The mock demonstrates complete implementations - use as reference, not direct co
 **Keep & Implement:**
 - ✅ Gamification mechanics (discount games at product view and checkout)
 - ✅ Daily challenges with progress tracking (server-side state)
-- ✅ Discount rewards (20-40% range, tracked per-order)
+- ✅ Discount rewards (3-15% range, tracked per-order)
 - ✅ Color scheme as inspiration (dark mode is mandatory, accent colors flexible)
 - ✅ Mobile-first responsive layout patterns
 - ✅ Product card designs, modal patterns, navigation structure
@@ -2496,3 +2499,4 @@ git commit -m "your message"
 git push origin main  # Triggers Cloudflare auto-deploy
 # Then wait for user to provide build logs before testing
 ```
+- always use AskUserQuestions tool to ask me questions

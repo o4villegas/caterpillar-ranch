@@ -16,7 +16,7 @@ export interface CartItem {
   variantId: string;
   variant: ProductVariant; // Denormalized for easy access
   quantity: number; // 1-99
-  earnedDiscount: number; // Discount percentage earned for THIS item (0-40)
+  earnedDiscount: number; // Discount percentage earned for THIS item (0-15)
   addedAt: string; // ISO timestamp
 }
 
@@ -27,7 +27,7 @@ export interface Discount {
   id: string; // Unique discount ID
   productId: string; // Product this discount applies to
   gameType: 'culling' | 'harvest' | 'telegram' | 'snake' | 'garden' | 'metamorphosis' | 'last-resort';
-  discountPercent: number; // 10-40%
+  discountPercent: number; // 3-15%
   earnedAt: string; // ISO timestamp
   expiresAt: string; // ISO timestamp (30 minutes from earnedAt)
   applied: boolean; // True if discount is currently applied to cart item
@@ -60,8 +60,8 @@ export interface CartSession {
  */
 export interface CartTotals {
   subtotal: number; // Sum of (item.price * item.quantity) before discounts
-  totalDiscount: number; // Sum of all discounts applied (capped at 40% of subtotal)
-  effectiveDiscountPercent: number; // Actual discount percentage applied (0-40)
+  totalDiscount: number; // Sum of all discounts applied (capped at 15% of subtotal)
+  effectiveDiscountPercent: number; // Actual discount percentage applied (0-15)
   total: number; // Subtotal - totalDiscount
   itemCount: number; // Total number of items (sum of quantities)
   savings: number; // Amount saved (same as totalDiscount, for display)

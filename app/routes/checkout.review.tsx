@@ -265,7 +265,7 @@ export default function CheckoutReviewPage() {
                   <div className="flex justify-between text-ranch-lime" style={{ fontFamily: 'Handjet, monospace' }}>
                     <div className="flex items-center gap-2">
                       <span style={{ fontWeight: 600 }}>{HORROR_COPY.checkout.discount}</span>
-                      {totals.effectiveDiscountPercent >= 40 && (
+                      {totals.effectiveDiscountPercent >= 15 && (
                         <Badge variant="success">MAX</Badge>
                       )}
                     </div>

@@ -67,20 +67,20 @@ export const HORROR_COPY = {
 
   // Games & Discounts
   games: {
-    playToEarn: 'Play Game - Earn up to 40% Off',
+    playToEarn: 'Play Game - Earn a Discount',
     skipGame: 'Skip and Buy at Full Price',
     gameInProgress: 'Game in Progress...',
     discountEarned: 'The Ranch is Pleased!',
     tryAgain: 'Try Another Game',
     giveUp: 'Give Up',
-    lastResort: 'Wait! Play one last game for up to 10% more off',
+    lastResort: 'Wait! Play one last game for a bonus discount',
     lastResortNote: '(The ranch offers one final challenge)',
-    maxDiscount: 'Maximum Blessing Reached (40%)',
+    maxDiscount: 'Maximum Blessing Reached',
 
     // Game Modal
     modal: {
       title: 'Choose Your Challenge',
-      subtitle: 'Complete a game to earn discounts up to 40% off',
+      subtitle: 'Complete a game to earn discounts at checkout',
       skipPrompt: 'Or skip and proceed at full price',
       skipButton: 'Skip Games - Buy Now',
       optionalNote: '🐛 Games are optional - The Ranch offers discounts, never demands them',
@@ -137,10 +137,11 @@ export const HORROR_COPY = {
 
     // Tier-specific celebration messages
     celebrations: {
-      tier10: { message: 'The Ranch Approves', emoji: '🐛' },
-      tier20: { message: 'A Generous Blessing!', emoji: '🌿' },
-      tier30: { message: 'The Colony Rejoices!', emoji: '🎉' },
-      tier40: { message: 'MAXIMUM BLESSING!', emoji: '🦋' },
+      tier3: { message: 'The Ranch Notices...', emoji: '👀' },
+      tier6: { message: 'A Small Blessing', emoji: '🐛' },
+      tier9: { message: 'The Ranch Approves!', emoji: '🌿' },
+      tier12: { message: 'The Colony Rejoices!', emoji: '🎉' },
+      tier15: { message: 'MAXIMUM BLESSING!', emoji: '🦋' },
     },
   },
 

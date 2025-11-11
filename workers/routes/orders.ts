@@ -18,7 +18,7 @@ const orders = new Hono<{ Bindings: Cloudflare.Env }>();
 /**
  * Maximum discount percentage allowed (server-side enforcement)
  */
-const MAX_DISCOUNT_PERCENT = 40;
+const MAX_DISCOUNT_PERCENT = 15;
 
 /**
  * Validate and cap discount percentage

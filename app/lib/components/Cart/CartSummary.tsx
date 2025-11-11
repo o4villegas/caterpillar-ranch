@@ -5,7 +5,7 @@ export function CartSummary() {
   const { totals } = useCart();
 
   const hasDiscount = totals.totalDiscount > 0;
-  const isAtDiscountCap = totals.effectiveDiscountPercent >= 40;
+  const isAtDiscountCap = totals.effectiveDiscountPercent >= 15;
 
   return (
     <div className="space-y-3 bg-ranch-purple/20 rounded-lg p-4 border-2 border-ranch-purple">
@@ -35,7 +35,7 @@ export function CartSummary() {
       {/* Discount cap warning */}
       {isAtDiscountCap && (
         <div className="text-lg text-ranch-lavender/70 bg-ranch-purple/30 p-2 rounded border border-ranch-purple" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
-          🎮 Maximum 40% discount reached! The Ranch rewards your skill.
+          🎮 Maximum discount reached! The Ranch rewards your skill.
         </div>
       )}
 

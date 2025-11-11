@@ -4,7 +4,7 @@
  * Manages shopping cart state with:
  * - Client-side localStorage persistence (guest checkout)
  * - Server-side KV sync when games are played
- * - Discount tracking and 40% max cap enforcement
+ * - Discount tracking and 15% max cap enforcement
  */
 
 import { createContext, useContext, useReducer, useEffect, useCallback, useMemo, useState } from 'react';
@@ -218,7 +218,7 @@ function cartReducer(state: Cart, action: CartAction): Cart {
 }
 
 /**
- * Calculate cart totals with 40% max discount cap
+ * Calculate cart totals with 15% max discount cap
  */
 function calculateTotals(cart: Cart): CartTotals {
   if (cart.items.length === 0) {
@@ -245,8 +245,8 @@ function calculateTotals(cart: Cart): CartTotals {
     totalDiscountBeforeCap += itemDiscount;
   });
 
-  // Enforce 40% maximum discount cap
-  const maxDiscount = subtotal * 0.4;
+  // Enforce 15% maximum discount cap
+  const maxDiscount = subtotal * 0.15;
   const totalDiscount = Math.min(totalDiscountBeforeCap, maxDiscount);
   const effectiveDiscountPercent = subtotal > 0 ? (totalDiscount / subtotal) * 100 : 0;
 

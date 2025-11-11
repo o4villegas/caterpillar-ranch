@@ -7,7 +7,7 @@ import { Badge } from "../lib/components/ui/badge";
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "Caterpillar Ranch - Horror Tees" },
-    { name: "description", content: "Cute horror t-shirts. Play games, earn discounts up to 40% off." },
+    { name: "description", content: "Cute horror t-shirts. Play games, earn discounts on your order." },
   ];
 }
 

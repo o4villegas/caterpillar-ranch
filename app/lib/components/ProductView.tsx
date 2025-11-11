@@ -230,7 +230,7 @@ export function ProductView({
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-ranch-lime/20 to-transparent"
               />
               <span className="relative z-10" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
-                🎮 Play Game - Earn up to 40% Off
+                🎮 Play Game - Earn a Discount
               </span>
             </Button>
           )}
