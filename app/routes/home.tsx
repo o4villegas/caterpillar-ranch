@@ -149,7 +149,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               </div>
 
               {/* Product Info */}
-              <h2 className="text-2xl mb-2 leading-tight text-ranch-cream group-hover:text-ranch-dark transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+              <h2 className="text-xl mb-2 leading-tight text-ranch-cream group-hover:text-ranch-dark transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                 {product.name}
               </h2>
               <p className="text-ranch-lavender group-hover:text-ranch-dark/80 text-lg mb-4 line-clamp-2 transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
@@ -177,15 +177,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </motion.button>
           ))}
         </div>
-
-        {/* Debug Info (Dev Only) */}
-        {import.meta.env.DEV && (
-          <div className="mt-12 p-4 bg-ranch-purple/10 rounded-lg">
-            <p className="text-lg opacity-50">
-              ENV: {loaderData.message} | Products: {loaderData.products.length}
-            </p>
-          </div>
-        )}
       </div>
     </main>
   );
