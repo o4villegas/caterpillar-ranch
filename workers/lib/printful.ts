@@ -25,6 +25,52 @@ export interface PrintfulVariant {
   sku: string;
 }
 
+/**
+ * Store Product Types (from /store/products endpoint)
+ */
+export interface PrintfulStoreProduct {
+  sync_product: {
+    id: number;
+    external_id: string;
+    name: string;
+    thumbnail_url: string;
+  };
+  sync_variants: Array<{
+    id: number;
+    external_id: string;
+    sync_product_id: number;
+    name: string;
+    synced: boolean;
+    variant_id: number;
+    retail_price: string;
+    currency: string;
+    is_ignored: boolean;
+    files: Array<{
+      id: number;
+      type: string;
+      hash: string;
+      url: string;
+      filename: string;
+      mime_type: string;
+      size: number;
+      width: number;
+      height: number;
+      dpi: number;
+      status: string;
+      created: number;
+      thumbnail_url: string;
+      preview_url: string;
+      visible: boolean;
+    }>;
+    product: {
+      variant_id: number;
+      product_id: number;
+      image: string;
+      name: string;
+    };
+  }>;
+}
+
 export interface PrintfulOrder {
   id: number;
   external_id: string;
@@ -156,6 +202,46 @@ export class PrintfulClient {
   }
 
   /**
+   * Get all store products (with designs)
+   * GET /store/products
+   * Requires X-PF-Store-Id header
+   */
+  async getStoreProducts(): Promise<PrintfulStoreProduct[]> {
+    const url = `/store/products`;
+
+    const response = await this.request<{
+      code: number;
+      result: PrintfulStoreProduct[];
+    }>(url, {
+      headers: {
+        'X-PF-Store-Id': this.storeId,
+      },
+    });
+
+    return response.result;
+  }
+
+  /**
+   * Get single store product by ID
+   * GET /store/products/:id
+   * Requires X-PF-Store-Id header
+   */
+  async getStoreProduct(productId: number): Promise<PrintfulStoreProduct> {
+    const url = `/store/products/${productId}`;
+
+    const response = await this.request<{
+      code: number;
+      result: PrintfulStoreProduct;
+    }>(url, {
+      headers: {
+        'X-PF-Store-Id': this.storeId,
+      },
+    });
+
+    return response.result;
+  }
+
+  /**
    * Get variant by ID
    * GET /store/variants/:id
    */
@@ -276,7 +362,7 @@ export class PrintfulCache {
   /**
    * Get cached products list
    */
-  async getProducts(): Promise<PrintfulProduct[] | null> {
+  async getProducts(): Promise<PrintfulStoreProduct[] | null> {
     const cached = await this.kv.get('printful:products:list');
     if (!cached) return null;
 
@@ -290,7 +376,7 @@ export class PrintfulCache {
   /**
    * Cache products list
    */
-  async setProducts(products: PrintfulProduct[]): Promise<void> {
+  async setProducts(products: PrintfulStoreProduct[]): Promise<void> {
     await this.kv.put(
       'printful:products:list',
       JSON.stringify(products),
@@ -301,7 +387,7 @@ export class PrintfulCache {
   /**
    * Get cached product
    */
-  async getProduct(productId: number): Promise<PrintfulProduct | null> {
+  async getProduct(productId: number): Promise<PrintfulStoreProduct | null> {
     const cached = await this.kv.get(`printful:product:${productId}`);
     if (!cached) return null;
 
@@ -315,9 +401,9 @@ export class PrintfulCache {
   /**
    * Cache product
    */
-  async setProduct(product: PrintfulProduct): Promise<void> {
+  async setProduct(product: PrintfulStoreProduct): Promise<void> {
     await this.kv.put(
-      `printful:product:${product.id}`,
+      `printful:product:${product.sync_product.id}`,
       JSON.stringify(product),
       { expirationTtl: this.ttl.products }
     );

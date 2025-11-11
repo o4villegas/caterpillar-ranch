@@ -12,7 +12,8 @@ const catalog = new Hono<{ Bindings: Cloudflare.Env }>();
 
 /**
  * GET /api/catalog/products
- * Get all products (cached)
+ * Get all store products (cached)
+ * Returns products with designs from the Caterpillar Ranch store
  */
 catalog.get('/products', async (c) => {
   try {
@@ -27,9 +28,9 @@ catalog.get('/products', async (c) => {
       });
     }
 
-    // Fetch from Printful if not cached
+    // Fetch store products from Printful (products with designs)
     const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN, c.env.PRINTFUL_STORE_ID);
-    const products = await printful.getCatalogProducts();
+    const products = await printful.getStoreProducts();
 
     // Cache the results
     await cache.setProducts(products);
@@ -39,7 +40,7 @@ catalog.get('/products', async (c) => {
       meta: { cached: false, source: 'printful-api' },
     });
   } catch (error) {
-    console.error('Error fetching catalog products:', error);
+    console.error('Error fetching store products:', error);
     return c.json(
       {
         error: 'Failed to fetch products',
@@ -52,7 +53,8 @@ catalog.get('/products', async (c) => {
 
 /**
  * GET /api/catalog/products/:id
- * Get product by ID with variants (cached)
+ * Get store product by ID (cached)
+ * Returns a single product with design from the Caterpillar Ranch store
  */
 catalog.get('/products/:id', async (c) => {
   try {
@@ -65,29 +67,21 @@ catalog.get('/products/:id', async (c) => {
     const cache = new PrintfulCache(c.env.CATALOG_CACHE);
     const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN, c.env.PRINTFUL_STORE_ID);
 
-    // Check cache for both product and variants
+    // Check cache for product
     const cachedProduct = await cache.getProduct(productId);
-    const cachedVariants = await cache.getVariants(productId);
 
-    if (cachedProduct && cachedVariants) {
-      // Both cached - combine and return
-      cachedProduct.variants = cachedVariants;
+    if (cachedProduct) {
       return c.json({
         data: cachedProduct,
         meta: { cached: true, source: 'kv' },
       });
     }
 
-    // Fetch product and variants from Printful
-    const product = await printful.getProduct(productId);
-    const variants = await printful.getCatalogVariants(productId);
+    // Fetch store product from Printful
+    const product = await printful.getStoreProduct(productId);
 
-    // Attach variants to product
-    product.variants = variants;
-
-    // Cache both product and variants
+    // Cache the product
     await cache.setProduct(product);
-    await cache.setVariants(productId, variants);
 
     return c.json({
       data: product,

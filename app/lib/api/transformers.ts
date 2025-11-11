@@ -5,7 +5,7 @@
  */
 
 import type { Product, ProductVariant } from '../types/product';
-import type { PrintfulProduct, PrintfulVariant } from './catalog';
+import type { PrintfulProduct, PrintfulVariant, PrintfulStoreProduct } from './catalog';
 
 /**
  * Generate URL-friendly slug from product name
@@ -22,6 +22,25 @@ function generateSlug(name: string): string {
  */
 function extractTags(product: PrintfulProduct): string[] {
   const text = `${product.name} ${product.description}`.toLowerCase();
+  const tags: string[] = [];
+
+  // Common keywords to extract as tags
+  const keywords = ['vintage', 'retro', 'punk', 'rock', 'horror', 'cute', 'kawaii', 'anime'];
+
+  keywords.forEach((keyword) => {
+    if (text.includes(keyword)) {
+      tags.push(keyword);
+    }
+  });
+
+  return tags.length > 0 ? tags : ['apparel'];
+}
+
+/**
+ * Extract tags from store product name
+ */
+function extractTagsFromStoreProduct(name: string): string[] {
+  const text = name.toLowerCase();
   const tags: string[] = [];
 
   // Common keywords to extract as tags
@@ -76,4 +95,54 @@ export function transformProduct(printfulProduct: PrintfulProduct): Product {
  */
 export function transformProducts(printfulProducts: PrintfulProduct[]): Product[] {
   return printfulProducts.map(transformProduct);
+}
+
+/**
+ * Transform Printful store product variant to our ProductVariant type
+ */
+function transformStoreVariant(syncVariant: PrintfulStoreProduct['sync_variants'][0]): ProductVariant {
+  // Extract size from variant name (e.g., "CR-100 / S" -> "S")
+  const sizeParts = syncVariant.name.split(' / ');
+  const size = sizeParts.length > 1 ? sizeParts[1] : 'M';
+
+  return {
+    id: syncVariant.id.toString(),
+    printfulVariantId: syncVariant.variant_id, // Use variant_id for order creation
+    size: size as any,
+    color: 'Default', // Store products don't specify color in variant name
+    inStock: syncVariant.synced && !syncVariant.is_ignored,
+  };
+}
+
+/**
+ * Transform Printful store product to our Product type
+ */
+export function transformStoreProduct(storeProduct: PrintfulStoreProduct): Product {
+  const { sync_product, sync_variants } = storeProduct;
+
+  // Use first variant's price as base price (convert string to number)
+  const basePrice = sync_variants.length > 0
+    ? parseFloat(sync_variants[0].retail_price)
+    : 0;
+
+  return {
+    id: sync_product.id.toString(),
+    name: sync_product.name,
+    slug: generateSlug(sync_product.name),
+    description: `A unique design from Caterpillar Ranch. ${sync_product.name}`,
+    price: basePrice,
+    imageUrl: sync_product.thumbnail_url,
+    variants: sync_variants
+      .filter((v) => v.synced && !v.is_ignored)
+      .map(transformStoreVariant),
+    tags: extractTagsFromStoreProduct(sync_product.name),
+    createdAt: new Date().toISOString(),
+  };
+}
+
+/**
+ * Transform array of Printful store products
+ */
+export function transformStoreProducts(storeProducts: PrintfulStoreProduct[]): Product[] {
+  return storeProducts.map(transformStoreProduct);
 }

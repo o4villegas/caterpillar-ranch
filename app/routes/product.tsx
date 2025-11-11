@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import type { Route } from './+types/product';
 import type { ProductVariant } from '~/lib/types/product';
 import { fetchProductBySlug } from '~/lib/api/catalog';
-import { transformProduct } from '~/lib/api/transformers';
+import { transformStoreProduct } from '~/lib/api/transformers';
 import { useCart } from '~/lib/contexts/CartContext';
 import { useGamePlaySession } from '~/lib/hooks/useGamePlaySession';
 import { HORROR_COPY, getRandomLoadingMessage } from '~/lib/constants/horror-copy';
@@ -13,16 +13,16 @@ import { ParticleBurst } from '~/lib/components/ParticleBurst';
 import { GameModal } from '~/lib/components/GameModal';
 import { ProductView } from '~/lib/components/ProductView';
 
-export async function loader({ params }: Route.LoaderArgs) {
-  // Fetch product from Printful API by slug
-  const printfulProduct = await fetchProductBySlug(params.slug);
+export async function loader({ params, request }: Route.LoaderArgs) {
+  // Fetch store product from Printful API by slug
+  const storeProduct = await fetchProductBySlug(params.slug, request);
 
-  if (!printfulProduct) {
+  if (!storeProduct) {
     throw new Response('Product not found', { status: 404 });
   }
 
   // Transform to our Product type
-  const product = transformProduct(printfulProduct);
+  const product = transformStoreProduct(storeProduct);
 
   return { product };
 }

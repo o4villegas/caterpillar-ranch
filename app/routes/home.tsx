@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import type { Route } from "./+types/home";
 import { fetchCatalogProducts } from "../lib/api/catalog";
-import { transformProducts } from "../lib/api/transformers";
+import { transformStoreProducts } from "../lib/api/transformers";
 import { Badge } from "../lib/components/ui/badge";
 
 export function meta({}: Route.MetaArgs) {
@@ -19,15 +19,15 @@ export function links() {
   ];
 }
 
-export async function loader({ context }: Route.LoaderArgs) {
+export async function loader({ context, request }: Route.LoaderArgs) {
   const cloudflare = context.cloudflare as { env: Env };
 
   try {
-    // Fetch products from Printful API via our catalog routes
-    const catalogResponse = await fetchCatalogProducts();
+    // Fetch store products from Printful API via our catalog routes
+    const catalogResponse = await fetchCatalogProducts(request);
 
-    // Transform Printful format to our Product type
-    const products = transformProducts(catalogResponse.data);
+    // Transform Printful store product format to our Product type
+    const products = transformStoreProducts(catalogResponse.data);
 
     return {
       products,
