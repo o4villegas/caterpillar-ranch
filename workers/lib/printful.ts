@@ -1,0 +1,324 @@
+/**
+ * Printful API v2 Client
+ *
+ * Handles all communication with the Printful API
+ * Docs: https://developers.printful.com/docs/
+ * Schema: DO-NOT-DELETE/printful-schema.json
+ */
+
+export interface PrintfulProduct {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+  variants: PrintfulVariant[];
+}
+
+export interface PrintfulVariant {
+  id: number;
+  product_id: number;
+  name: string;
+  size: string;
+  color: string;
+  price: string;
+  in_stock: boolean;
+  sku: string;
+}
+
+export interface PrintfulOrder {
+  id: number;
+  external_id: string;
+  status: string;
+  shipping: string;
+  recipient: PrintfulRecipient;
+  items: PrintfulOrderItem[];
+  costs: PrintfulCosts;
+}
+
+export interface PrintfulRecipient {
+  name: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  state_code: string;
+  country_code: string;
+  zip: string;
+  phone?: string;
+  email: string;
+}
+
+export interface PrintfulOrderItem {
+  variant_id: number;
+  quantity: number;
+  retail_price: string;
+  files?: Array<{
+    type: string;
+    url: string;
+  }>;
+}
+
+export interface PrintfulCosts {
+  currency: string;
+  subtotal: string;
+  discount: string;
+  shipping: string;
+  tax: string;
+  total: string;
+}
+
+export interface PrintfulEstimate {
+  costs: PrintfulCosts;
+  retail_costs: PrintfulCosts;
+  shipping_date: {
+    min: string;
+    max: string;
+  };
+}
+
+/**
+ * Printful API Client
+ */
+export class PrintfulClient {
+  private baseUrl = 'https://api.printful.com';
+  private token: string;
+
+  constructor(token: string) {
+    this.token = token;
+  }
+
+  /**
+   * Make authenticated request to Printful API
+   */
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    const headers = {
+      'Authorization': `Bearer ${this.token}`,
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+
+    const response = await fetch(url, {
+      ...options,
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(
+        `Printful API error (${response.status}): ${error}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  }
+
+  /**
+   * Get all catalog products
+   * GET /v2/catalog-products
+   */
+  async getCatalogProducts(): Promise<PrintfulProduct[]> {
+    const response = await this.request<{
+      data: PrintfulProduct[];
+    }>('/v2/catalog-products');
+
+    return response.data;
+  }
+
+  /**
+   * Get product by ID
+   * GET /v2/catalog-products/:id
+   */
+  async getProduct(productId: number): Promise<PrintfulProduct> {
+    const response = await this.request<{
+      data: PrintfulProduct;
+    }>(`/v2/catalog-products/${productId}`);
+
+    return response.data;
+  }
+
+  /**
+   * Get variant by ID
+   * GET /store/variants/:id
+   */
+  async getVariant(variantId: number): Promise<PrintfulVariant> {
+    const response = await this.request<{
+      code: number;
+      result: PrintfulVariant;
+    }>(`/store/variants/${variantId}`);
+
+    return response.result;
+  }
+
+  /**
+   * Estimate order costs
+   * POST /v2/order-estimation-tasks
+   */
+  async estimateOrder(
+    recipient: PrintfulRecipient,
+    items: PrintfulOrderItem[]
+  ): Promise<PrintfulEstimate> {
+    const response = await this.request<{
+      data: PrintfulEstimate;
+    }>('/v2/order-estimation-tasks', {
+      method: 'POST',
+      body: JSON.stringify({
+        recipient,
+        items,
+      }),
+    });
+
+    return response.data;
+  }
+
+  /**
+   * Create draft order
+   * POST /v2/orders
+   */
+  async createOrder(
+    externalId: string,
+    recipient: PrintfulRecipient,
+    items: PrintfulOrderItem[],
+    retailCosts?: PrintfulCosts
+  ): Promise<PrintfulOrder> {
+    const response = await this.request<{
+      data: PrintfulOrder;
+    }>('/v2/orders', {
+      method: 'POST',
+      body: JSON.stringify({
+        external_id: externalId,
+        recipient,
+        items,
+        retail_costs: retailCosts,
+      }),
+    });
+
+    return response.data;
+  }
+
+  /**
+   * Confirm order (move from draft to confirmed)
+   * POST /v2/orders/:id/confirm
+   */
+  async confirmOrder(orderId: number): Promise<PrintfulOrder> {
+    const response = await this.request<{
+      data: PrintfulOrder;
+    }>(`/v2/orders/${orderId}/confirm`, {
+      method: 'POST',
+    });
+
+    return response.data;
+  }
+
+  /**
+   * Get order by ID
+   * GET /v2/orders/:id
+   */
+  async getOrder(orderId: number): Promise<PrintfulOrder> {
+    const response = await this.request<{
+      data: PrintfulOrder;
+    }>(`/v2/orders/${orderId}`);
+
+    return response.data;
+  }
+
+  /**
+   * Get order by external ID
+   * GET /v2/orders?external_id=:external_id
+   */
+  async getOrderByExternalId(externalId: string): Promise<PrintfulOrder> {
+    const response = await this.request<{
+      data: PrintfulOrder[];
+    }>(`/v2/orders?external_id=${externalId}`);
+
+    return response.data[0];
+  }
+}
+
+/**
+ * Cache helper for KV storage
+ */
+export class PrintfulCache {
+  private kv: KVNamespace;
+  private ttl: {
+    products: number;
+    variants: number;
+  };
+
+  constructor(kv: KVNamespace) {
+    this.kv = kv;
+    this.ttl = {
+      products: 60 * 60, // 1 hour
+      variants: 60 * 60 * 6, // 6 hours
+    };
+  }
+
+  /**
+   * Get cached products list
+   */
+  async getProducts(): Promise<PrintfulProduct[] | null> {
+    const cached = await this.kv.get('printful:products:list');
+    if (!cached) return null;
+
+    try {
+      return JSON.parse(cached);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Cache products list
+   */
+  async setProducts(products: PrintfulProduct[]): Promise<void> {
+    await this.kv.put(
+      'printful:products:list',
+      JSON.stringify(products),
+      { expirationTtl: this.ttl.products }
+    );
+  }
+
+  /**
+   * Get cached product
+   */
+  async getProduct(productId: number): Promise<PrintfulProduct | null> {
+    const cached = await this.kv.get(`printful:product:${productId}`);
+    if (!cached) return null;
+
+    try {
+      return JSON.parse(cached);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Cache product
+   */
+  async setProduct(product: PrintfulProduct): Promise<void> {
+    await this.kv.put(
+      `printful:product:${product.id}`,
+      JSON.stringify(product),
+      { expirationTtl: this.ttl.products }
+    );
+  }
+
+  /**
+   * Invalidate product cache
+   */
+  async invalidateProduct(productId: number): Promise<void> {
+    await this.kv.delete(`printful:product:${productId}`);
+    await this.kv.delete('printful:products:list');
+  }
+
+  /**
+   * Invalidate all product cache
+   */
+  async invalidateAll(): Promise<void> {
+    await this.kv.delete('printful:products:list');
+  }
+}

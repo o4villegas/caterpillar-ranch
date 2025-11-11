@@ -23,9 +23,9 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 
 ## 🏗️ Current Implementation Status
 
-**Last Updated**: 2025-01-15
-**Current Phase**: Phase 2 Complete, Phase 3 In Progress
-**Codebase Size**: 37 TypeScript files, 4,049 lines of application code
+**Last Updated**: 2025-01-16
+**Current Phase**: Phase 2 Complete, Phase 2.9 Complete, Phase 3 In Progress
+**Codebase Size**: 39 TypeScript files, 4,500+ lines of application code
 
 ### ✅ Completed Phases
 
@@ -100,16 +100,43 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 - ⏳ Session token management and KV storage (placeholders for Phase 3)
 - ⏳ Server sync API routes (placeholders for Phase 3)
 
+**Phase 2.9: Printful API Integration** (✅ Complete)
+- ✅ Printful API client library (`workers/lib/printful.ts` - 331 lines)
+  - PrintfulClient class with V2 API endpoints
+  - Bearer token authentication
+  - Error handling and response parsing
+  - Support for catalog, orders, variants, estimation
+- ✅ PrintfulCache helper for KV storage
+  - 1-hour TTL for product catalog
+  - 6-hour TTL for product variants
+  - Cache invalidation methods
+- ✅ Catalog API routes (`workers/routes/catalog.ts` - 146 lines)
+  - GET /api/catalog/products - List all products (cached)
+  - GET /api/catalog/products/:id - Single product details (cached)
+  - POST /api/catalog/invalidate - Cache invalidation (admin only)
+- ✅ Integration with Hono app (`workers/app.ts`)
+  - Catalog routes mounted at /api/catalog
+- ✅ Environment configuration
+  - PRINTFUL_API_TOKEN set in wrangler.jsonc (local)
+  - Production secret configured via wrangler secret put
+  - KV namespace binding (CATALOG_CACHE)
+- ✅ API verification
+  - Tested against Printful V2 reference documentation
+  - Rate limiting confirmed (120 req/min leaky bucket)
+  - Response structure validated ({data: [...]} format)
+  - Successfully fetching 20+ catalog products
+
 ### 🚧 In Progress
 
 **Phase 3: Game Implementation & Backend Integration** (In Progress)
 - ✅ Game modal selection UI (`app/lib/components/GameModal.tsx` - 87 lines)
+- ✅ Printful API catalog routes (moved to Phase 2.9)
 - ⏳ 6 horror-themed discount games (implementation pending)
 - ⏳ Score-to-discount conversion system
-- ⏳ Printful API routes in `workers/app.ts`
-- ⏳ Order creation and confirmation flow
+- ⏳ Printful order creation and confirmation flow
 - ⏳ KV storage for cart sessions
 - ⏳ Server-side discount validation
+- ⏳ Frontend integration with real Printful catalog data
 
 ---
 

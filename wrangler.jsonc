@@ -4,13 +4,46 @@
  */ {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "caterpillar-ranch",
-  "compatibility_date": "2025-10-08",
+  "compatibility_date": "2025-01-10",
+  "compatibility_flags": ["nodejs_compat"],
   "main": "./workers/app.ts",
   "vars": {
-    "VALUE_FROM_CLOUDFLARE": "Hello from Hono/CF"
+    "VALUE_FROM_CLOUDFLARE": "Hello from Hono/CF",
+    "JWT_SECRET": "local-dev-secret-change-in-production",
+    "PRINTFUL_API_TOKEN": "b4ge8jNnrPn3i5cvv848qmEtJiE1vCiCygI0nURj"
   },
   "observability": {
     "enabled": true
+  },
+  /**
+   * D1 Database
+   * Create: wrangler d1 create caterpillar-ranch-db
+   * Then replace database_id below with the output
+   */
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "caterpillar-ranch-db",
+      "database_id": "31080ebe-9022-4bad-b237-6d19f55a8388"
+    }
+  ],
+  /**
+   * KV Namespace for Product Catalog Caching
+   * Create: wrangler kv:namespace create CATALOG_CACHE
+   * Then replace id below with the output
+   */
+  "kv_namespaces": [
+    {
+      "binding": "CATALOG_CACHE",
+      "id": "324758f5204947d58d31c4aff9cbe2b4"
+    }
+  ],
+  /**
+   * Cron Trigger for Daily Inventory Sync (2 AM UTC)
+   * Runs Phase 2.9 inventory sync from Printful API
+   */
+  "triggers": {
+    "crons": ["0 2 * * *"]
   },
   /**
    * Smart Placement
