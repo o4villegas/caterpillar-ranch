@@ -186,11 +186,11 @@ export default function TheCullingRoute() {
           <h1 className="text-3xl text-ranch-lime mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             The Culling
           </h1>
-          <p className="text-ranch-lavender text-sm" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <p className="text-ranch-lavender text-base" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
             Tap invasive caterpillars (red eyes) before they burrow!
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-sm mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+            <p className="text-ranch-cyan text-base mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
               Best Score: {bestScore}
             </p>
           )}

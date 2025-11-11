@@ -232,11 +232,11 @@ export default function CursedHarvestRoute() {
           <h1 className="text-3xl font-bold text-ranch-lime mb-2">
             Cursed Harvest
           </h1>
-          <p className="text-ranch-lavender text-sm">
+          <p className="text-ranch-lavender text-base">
             Match pairs of mutated crops from The Ranch's cursed garden
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-sm mt-1">
+            <p className="text-ranch-cyan text-base mt-1">
               Best Score: {bestScore}
             </p>
           )}

@@ -148,7 +148,7 @@ export function ProductView({
                 >
                   <span style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>{variant.size}</span>
                   {!isAvailable && (
-                    <div className="text-sm mt-1 text-ranch-pink" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>Claimed</div>
+                    <div className="text-base mt-1 text-ranch-pink" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>Claimed</div>
                   )}
                 </motion.button>
               );

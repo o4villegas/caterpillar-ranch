@@ -257,11 +257,11 @@ export default function MidnightGardenRoute() {
           <h1 className="text-3xl font-bold text-ranch-lime mb-2">
             Midnight Garden
           </h1>
-          <p className="text-ranch-lavender text-sm">
+          <p className="text-ranch-lavender text-base">
             Click the good omens, avoid the bad signs
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-sm mt-1">
+            <p className="text-ranch-cyan text-base mt-1">
               Best Score: {bestScore}
             </p>
           )}
@@ -299,7 +299,7 @@ export default function MidnightGardenRoute() {
             {/* Confusion warning */}
             {confusionActive && (
               <div className="bg-ranch-pink/20 border border-ranch-pink rounded-lg p-2 text-center">
-                <p className="text-ranch-pink text-sm font-bold">
+                <p className="text-ranch-pink text-base font-bold">
                   ⚠️ The garden grows restless... Trust your instincts!
                 </p>
               </div>

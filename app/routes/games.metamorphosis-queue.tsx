@@ -348,11 +348,11 @@ export default function MetamorphosisQueueRoute() {
           <h1 className="text-3xl font-bold text-ranch-lime mb-2">
             Metamorphosis Queue
           </h1>
-          <p className="text-ranch-lavender text-sm">
+          <p className="text-ranch-lavender text-base">
             Click cocoons at the exact moment of emergence
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-sm mt-1">
+            <p className="text-ranch-cyan text-base mt-1">
               Best Score: {bestScore}
             </p>
           )}

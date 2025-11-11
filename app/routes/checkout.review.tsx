@@ -136,8 +136,8 @@ export default function CheckoutReviewPage() {
                 <p className="text-ranch-cream" style={{ fontWeight: 700 }}>{shippingInfo.name}</p>
                 <p>{shippingInfo.address}</p>
                 <p>{shippingInfo.city}, {shippingInfo.state} {shippingInfo.zip}</p>
-                <p className="pt-2 text-sm">{shippingInfo.email}</p>
-                {shippingInfo.phone && <p className="text-sm">{shippingInfo.phone}</p>}
+                <p className="pt-2 text-base">{shippingInfo.email}</p>
+                {shippingInfo.phone && <p className="text-base">{shippingInfo.phone}</p>}
               </div>
             </motion.div>
 
@@ -175,7 +175,7 @@ export default function CheckoutReviewPage() {
                         ${(item.product.price * (1 - item.earnedDiscount / 100) * item.quantity).toFixed(2)}
                       </p>
                       {item.earnedDiscount > 0 && (
-                        <p className="text-sm text-ranch-lavender line-through" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+                        <p className="text-base text-ranch-lavender line-through" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
                           ${(item.product.price * item.quantity).toFixed(2)}
                         </p>
                       )}

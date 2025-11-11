@@ -21,7 +21,7 @@ export function CartSummary() {
           <div className="flex items-center gap-2">
             <span>Earned Discount</span>
             {isAtDiscountCap && (
-              <Badge variant="success" className="text-sm animate-heartbeat-pulse">
+              <Badge variant="success" className="text-base animate-heartbeat-pulse">
                 MAX
               </Badge>
             )}
@@ -34,7 +34,7 @@ export function CartSummary() {
 
       {/* Discount cap warning */}
       {isAtDiscountCap && (
-        <div className="text-sm text-ranch-lavender/70 bg-ranch-purple/30 p-2 rounded border border-ranch-purple" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+        <div className="text-base text-ranch-lavender/70 bg-ranch-purple/30 p-2 rounded border border-ranch-purple" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
           🎮 Maximum 40% discount reached! The Ranch rewards your skill.
         </div>
       )}
@@ -59,7 +59,7 @@ export function CartSummary() {
 
       {/* Free shipping message (if applicable) */}
       {totals.total >= 50 && (
-        <div className="text-sm text-ranch-lime bg-ranch-lime/10 p-2 rounded border border-ranch-lime/30" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+        <div className="text-base text-ranch-lime bg-ranch-lime/10 p-2 rounded border border-ranch-lime/30" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
           🦋 Free shipping unlocked!
         </div>
       )}

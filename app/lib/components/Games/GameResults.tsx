@@ -111,7 +111,7 @@ export function GameResults({ score, onApplyDiscount, className }: GameResultsPr
           >
             {formatDiscount(discountPercent)}
           </div>
-          <div className="text-sm text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <div className="text-base text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
             {discountPercent > 0 ? 'Discount Earned!' : 'No Discount'}
           </div>
         </div>
@@ -161,7 +161,7 @@ export function GameResults({ score, onApplyDiscount, className }: GameResultsPr
       {/* Score breakdown hint (for transparency) */}
       <motion.div
         variants={itemVariants}
-        className="text-sm text-ranch-lavender/60 text-center mt-2"
+        className="text-base text-ranch-lavender/60 text-center mt-2"
         style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
       >
         {discountPercent === 0 && score < 10 && 'Need 10+ points for any discount'}

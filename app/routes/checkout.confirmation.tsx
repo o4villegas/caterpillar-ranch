@@ -173,7 +173,7 @@ export default function CheckoutConfirmationPage() {
                       ${(item.product.price * (1 - item.earnedDiscount / 100) * item.quantity).toFixed(2)}
                     </p>
                     {item.earnedDiscount > 0 && (
-                      <p className="text-sm text-ranch-lavender line-through" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+                      <p className="text-base text-ranch-lavender line-through" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
                         ${(item.product.price * item.quantity).toFixed(2)}
                       </p>
                     )}
@@ -222,8 +222,8 @@ export default function CheckoutConfirmationPage() {
               <p className="text-ranch-cream" style={{ fontWeight: 700 }}>{order.shipping.name}</p>
               <p>{order.shipping.address}</p>
               <p>{order.shipping.city}, {order.shipping.state} {order.shipping.zip}</p>
-              <p className="pt-2 text-sm">{order.shipping.email}</p>
-              {order.shipping.phone && <p className="text-sm">{order.shipping.phone}</p>}
+              <p className="pt-2 text-base">{order.shipping.email}</p>
+              {order.shipping.phone && <p className="text-base">{order.shipping.phone}</p>}
             </div>
           </motion.div>
 

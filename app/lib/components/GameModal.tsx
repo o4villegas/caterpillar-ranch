@@ -59,7 +59,7 @@ export function GameModal({ isOpen, onClose, productId, productSlug, onGameCompl
               >
                 <div className="text-5xl mb-3">{game.emoji}</div>
                 <div className="text-ranch-cream mb-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>{game.name}</div>
-                <div className="text-sm text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>{game.duration}s</div>
+                <div className="text-base text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>{game.duration}s</div>
               </motion.button>
             ))}
           </div>
@@ -79,7 +79,7 @@ export function GameModal({ isOpen, onClose, productId, productSlug, onGameCompl
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <p className="text-sm text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+            <p className="text-base text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
               🐛 Games are optional - The Ranch offers discounts, never demands them
             </p>
           </motion.div>

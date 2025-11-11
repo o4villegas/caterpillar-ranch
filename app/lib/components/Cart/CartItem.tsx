@@ -51,7 +51,7 @@ export function CartItem({ item }: CartItemProps) {
         />
         {earnedDiscount > 0 && (
           <div className="absolute top-1 right-1">
-            <Badge variant="success" className="text-sm px-1 py-0.5 animate-heartbeat-pulse">
+            <Badge variant="success" className="text-base px-1 py-0.5 animate-heartbeat-pulse">
               -{earnedDiscount}%
             </Badge>
           </div>
@@ -65,7 +65,7 @@ export function CartItem({ item }: CartItemProps) {
           <h3 className="text-ranch-cream text-base leading-tight" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
             {product.name}
           </h3>
-          <p className="text-sm text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <p className="text-base text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
             Size: {variant.size} • {variant.color || 'Default'}
           </p>
         </div>
@@ -101,7 +101,7 @@ export function CartItem({ item }: CartItemProps) {
           <div className="text-right" style={{ fontFamily: 'Handjet, monospace' }}>
             {earnedDiscount > 0 ? (
               <>
-                <div className="text-sm text-ranch-lavender line-through" style={{ fontWeight: 500 }}>
+                <div className="text-base text-ranch-lavender line-through" style={{ fontWeight: 500 }}>
                   ${(basePrice * quantity).toFixed(2)}
                 </div>
                 <div className="text-base text-ranch-lime" style={{ fontWeight: 700 }}>

@@ -118,7 +118,7 @@ export default function CheckoutPage() {
                 {totals.itemCount} {totals.itemCount === 1 ? 'item' : 'items'}
               </span>
               {totals.effectiveDiscountPercent > 0 && (
-                <span className="ml-2 text-ranch-lime text-sm" style={{ fontWeight: 500 }}>
+                <span className="ml-2 text-ranch-lime text-base" style={{ fontWeight: 500 }}>
                   ({totals.effectiveDiscountPercent}% off applied)
                 </span>
               )}

@@ -197,7 +197,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         {/* Debug Info (Dev Only) */}
         {import.meta.env.DEV && (
           <div className="mt-12 p-4 bg-ranch-purple/10 rounded-lg">
-            <p className="text-sm opacity-50">
+            <p className="text-base opacity-50">
               ENV: {loaderData.message} | Products: {loaderData.products.length}
             </p>
           </div>

@@ -328,11 +328,11 @@ export default function HungryCaterpillarRoute() {
           <h1 className="text-3xl font-bold text-ranch-lime mb-2">
             Hungry Caterpillar
           </h1>
-          <p className="text-ranch-lavender text-sm">
+          <p className="text-ranch-lavender text-base">
             Eat leaves and grow as large as possible before the transformation
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-sm mt-1">
+            <p className="text-ranch-cyan text-base mt-1">
               Best Score: {bestScore}
             </p>
           )}
@@ -455,7 +455,7 @@ export default function HungryCaterpillarRoute() {
             </div>
 
             {/* Mobile Controls Hint */}
-            <p className="text-ranch-lavender text-sm text-center">
+            <p className="text-ranch-lavender text-base text-center">
               Swipe or use arrow keys to move
             </p>
           </div>

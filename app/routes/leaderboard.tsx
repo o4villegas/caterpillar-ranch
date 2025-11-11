@@ -132,7 +132,7 @@ export default function LeaderboardPage() {
                       <div className="text-ranch-cream" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                         {entry.username}
                       </div>
-                      <div className="text-sm text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+                      <div className="text-base text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
                         {new Date(entry.timestamp).toLocaleDateString()}
                       </div>
                     </div>
