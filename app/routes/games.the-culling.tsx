@@ -186,11 +186,11 @@ export default function TheCullingRoute() {
           <h1 className="text-3xl text-ranch-lime mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             The Culling
           </h1>
-          <p className="text-ranch-lavender text-base" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <p className="text-ranch-lavender text-lg" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
             Tap invasive caterpillars (red eyes) before they burrow!
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-base mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+            <p className="text-ranch-cyan text-lg mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
               Best Score: {bestScore}
             </p>
           )}
@@ -203,7 +203,7 @@ export default function TheCullingRoute() {
               <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
                 Tap invasive caterpillars with red eyes
               </p>
-              <p className="text-base text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+              <p className="text-lg text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
                 Avoid the good ones
               </p>
             </div>

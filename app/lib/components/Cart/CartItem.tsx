@@ -51,7 +51,7 @@ export function CartItem({ item }: CartItemProps) {
         />
         {earnedDiscount > 0 && (
           <div className="absolute top-1 right-1">
-            <Badge variant="success" className="text-base px-1 py-0.5 animate-heartbeat-pulse">
+            <Badge variant="success" className="text-lg px-1 py-0.5 animate-heartbeat-pulse">
               -{earnedDiscount}%
             </Badge>
           </div>
@@ -62,10 +62,10 @@ export function CartItem({ item }: CartItemProps) {
       <div className="flex-1 flex flex-col justify-between">
         {/* Name and variant */}
         <div>
-          <h3 className="text-ranch-cream text-base leading-tight" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+          <h3 className="text-ranch-cream text-lg leading-tight" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
             {product.name}
           </h3>
-          <p className="text-base text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <p className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
             Size: {variant.size} • {variant.color || 'Default'}
           </p>
         </div>
@@ -83,7 +83,7 @@ export function CartItem({ item }: CartItemProps) {
             >
               <Minus className="h-3 w-3" />
             </Button>
-            <span className="w-8 text-center text-base font-medium text-ranch-cream">
+            <span className="w-8 text-center text-lg font-medium text-ranch-cream">
               {quantity}
             </span>
             <Button
@@ -101,15 +101,15 @@ export function CartItem({ item }: CartItemProps) {
           <div className="text-right" style={{ fontFamily: 'Handjet, monospace' }}>
             {earnedDiscount > 0 ? (
               <>
-                <div className="text-base text-ranch-lavender line-through" style={{ fontWeight: 500 }}>
+                <div className="text-lg text-ranch-lavender line-through" style={{ fontWeight: 500 }}>
                   ${(basePrice * quantity).toFixed(2)}
                 </div>
-                <div className="text-base text-ranch-lime" style={{ fontWeight: 700 }}>
+                <div className="text-lg text-ranch-lime" style={{ fontWeight: 700 }}>
                   ${itemTotal.toFixed(2)}
                 </div>
               </>
             ) : (
-              <div className="text-base text-ranch-cream" style={{ fontWeight: 700 }}>
+              <div className="text-lg text-ranch-cream" style={{ fontWeight: 700 }}>
                 ${itemTotal.toFixed(2)}
               </div>
             )}

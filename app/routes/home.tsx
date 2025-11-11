@@ -92,7 +92,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <p className="text-4xl text-ranch-cream leading-relaxed" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             Play mini-games to earn up to 40% off your order.
           </p>
-          <p className="text-base text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <p className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
             Higher scores unlock bigger discounts.
           </p>
         </motion.div>
@@ -152,7 +152,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               <h2 className="text-3xl mb-2 leading-tight text-ranch-cream group-hover:text-ranch-dark transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                 {product.name}
               </h2>
-              <p className="text-ranch-lavender group-hover:text-ranch-dark/80 text-base mb-4 line-clamp-2 transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+              <p className="text-ranch-lavender group-hover:text-ranch-dark/80 text-lg mb-4 line-clamp-2 transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
                 {product.description}
               </p>
 
@@ -197,7 +197,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         {/* Debug Info (Dev Only) */}
         {import.meta.env.DEV && (
           <div className="mt-12 p-4 bg-ranch-purple/10 rounded-lg">
-            <p className="text-base opacity-50">
+            <p className="text-lg opacity-50">
               ENV: {loaderData.message} | Products: {loaderData.products.length}
             </p>
           </div>

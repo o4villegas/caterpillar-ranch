@@ -118,7 +118,7 @@ export default function CheckoutPage() {
                 {totals.itemCount} {totals.itemCount === 1 ? 'item' : 'items'}
               </span>
               {totals.effectiveDiscountPercent > 0 && (
-                <span className="ml-2 text-ranch-lime text-base" style={{ fontWeight: 500 }}>
+                <span className="ml-2 text-ranch-lime text-lg" style={{ fontWeight: 500 }}>
                   ({totals.effectiveDiscountPercent}% off applied)
                 </span>
               )}
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
 
             {/* Email */}
             <div className="mb-4">
-              <label className="block text-ranch-cream text-base mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+              <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                 Email <span className="text-ranch-pink">*</span>
               </label>
               <Input
@@ -155,13 +155,13 @@ export default function CheckoutPage() {
                 className={errors.email ? 'border-ranch-pink' : ''}
               />
               {errors.email && (
-                <p className="text-ranch-pink text-base mt-1">{errors.email}</p>
+                <p className="text-ranch-pink text-lg mt-1">{errors.email}</p>
               )}
             </div>
 
             {/* Name */}
             <div>
-              <label className="block text-ranch-cream text-base mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+              <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                 Full Name <span className="text-ranch-pink">*</span>
               </label>
               <Input
@@ -172,7 +172,7 @@ export default function CheckoutPage() {
                 className={errors.name ? 'border-ranch-pink' : ''}
               />
               {errors.name && (
-                <p className="text-ranch-pink text-base mt-1">{errors.name}</p>
+                <p className="text-ranch-pink text-lg mt-1">{errors.name}</p>
               )}
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function CheckoutPage() {
 
             {/* Address */}
             <div className="mb-4">
-              <label className="block text-ranch-cream text-base mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+              <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                 Street Address <span className="text-ranch-pink">*</span>
               </label>
               <Input
@@ -195,14 +195,14 @@ export default function CheckoutPage() {
                 className={errors.address ? 'border-ranch-pink' : ''}
               />
               {errors.address && (
-                <p className="text-ranch-pink text-base mt-1">{errors.address}</p>
+                <p className="text-ranch-pink text-lg mt-1">{errors.address}</p>
               )}
             </div>
 
             {/* City, State, ZIP */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <label className="block text-ranch-cream text-base mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+                <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                   City <span className="text-ranch-pink">*</span>
                 </label>
                 <Input
@@ -213,12 +213,12 @@ export default function CheckoutPage() {
                   className={errors.city ? 'border-ranch-pink' : ''}
                 />
                 {errors.city && (
-                  <p className="text-ranch-pink text-base mt-1">{errors.city}</p>
+                  <p className="text-ranch-pink text-lg mt-1">{errors.city}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-ranch-cream text-base mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+                <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                   State <span className="text-ranch-pink">*</span>
                 </label>
                 <Input
@@ -230,12 +230,12 @@ export default function CheckoutPage() {
                   className={errors.state ? 'border-ranch-pink' : ''}
                 />
                 {errors.state && (
-                  <p className="text-ranch-pink text-base mt-1">{errors.state}</p>
+                  <p className="text-ranch-pink text-lg mt-1">{errors.state}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-ranch-cream text-base mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+                <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                   ZIP Code <span className="text-ranch-pink">*</span>
                 </label>
                 <Input
@@ -247,14 +247,14 @@ export default function CheckoutPage() {
                   className={errors.zip ? 'border-ranch-pink' : ''}
                 />
                 {errors.zip && (
-                  <p className="text-ranch-pink text-base mt-1">{errors.zip}</p>
+                  <p className="text-ranch-pink text-lg mt-1">{errors.zip}</p>
                 )}
               </div>
             </div>
 
             {/* Phone (Optional) */}
             <div>
-              <label className="block text-ranch-cream text-base mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+              <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                 Phone (optional)
               </label>
               <Input

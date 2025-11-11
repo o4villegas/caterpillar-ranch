@@ -46,7 +46,7 @@ export function CartIcon({ onClick, className }: CartIconProps) {
               'animate-heartbeat-pulse'
             )}
           >
-            <span className="text-base font-bold text-ranch-dark leading-none">
+            <span className="text-lg font-bold text-ranch-dark leading-none">
               {itemCount > 99 ? '99+' : itemCount}
             </span>
           </motion.div>

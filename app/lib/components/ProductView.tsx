@@ -90,7 +90,7 @@ export function ProductView({
           <h3 className="text-3xl text-ranch-cream mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
             {product.name}
           </h3>
-          <p className="text-ranch-lavender text-base mb-3" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <p className="text-ranch-lavender text-lg mb-3" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
             {product.description}
           </p>
           <div className="text-4xl text-ranch-lime" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
@@ -102,12 +102,12 @@ export function ProductView({
             )}
           </div>
           {earnedDiscount > 0 && (
-            <div className="text-base text-ranch-lime mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+            <div className="text-lg text-ranch-lime mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
               🎉 {earnedDiscount}% Ranch Blessing Applied!
             </div>
           )}
           {quantity > 1 && (
-            <div className="text-base text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+            <div className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
               ${discountedPrice.toFixed(2)} each
             </div>
           )}
@@ -133,7 +133,7 @@ export function ProductView({
                   onClick={() => isAvailable && setSelectedVariant(variant)}
                   disabled={!isAvailable}
                   className={`
-                    py-3 px-2 rounded-lg font-bold text-base transition-all
+                    py-3 px-2 rounded-lg font-bold text-lg transition-all
                     ${isSelected
                       ? 'bg-ranch-lime text-ranch-dark border-2 border-ranch-lime shadow-lg'
                       : isAvailable
@@ -148,7 +148,7 @@ export function ProductView({
                 >
                   <span style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>{variant.size}</span>
                   {!isAvailable && (
-                    <div className="text-base mt-1 text-ranch-pink" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>Claimed</div>
+                    <div className="text-lg mt-1 text-ranch-pink" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>Claimed</div>
                   )}
                 </motion.button>
               );
@@ -158,7 +158,7 @@ export function ProductView({
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="mt-2 text-base text-ranch-lavender"
+              className="mt-2 text-lg text-ranch-lavender"
               style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
             >
               Color: {selectedVariant.color}

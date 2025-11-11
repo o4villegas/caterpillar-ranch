@@ -21,7 +21,7 @@ export function CartSummary() {
           <div className="flex items-center gap-2">
             <span>Earned Discount</span>
             {isAtDiscountCap && (
-              <Badge variant="success" className="text-base animate-heartbeat-pulse">
+              <Badge variant="success" className="text-lg animate-heartbeat-pulse">
                 MAX
               </Badge>
             )}
@@ -34,14 +34,14 @@ export function CartSummary() {
 
       {/* Discount cap warning */}
       {isAtDiscountCap && (
-        <div className="text-base text-ranch-lavender/70 bg-ranch-purple/30 p-2 rounded border border-ranch-purple" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+        <div className="text-lg text-ranch-lavender/70 bg-ranch-purple/30 p-2 rounded border border-ranch-purple" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
           🎮 Maximum 40% discount reached! The Ranch rewards your skill.
         </div>
       )}
 
       {/* Savings display */}
       {totals.savings > 0 && (
-        <div className="text-base text-ranch-cyan italic" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+        <div className="text-lg text-ranch-cyan italic" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
           You're saving ${totals.savings.toFixed(2)} from playing games! 🐛💚
         </div>
       )}
@@ -59,7 +59,7 @@ export function CartSummary() {
 
       {/* Free shipping message (if applicable) */}
       {totals.total >= 50 && (
-        <div className="text-base text-ranch-lime bg-ranch-lime/10 p-2 rounded border border-ranch-lime/30" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+        <div className="text-lg text-ranch-lime bg-ranch-lime/10 p-2 rounded border border-ranch-lime/30" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
           🦋 Free shipping unlocked!
         </div>
       )}

@@ -34,7 +34,7 @@ export function CartEmpty() {
       <div className="w-full max-w-xs h-px bg-gradient-to-r from-transparent via-ranch-purple to-transparent mb-6" />
 
       {/* Hint text */}
-      <p className="text-base text-ranch-lavender/70 text-center max-w-sm" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+      <p className="text-lg text-ranch-lavender/70 text-center max-w-sm" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
         Browse the harvest below. Each purchase supports the Ranch's growth. 🦋
       </p>
     </motion.div>

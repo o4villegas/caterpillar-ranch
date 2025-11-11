@@ -132,7 +132,7 @@ export default function CheckoutConfirmationPage() {
             <p className="text-2xl text-ranch-cyan mt-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
               {order.shipping.email}
             </p>
-            <p className="text-base text-ranch-lavender mt-4" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+            <p className="text-lg text-ranch-lavender mt-4" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
               {HORROR_COPY.order.tracking}
             </p>
           </motion.div>
@@ -159,7 +159,7 @@ export default function CheckoutConfirmationPage() {
                   />
                   <div className="flex-1">
                     <h3 className="text-ranch-cream" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>{item.product.name}</h3>
-                    <p className="text-base text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+                    <p className="text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
                       Size: {item.variant.size} | Qty: {item.quantity}
                     </p>
                     {item.earnedDiscount > 0 && (
@@ -173,7 +173,7 @@ export default function CheckoutConfirmationPage() {
                       ${(item.product.price * (1 - item.earnedDiscount / 100) * item.quantity).toFixed(2)}
                     </p>
                     {item.earnedDiscount > 0 && (
-                      <p className="text-base text-ranch-lavender line-through" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+                      <p className="text-lg text-ranch-lavender line-through" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
                         ${(item.product.price * item.quantity).toFixed(2)}
                       </p>
                     )}
@@ -222,7 +222,7 @@ export default function CheckoutConfirmationPage() {
               <p className="text-ranch-cream" style={{ fontWeight: 700 }}>{order.shipping.name}</p>
               <p>{order.shipping.address}</p>
               <p>{order.shipping.city}, {order.shipping.state} {order.shipping.zip}</p>
-              <p className="pt-2 text-base">{order.shipping.email}</p>
+              <p className="pt-2 text-lg">{order.shipping.email}</p>
               {order.shipping.phone && <p className="text-base">{order.shipping.phone}</p>}
             </div>
           </motion.div>

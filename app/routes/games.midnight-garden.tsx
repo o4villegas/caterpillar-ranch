@@ -257,11 +257,11 @@ export default function MidnightGardenRoute() {
           <h1 className="text-3xl font-bold text-ranch-lime mb-2">
             Midnight Garden
           </h1>
-          <p className="text-ranch-lavender text-base">
+          <p className="text-ranch-lavender text-lg">
             Click the good omens, avoid the bad signs
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-base mt-1">
+            <p className="text-ranch-cyan text-lg mt-1">
               Best Score: {bestScore}
             </p>
           )}
@@ -274,7 +274,7 @@ export default function MidnightGardenRoute() {
               <p className="text-lg text-ranch-cream leading-relaxed text-center">
                 Click good omens, avoid bad signs
               </p>
-              <p className="text-base text-ranch-lavender mt-1 text-center">
+              <p className="text-lg text-ranch-lavender mt-1 text-center">
                 Watch out - things get confusing at high scores
               </p>
             </div>
@@ -299,7 +299,7 @@ export default function MidnightGardenRoute() {
             {/* Confusion warning */}
             {confusionActive && (
               <div className="bg-ranch-pink/20 border border-ranch-pink rounded-lg p-2 text-center">
-                <p className="text-ranch-pink text-base font-bold">
+                <p className="text-ranch-pink text-lg font-bold">
                   ⚠️ The garden grows restless... Trust your instincts!
                 </p>
               </div>
@@ -351,12 +351,12 @@ export default function MidnightGardenRoute() {
                       {item.emoji}
                       {/* Visual feedback */}
                       {item.result === 'success' && (
-                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-ranch-lime text-base font-bold">
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-ranch-lime text-lg font-bold">
                           +4
                         </span>
                       )}
                       {item.result === 'penalty' && (
-                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-ranch-pink text-base font-bold">
+                        <span className="absolute -top-6 left-1/2 -translate-x-1/2 text-ranch-pink text-lg font-bold">
                           -5
                         </span>
                       )}

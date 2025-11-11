@@ -73,7 +73,7 @@ export default function LeaderboardPage() {
             <button
               key={lb.gameType}
               onClick={() => setSelectedGame(lb.gameType)}
-              className={`px-4 py-2 rounded-lg text-base transition-all ${
+              className={`px-4 py-2 rounded-lg text-lg transition-all ${
                 selectedGame === lb.gameType
                   ? 'bg-ranch-lime text-ranch-dark shadow-lg scale-105'
                   : 'bg-ranch-purple/30 text-ranch-cream hover:bg-ranch-purple/50 border-2 border-ranch-purple'
@@ -132,7 +132,7 @@ export default function LeaderboardPage() {
                       <div className="text-ranch-cream" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                         {entry.username}
                       </div>
-                      <div className="text-base text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+                      <div className="text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
                         {new Date(entry.timestamp).toLocaleDateString()}
                       </div>
                     </div>
@@ -157,7 +157,7 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Footer message */}
-          <div className="mt-6 text-center text-base text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <div className="mt-6 text-center text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
             Play games on product pages to earn your spot on the leaderboard
           </div>
         </motion.div>
