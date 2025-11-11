@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import type { Route } from "./+types/home";
-import { transformStoreProductListItems } from "../lib/api/transformers";
+import { transformStoreProduct, transformStoreProductListItem } from "../lib/api/transformers";
 import { Badge } from "../lib/components/ui/badge";
 
 export function meta({}: Route.MetaArgs) {
@@ -31,7 +31,7 @@ export async function loader({ context }: Route.LoaderArgs) {
       cloudflare.env.PRINTFUL_STORE_ID
     );
 
-    // Check cache first
+    // Step 1: Get list of product IDs
     let storeProducts = await cache.getProducts();
     let cached = true;
 
@@ -42,8 +42,33 @@ export async function loader({ context }: Route.LoaderArgs) {
       cached = false;
     }
 
-    // Transform to our Product type
-    const products = transformStoreProductListItems(storeProducts);
+    // Step 2: Fetch full details for each product (with prices and variants)
+    // Using Promise.allSettled for graceful degradation if individual products fail
+    // Note: With 2-10 products, this adds 2-10 API calls (parallel). For 20+ products,
+    // consider implementing a scheduled cron job to cache prices separately.
+    const productPromises = storeProducts.map(async (item) => {
+      try {
+        const cachedFull = await cache.getProduct(item.id);
+        if (cachedFull) {
+          return { success: true, product: transformStoreProduct(cachedFull) };
+        }
+
+        const fullProduct = await printful.getStoreProduct(item.id);
+        await cache.setProduct(fullProduct);
+        return { success: true, product: transformStoreProduct(fullProduct) };
+      } catch (error) {
+        console.error(`Failed to fetch product ${item.id}:`, error);
+        // Fallback: return product with $0 price (graceful degradation)
+        return { success: false, product: transformStoreProductListItem(item) };
+      }
+    });
+
+    const results = await Promise.allSettled(productPromises);
+
+    // Extract products (both successful and fallback)
+    const products = results
+      .filter((r) => r.status === 'fulfilled')
+      .map((r) => r.value.product);
 
     return {
       products,
