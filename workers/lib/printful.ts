@@ -81,9 +81,11 @@ export interface PrintfulEstimate {
 export class PrintfulClient {
   private baseUrl = 'https://api.printful.com';
   private token: string;
+  private storeId: string;
 
-  constructor(token: string) {
+  constructor(token: string, storeId: string) {
     this.token = token;
+    this.storeId = storeId;
   }
 
   /**
@@ -179,6 +181,7 @@ export class PrintfulClient {
     }>('/v2/order-estimation-tasks', {
       method: 'POST',
       body: JSON.stringify({
+        store_id: this.storeId,
         recipient,
         items,
       }),
@@ -202,6 +205,7 @@ export class PrintfulClient {
     }>('/v2/orders', {
       method: 'POST',
       body: JSON.stringify({
+        store_id: this.storeId,
         external_id: externalId,
         recipient,
         items,

@@ -75,7 +75,7 @@ orders.post('/estimate', async (c) => {
       );
     }
 
-    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN);
+    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN, c.env.PRINTFUL_STORE_ID);
 
     // Get estimate from Printful
     const estimate = await printful.estimateOrder(recipient, items);
@@ -131,7 +131,7 @@ orders.post('/', async (c) => {
       );
     }
 
-    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN);
+    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN, c.env.PRINTFUL_STORE_ID);
 
     // Calculate retail costs with validated discount
     // First, estimate to get subtotal
@@ -179,7 +179,7 @@ orders.post('/:id/confirm', async (c) => {
       return c.json({ error: 'Invalid order ID' }, 400);
     }
 
-    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN);
+    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN, c.env.PRINTFUL_STORE_ID);
 
     // Confirm the order
     const order = await printful.confirmOrder(orderId);
@@ -212,7 +212,7 @@ orders.get('/:id', async (c) => {
       return c.json({ error: 'Invalid order ID' }, 400);
     }
 
-    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN);
+    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN, c.env.PRINTFUL_STORE_ID);
 
     const order = await printful.getOrder(orderId);
 
@@ -244,7 +244,7 @@ orders.get('/external/:externalId', async (c) => {
       return c.json({ error: 'External ID is required' }, 400);
     }
 
-    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN);
+    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN, c.env.PRINTFUL_STORE_ID);
 
     const order = await printful.getOrderByExternalId(externalId);
 

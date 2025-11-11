@@ -28,7 +28,7 @@ catalog.get('/products', async (c) => {
     }
 
     // Fetch from Printful if not cached
-    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN);
+    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN, c.env.PRINTFUL_STORE_ID);
     const products = await printful.getCatalogProducts();
 
     // Cache the results
@@ -63,7 +63,7 @@ catalog.get('/products/:id', async (c) => {
     }
 
     const cache = new PrintfulCache(c.env.CATALOG_CACHE);
-    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN);
+    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN, c.env.PRINTFUL_STORE_ID);
 
     // Check cache for both product and variants
     const cachedProduct = await cache.getProduct(productId);
