@@ -134,32 +134,38 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
   - Admin login/logout endpoints (mounted at /api/auth)
   - Note: Auth is non-functional until D1 database is initialized in Phase 3
 
-**Phase 3.1: Frontend Printful Integration** (✅ Complete)
-- ✅ API client library (`app/lib/api/catalog.ts` - 89 lines)
-  - fetchCatalogProducts() - Get all products from backend
-  - fetchProduct(id) - Get single product by ID
-  - fetchProductBySlug(slug) - Find product by generated slug
-  - PrintfulProduct and PrintfulVariant type definitions
-- ✅ Data transformers (`app/lib/api/transformers.ts` - 82 lines)
-  - transformProduct() - Converts Printful API format to Product type
-  - transformProducts() - Batch transformation
+**Phase 3.1: Frontend Printful Integration** (✅ Complete - 2025-11-11)
+- ✅ SSR Architecture Fix (Commit: 6e02bd8)
+  - Bypass HTTP self-fetch in loaders
+  - Import PrintfulClient directly in React Router loaders
+  - Prevents 404 errors from Worker trying to fetch from itself
+- ✅ Data transformers (`app/lib/api/transformers.ts` - 173 lines)
+  - transformStoreProduct() - Full product details with variants/prices
+  - transformStoreProductListItem() - Simplified list item (for homepage)
   - Slug generation: name → lowercase → alphanumeric → trim
-  - Tag extraction from product name/description
-  - Price parsing from variant data
-- ✅ Homepage integration (`app/routes/home.tsx`)
-  - Loader fetches real Printful products via API client
-  - Transforms data to Product type
-  - Error handling with empty product array fallback
-  - Cache metadata passed to frontend
-- ✅ Product page integration (`app/routes/product.tsx`)
-  - Loader uses fetchProductBySlug() for URL routing
+  - Tag extraction from product name
+  - Price parsing from sync_variants[].retail_price
+- ✅ Homepage integration (`app/routes/home.tsx` - 220 lines)
+  - Loader imports PrintfulClient directly (no HTTP fetch)
+  - Fetches product list, then fetches full details for each product
+  - Uses Promise.allSettled for graceful error handling
+  - Displays real prices: CR-101 ($29.99), CR-100 ($39.99)
+  - KV cache: 1-hour TTL for list, 6-hour TTL for products
+- ✅ Product page integration (`app/routes/product.tsx` - 233 lines)
+  - Loader imports PrintfulClient directly
+  - Fetches list to find by slug, then fetches full product details
   - 404 handling for missing products
-  - Maintains existing UI/UX with real data
-- ✅ TypeScript error fixes
-  - Fixed `response.json() as T` type assertion in printful.ts
-- ✅ Production verification
-  - Homepage displays 20 real Printful products
-  - Product detail pages load correctly
+  - Meta tags for Open Graph/Twitter Card with correct image URLs
+- ✅ Image rendering fix (Commit: 0d6a51d)
+  - Removed broken WebP `<source srcSet>` from ProductView.tsx
+  - Printful CDN returns HTTP 403 for WebP files
+  - Now uses PNG directly: `<img src="...preview.png">`
+  - Fixed meta tag double-domain bug (product.tsx:74)
+- ✅ Production verification (Version: 978467b2)
+  - Homepage displays 2 real Printful products (CR-100, CR-101)
+  - Product detail pages load with correct images and prices
+  - No broken image icons
+  - Meta tags have valid Printful CDN URLs
   - KV caching operational
   - HTTP 200 status on all routes
 
