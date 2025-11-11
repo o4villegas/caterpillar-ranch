@@ -39,10 +39,10 @@ export function GameModal({ isOpen, onClose, productId, productSlug, onGameCompl
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-ranch-dark border-4 border-ranch-purple">
         <DialogHeader>
-          <DialogTitle className="text-3xl font-bold text-ranch-pink text-center">
+          <DialogTitle className="text-3xl text-ranch-pink text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             Choose Your Challenge
           </DialogTitle>
-          <DialogDescription className="text-ranch-lavender text-center">
+          <DialogDescription className="text-ranch-lavender text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
             Complete a game to earn discounts up to 40% off
           </DialogDescription>
         </DialogHeader>
@@ -58,17 +58,17 @@ export function GameModal({ isOpen, onClose, productId, productSlug, onGameCompl
                 className="p-6 bg-ranch-purple/30 rounded-lg border-2 border-ranch-purple hover:border-ranch-cyan transition-all"
               >
                 <div className="text-5xl mb-3">{game.emoji}</div>
-                <div className="font-bold text-ranch-cream mb-1">{game.name}</div>
-                <div className="text-xs text-ranch-lavender">{game.duration}s</div>
+                <div className="text-ranch-cream mb-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>{game.name}</div>
+                <div className="text-xs text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>{game.duration}s</div>
               </motion.button>
             ))}
           </div>
 
           <div className="mt-8 flex flex-col items-center gap-3">
-            <p className="text-sm text-ranch-lavender">
+            <p className="text-sm text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
               Or skip and proceed at full price
             </p>
-            <Button onClick={handleSkip} variant="ghost" size="sm">
+            <Button onClick={handleSkip} variant="ghost" size="sm" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
               Skip Games - Buy Now
             </Button>
           </div>
@@ -79,7 +79,7 @@ export function GameModal({ isOpen, onClose, productId, productSlug, onGameCompl
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <p className="text-xs text-ranch-lavender">
+            <p className="text-xs text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
               🐛 Games are optional - The Ranch offers discounts, never demands them
             </p>
           </motion.div>

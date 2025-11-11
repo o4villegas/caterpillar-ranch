@@ -183,14 +183,14 @@ export default function TheCullingRoute() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-ranch-lime mb-2">
+          <h1 className="text-3xl text-ranch-lime mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             The Culling
           </h1>
-          <p className="text-ranch-lavender text-sm">
+          <p className="text-ranch-lavender text-sm" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
             Tap invasive caterpillars (red eyes) before they burrow!
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-xs mt-1">
+            <p className="text-ranch-cyan text-xs mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
               Best Score: {bestScore}
             </p>
           )}
@@ -200,16 +200,17 @@ export default function TheCullingRoute() {
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
-              <p className="text-lg text-ranch-cream leading-relaxed text-center">
+              <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
                 Tap invasive caterpillars with red eyes
               </p>
-              <p className="text-sm text-ranch-lavender mt-1 text-center">
+              <p className="text-sm text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
                 Avoid the good ones
               </p>
             </div>
             <button
               onClick={() => game.startGame()}
-              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg font-bold text-lg hover:bg-ranch-cyan transition-colors"
+              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors"
+              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
             >
               Start The Culling
             </button>
