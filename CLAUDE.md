@@ -125,6 +125,13 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
   - Rate limiting confirmed (120 req/min leaky bucket)
   - Response structure validated ({data: [...]} format)
   - Successfully fetching 20+ catalog products
+- ✅ Auth scaffolding for Phase 3 (included as infrastructure)
+  - Auth routes (`workers/routes/auth.ts` - 143 lines)
+  - Auth utilities (`workers/lib/auth.ts` - 297 lines)
+  - Database schema (`workers/db/schema.sql` - 232 lines)
+  - JWT authentication, bcrypt password hashing
+  - Admin login/logout endpoints (mounted at /api/auth)
+  - Note: Auth is non-functional until D1 database is initialized in Phase 3
 
 ### 🚧 In Progress
 
