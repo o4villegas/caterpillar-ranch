@@ -89,7 +89,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
         >
-          <p className="text-4xl text-ranch-cream leading-relaxed" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
+          <p className="drip-text text-4xl text-ranch-cream leading-relaxed" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             Play mini-games to earn up to 40% off your order.
           </p>
           <p className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
@@ -143,7 +143,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                     scale: [1, 1.02, 1],
                   }}
                   style={{
-                    animation: "breathing 3s ease-in-out infinite",
+                    animation: "breathe 3s ease-in-out infinite",
                   }}
                 />
               </div>

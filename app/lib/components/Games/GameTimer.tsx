@@ -24,8 +24,8 @@ export function GameTimer({ timeLeft, className }: GameTimerProps) {
     return 'text-ranch-lime'; // Good (green)
   };
 
-  // Pulse animation when critical
-  const shouldPulse = timeLeft <= 5 && timeLeft > 0;
+  // Heartbeat pulse when <10s (warning state)
+  const shouldPulse = timeLeft < 10 && timeLeft > 0;
 
   return (
     <motion.div
@@ -33,14 +33,9 @@ export function GameTimer({ timeLeft, className }: GameTimerProps) {
         'flex items-center gap-2 px-4 py-2 rounded-lg',
         'bg-ranch-purple/20 border-2',
         timeLeft <= 5 ? 'border-ranch-pink' : 'border-ranch-purple',
+        shouldPulse && 'heartbeat-pulse', // Apply CSS heartbeat animation
         className
       )}
-      animate={shouldPulse ? { scale: [1, 1.05, 1] } : {}}
-      transition={{
-        duration: 0.6,
-        repeat: shouldPulse ? Infinity : 0,
-        ease: 'easeInOut',
-      }}
     >
       {/* Clock icon (Unicode) */}
       <span className={cn('text-2xl', getTimeColor())}>⏱</span>

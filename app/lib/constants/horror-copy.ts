@@ -76,6 +76,72 @@ export const HORROR_COPY = {
     lastResort: 'Wait! Play one last game for up to 10% more off',
     lastResortNote: '(The ranch offers one final challenge)',
     maxDiscount: 'Maximum Blessing Reached (40%)',
+
+    // Game Modal
+    modal: {
+      title: 'Choose Your Challenge',
+      subtitle: 'Complete a game to earn discounts up to 40% off',
+      skipPrompt: 'Or skip and proceed at full price',
+      skipButton: 'Skip Games - Buy Now',
+      optionalNote: '🐛 Games are optional - The Ranch offers discounts, never demands them',
+    },
+
+    // Individual game data
+    theCulling: {
+      title: 'The Culling',
+      emoji: '🐛',
+      duration: 25,
+      instructions: ['Tap invasive caterpillars with red eyes', 'Avoid the good ones'],
+      startButton: 'Start The Culling',
+    },
+
+    cursedHarvest: {
+      title: 'Cursed Harvest',
+      emoji: '🌽',
+      duration: 30,
+      instructions: ['Match pairs of mutated crops', 'The faster you match, the higher your score'],
+      startButton: 'Begin The Harvest',
+    },
+
+    bugTelegram: {
+      title: 'Bug Telegram',
+      emoji: '📟',
+      duration: 30,
+      instructions: ['Type words exactly as shown', 'Intercept messages before they escape'],
+      startButton: 'Start Intercepting',
+    },
+
+    hungryCaterpillar: {
+      title: 'Hungry Caterpillar',
+      emoji: '🐛',
+      duration: 45,
+      instructions: ['Grow as large as possible', 'Don\'t hit walls or yourself'],
+      startButton: 'Feed The Caterpillar',
+    },
+
+    midnightGarden: {
+      title: 'Midnight Garden',
+      emoji: '🌙',
+      duration: 25,
+      instructions: ['Click fireflies and healthy flowers', 'Avoid spiders and withered blooms'],
+      startButton: 'Enter The Garden',
+    },
+
+    metamorphosisQueue: {
+      title: 'Metamorphosis Queue',
+      emoji: '🦋',
+      duration: 25,
+      instructions: ['Click cocoons at the perfect moment', 'Watch for the green flash'],
+      startButton: 'Begin Transformation',
+    },
+
+    // Tier-specific celebration messages
+    celebrations: {
+      tier10: { message: 'The Ranch Approves', emoji: '🐛' },
+      tier20: { message: 'A Generous Blessing!', emoji: '🌿' },
+      tier30: { message: 'The Colony Rejoices!', emoji: '🎉' },
+      tier40: { message: 'MAXIMUM BLESSING!', emoji: '🦋' },
+    },
   },
 
   // Errors & Warnings

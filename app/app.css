@@ -79,14 +79,12 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--color-neutral-cream);
 }
 
-/* Subtle header style for brand text - uses body font for consistency */
+/* Drip effect - color inherits from parent for flexibility */
 .drip-text {
   display: block;
-  font-family: var(--font-sans);
-  color: #2a2a2a;
-  font-weight: 700;
   letter-spacing: 0.08em;
   line-height: 1.1;
+  filter: url(#drip-filter);
 }
 
 /* Monospace for game UI (scores, timers) */

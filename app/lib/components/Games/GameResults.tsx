@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import { cn } from '../../utils';
 import { getDiscountResult, formatDiscount } from './utils/scoreConversion';
 import { Button } from '../ui/button';
+import { HORROR_COPY } from '../../constants/horror-copy';
 
 interface GameResultsProps {
   score: number;
@@ -23,6 +24,17 @@ interface GameResultsProps {
 export function GameResults({ score, onApplyDiscount, className }: GameResultsProps) {
   const result = getDiscountResult(score);
   const { discountPercent, message } = result;
+
+  // Get tier-specific celebration data
+  const getCelebration = () => {
+    if (discountPercent >= 40) return HORROR_COPY.games.celebrations.tier40;
+    if (discountPercent >= 30) return HORROR_COPY.games.celebrations.tier30;
+    if (discountPercent >= 20) return HORROR_COPY.games.celebrations.tier20;
+    if (discountPercent >= 10) return HORROR_COPY.games.celebrations.tier10;
+    return null;
+  };
+
+  const celebration = getCelebration();
 
   // Animation variants for celebration/disappointment
   const containerVariants = {
@@ -126,21 +138,29 @@ export function GameResults({ score, onApplyDiscount, className }: GameResultsPr
         {message}
       </motion.p>
 
-      {/* Max discount celebration */}
-      {discountPercent === 40 && (
+      {/* Tier-specific celebration */}
+      {celebration && (
         <motion.div
           variants={itemVariants}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-ranch-lime/10 border border-ranch-lime"
-          animate={{ rotate: [0, -2, 2, -2, 0] }}
+          className={cn(
+            "flex items-center gap-2 px-4 py-2 rounded-lg border",
+            discountPercent >= 40 && "bg-ranch-lime/10 border-ranch-lime",
+            discountPercent >= 30 && discountPercent < 40 && "bg-ranch-cyan/10 border-ranch-cyan",
+            discountPercent >= 20 && discountPercent < 30 && "bg-yellow-400/10 border-yellow-400",
+            discountPercent >= 10 && discountPercent < 20 && "bg-ranch-lavender/10 border-ranch-lavender"
+          )}
+          animate={discountPercent >= 40 ? { rotate: [0, -2, 2, -2, 0] } : {}}
           transition={{
             duration: 0.5,
-            repeat: Infinity,
+            repeat: discountPercent >= 40 ? Infinity : 0,
             repeatDelay: 2,
           }}
         >
-          <span className="text-2xl">🎉</span>
-          <span className="text-ranch-lime" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>MAXIMUM BLESSING!</span>
-          <span className="text-2xl">🐛</span>
+          <span className="text-2xl">{celebration.emoji}</span>
+          <span className={getResultColor()} style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
+            {celebration.message}
+          </span>
+          <span className="text-2xl">{celebration.emoji}</span>
         </motion.div>
       )}
 

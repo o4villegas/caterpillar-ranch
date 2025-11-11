@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
+import { HORROR_COPY } from '../constants/horror-copy';
 
 interface GameModalProps {
   isOpen: boolean;
@@ -11,14 +12,14 @@ interface GameModalProps {
   onGameComplete: (discount: number) => void;
 }
 
-// Game list with route mappings
+// Game list with route mappings (using HORROR_COPY for display data)
 const GAMES = [
-  { id: 'culling', name: 'The Culling', emoji: '🐛', duration: 25, route: 'the-culling' },
-  { id: 'harvest', name: 'Cursed Harvest', emoji: '🌽', duration: 30, route: 'cursed-harvest' },
-  { id: 'telegram', name: 'Bug Telegram', emoji: '📟', duration: 30, route: 'bug-telegram' },
-  { id: 'snake', name: 'Hungry Caterpillar', emoji: '🐛', duration: 45, route: 'hungry-caterpillar' },
-  { id: 'garden', name: 'Midnight Garden', emoji: '🌙', duration: 25, route: 'midnight-garden' },
-  { id: 'metamorphosis', name: 'Metamorphosis Queue', emoji: '🦋', duration: 25, route: 'metamorphosis-queue' },
+  { id: 'culling', ...HORROR_COPY.games.theCulling, route: 'the-culling' },
+  { id: 'harvest', ...HORROR_COPY.games.cursedHarvest, route: 'cursed-harvest' },
+  { id: 'telegram', ...HORROR_COPY.games.bugTelegram, route: 'bug-telegram' },
+  { id: 'snake', ...HORROR_COPY.games.hungryCaterpillar, route: 'hungry-caterpillar' },
+  { id: 'garden', ...HORROR_COPY.games.midnightGarden, route: 'midnight-garden' },
+  { id: 'metamorphosis', ...HORROR_COPY.games.metamorphosisQueue, route: 'metamorphosis-queue' },
 ];
 
 export function GameModal({ isOpen, onClose, productId, productSlug, onGameComplete }: GameModalProps) {
@@ -40,10 +41,10 @@ export function GameModal({ isOpen, onClose, productId, productSlug, onGameCompl
       <DialogContent className="max-w-2xl bg-ranch-dark border-4 border-ranch-purple">
         <DialogHeader>
           <DialogTitle className="text-3xl text-ranch-pink text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
-            Choose Your Challenge
+            {HORROR_COPY.games.modal.title}
           </DialogTitle>
           <DialogDescription className="text-ranch-lavender text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
-            Complete a game to earn discounts up to 40% off
+            {HORROR_COPY.games.modal.subtitle}
           </DialogDescription>
         </DialogHeader>
 
@@ -66,10 +67,10 @@ export function GameModal({ isOpen, onClose, productId, productSlug, onGameCompl
 
           <div className="mt-8 flex flex-col items-center gap-3">
             <p className="text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
-              Or skip and proceed at full price
+              {HORROR_COPY.games.modal.skipPrompt}
             </p>
             <Button onClick={handleSkip} variant="ghost" size="sm" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
-              Skip Games - Buy Now
+              {HORROR_COPY.games.modal.skipButton}
             </Button>
           </div>
 
@@ -80,7 +81,7 @@ export function GameModal({ isOpen, onClose, productId, productSlug, onGameCompl
             transition={{ delay: 0.3 }}
           >
             <p className="text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
-              🐛 Games are optional - The Ranch offers discounts, never demands them
+              {HORROR_COPY.games.modal.optionalNote}
             </p>
           </motion.div>
         </div>

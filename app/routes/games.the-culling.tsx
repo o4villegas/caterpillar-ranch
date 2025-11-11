@@ -17,6 +17,7 @@ import { GameResults } from '../lib/components/Games/GameResults';
 import { useGameState } from '../lib/components/Games/hooks/useGameState';
 import { getDiscountResult } from '../lib/components/Games/utils/scoreConversion';
 import { useCart } from '../lib/contexts/CartContext';
+import { HORROR_COPY } from '../lib/constants/horror-copy';
 import type { Route } from './+types/games.the-culling';
 
 // Caterpillar types
@@ -201,10 +202,10 @@ export default function TheCullingRoute() {
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
               <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
-                Tap invasive caterpillars with red eyes
+                {HORROR_COPY.games.theCulling.instructions[0]}
               </p>
               <p className="text-lg text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
-                Avoid the good ones
+                {HORROR_COPY.games.theCulling.instructions[1]}
               </p>
             </div>
             <button
@@ -212,7 +213,7 @@ export default function TheCullingRoute() {
               className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors"
               style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
             >
-              Start The Culling
+              {HORROR_COPY.games.theCulling.startButton}
             </button>
           </div>
         )}
