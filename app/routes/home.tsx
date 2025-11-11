@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import type { Route } from "./+types/home";
-import { fetchCatalogProducts } from "../lib/api/catalog";
 import { transformStoreProductListItems } from "../lib/api/transformers";
 import { Badge } from "../lib/components/ui/badge";
 
@@ -19,26 +18,42 @@ export function links() {
   ];
 }
 
-export async function loader({ context, request }: Route.LoaderArgs) {
+export async function loader({ context }: Route.LoaderArgs) {
   const cloudflare = context.cloudflare as { env: Env };
 
   try {
-    // Fetch store products list from Printful API via our catalog routes
-    const catalogResponse = await fetchCatalogProducts(request);
+    // Import PrintfulClient directly for SSR (avoid self-fetch issues)
+    const { PrintfulClient, PrintfulCache } = await import('../../workers/lib/printful');
 
-    // Transform simplified list format to our Product type
-    const products = transformStoreProductListItems(catalogResponse.data);
+    const cache = new PrintfulCache(cloudflare.env.CATALOG_CACHE);
+    const printful = new PrintfulClient(
+      cloudflare.env.PRINTFUL_API_TOKEN,
+      cloudflare.env.PRINTFUL_STORE_ID
+    );
+
+    // Check cache first
+    let storeProducts = await cache.getProducts();
+    let cached = true;
+
+    if (!storeProducts) {
+      // Fetch from Printful if not cached
+      storeProducts = await printful.getStoreProducts();
+      await cache.setProducts(storeProducts);
+      cached = false;
+    }
+
+    // Transform to our Product type
+    const products = transformStoreProductListItems(storeProducts);
 
     return {
       products,
       message: cloudflare.env.VALUE_FROM_CLOUDFLARE,
-      cached: catalogResponse.meta.cached,
+      cached,
     };
   } catch (error) {
     console.error('Failed to fetch products:', error);
 
     // Return empty products array on error
-    // TODO: Add error boundary or fallback UI
     return {
       products: [],
       message: cloudflare.env.VALUE_FROM_CLOUDFLARE,

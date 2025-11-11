@@ -4,8 +4,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import type { Route } from './+types/product';
 import type { ProductVariant } from '~/lib/types/product';
-import { fetchProductBySlug } from '~/lib/api/catalog';
-import { transformStoreProduct } from '~/lib/api/transformers';
+import { transformStoreProduct, transformStoreProductListItems } from '~/lib/api/transformers';
 import { useCart } from '~/lib/contexts/CartContext';
 import { useGamePlaySession } from '~/lib/hooks/useGamePlaySession';
 import { HORROR_COPY, getRandomLoadingMessage } from '~/lib/constants/horror-copy';
@@ -13,18 +12,53 @@ import { ParticleBurst } from '~/lib/components/ParticleBurst';
 import { GameModal } from '~/lib/components/GameModal';
 import { ProductView } from '~/lib/components/ProductView';
 
-export async function loader({ params, request }: Route.LoaderArgs) {
-  // Fetch store product from Printful API by slug
-  const storeProduct = await fetchProductBySlug(params.slug, request);
+export async function loader({ params, context }: Route.LoaderArgs) {
+  const cloudflare = context.cloudflare as { env: Env };
 
-  if (!storeProduct) {
+  try {
+    // Import PrintfulClient directly for SSR (avoid self-fetch issues)
+    const { PrintfulClient, PrintfulCache } = await import('../../workers/lib/printful');
+
+    const cache = new PrintfulCache(cloudflare.env.CATALOG_CACHE);
+    const printful = new PrintfulClient(
+      cloudflare.env.PRINTFUL_API_TOKEN,
+      cloudflare.env.PRINTFUL_STORE_ID
+    );
+
+    // First get the product list to find by slug
+    let storeProducts = await cache.getProducts();
+    if (!storeProducts) {
+      storeProducts = await printful.getStoreProducts();
+      await cache.setProducts(storeProducts);
+    }
+
+    // Find product by slug
+    const products = transformStoreProductListItems(storeProducts);
+    const product = products.find((p) => p.slug === params.slug);
+
+    if (!product) {
+      throw new Response('Product not found', { status: 404 });
+    }
+
+    // Now fetch full product details with variants
+    const cachedFullProduct = await cache.getProduct(parseInt(product.id));
+    let fullProduct;
+
+    if (cachedFullProduct) {
+      fullProduct = cachedFullProduct;
+    } else {
+      fullProduct = await printful.getStoreProduct(parseInt(product.id));
+      await cache.setProduct(fullProduct);
+    }
+
+    // Transform to our Product type
+    const transformedProduct = transformStoreProduct(fullProduct);
+
+    return { product: transformedProduct };
+  } catch (error) {
+    console.error('Failed to fetch product:', error);
     throw new Response('Product not found', { status: 404 });
   }
-
-  // Transform to our Product type
-  const product = transformStoreProduct(storeProduct);
-
-  return { product };
 }
 
 export function meta({ data }: Route.MetaArgs) {
