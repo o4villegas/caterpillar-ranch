@@ -13,10 +13,8 @@ export function meta({}: Route.MetaArgs) {
 
 export function links() {
   return [
-    // Preload WebP logo (1.1MB vs 2.4MB GIF) to improve LCP
-    { rel: "preload", as: "image", href: "/cr-logo.webp", type: "image/webp" },
-    // Preload GIF fallback for older browsers
-    { rel: "preload", as: "image", href: "/cr-logo.gif" },
+    // Preload PNG logo (717KB, better performance than GIF) to improve LCP
+    { rel: "preload", as: "image", href: "/cr-logo.png", type: "image/png" },
   ];
 }
 
@@ -42,23 +40,47 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
           <h1 className="mb-4">
-            <picture>
-              <source srcSet="/cr-logo.webp" type="image/webp" />
-              <img
-                src="/cr-logo.gif"
-                alt="Caterpillar Ranch - Horror Tees"
-                width="500"
-                height="250"
-                loading="eager"
-                fetchPriority="high"
-                className="mx-auto"
-                style={{
-                  maxWidth: "min(500px, 90vw)",
-                  height: "auto",
-                  width: "100%"
-                }}
-              />
-            </picture>
+            <motion.img
+              src="/cr-logo.png"
+              alt="Caterpillar Ranch - Horror Tees"
+              width="500"
+              height="500"
+              loading="eager"
+              fetchPriority="high"
+              className="mx-auto"
+              style={{
+                maxWidth: "min(500px, 90vw)",
+                height: "auto",
+                width: "100%"
+              }}
+              // Entrance animation (fade + scale)
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{
+                opacity: 1,
+                scale: [1, 1.02, 1], // Breathing effect (3s cycle)
+                y: [0, -10, 0], // Floating effect (8s cycle)
+                filter: [
+                  'drop-shadow(0 0 15px rgba(50, 205, 50, 0.4))',
+                  'drop-shadow(0 0 25px rgba(50, 205, 50, 0.6))',
+                  'drop-shadow(0 0 15px rgba(50, 205, 50, 0.4))'
+                ] // Pulsing glow (2s cycle)
+              }}
+              transition={{
+                opacity: { duration: 0.6, ease: "easeOut" },
+                scale: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+                y: { duration: 8, repeat: Infinity, ease: "easeInOut" },
+                filter: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+              }}
+              // Hover effects (scale + rotate)
+              whileHover={{
+                scale: 1.05,
+                rotate: [0, -7, 7, -5, 5, 0],
+                transition: {
+                  scale: { duration: 0.3 },
+                  rotate: { duration: 0.5, ease: "easeInOut" }
+                }
+              }}
+            />
           </h1>
         </motion.header>
 
