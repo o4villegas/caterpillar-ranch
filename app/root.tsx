@@ -16,6 +16,7 @@ import { BarnLight } from "./lib/components/BarnLight";
 import { GardenShadows } from "./lib/components/GardenShadows";
 import { EyeInCorner } from "./lib/components/RareEvents/EyeInCorner";
 import { BackgroundBlur } from "./lib/components/RareEvents/BackgroundBlur";
+import { WhisperDisplay } from "./lib/components/WhisperDisplay";
 import { Toaster } from "sonner";
 import { CartProvider } from "./lib/contexts/CartContext";
 import { Header } from "./lib/components/Header";
@@ -96,6 +97,7 @@ export default function App() {
       {/* Rare Events - Phase 1.5 */}
       <EyeInCorner show={rareEvent === 'eye'} />
       <BackgroundBlur show={rareEvent === 'darken'} />
+      <WhisperDisplay show={rareEvent === 'whisper'} />
 
       {/* Main app content */}
       <div style={{ position: 'relative', zIndex: 10 }}>

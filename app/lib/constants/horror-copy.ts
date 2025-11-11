@@ -99,15 +99,15 @@ export const HORROR_COPY = {
       title: 'Cursed Harvest',
       emoji: '🌽',
       duration: 30,
-      instructions: ['Match pairs of mutated crops', 'The faster you match, the higher your score'],
-      startButton: 'Begin The Harvest',
+      instructions: ['Match pairs of mutated crops', 'Find all pairs before time runs out'],
+      startButton: 'Start The Harvest',
     },
 
     bugTelegram: {
       title: 'Bug Telegram',
       emoji: '📟',
       duration: 30,
-      instructions: ['Type words exactly as shown', 'Intercept messages before they escape'],
+      instructions: ['Type bug messages before they escape', 'Speed and accuracy earn bonus points'],
       startButton: 'Start Intercepting',
     },
 
@@ -115,24 +115,24 @@ export const HORROR_COPY = {
       title: 'Hungry Caterpillar',
       emoji: '🐛',
       duration: 45,
-      instructions: ['Grow as large as possible', 'Don\'t hit walls or yourself'],
-      startButton: 'Feed The Caterpillar',
+      instructions: ['Eat leaves to grow longer', 'Don\'t crash into walls or yourself'],
+      startButton: 'Start Growing',
     },
 
     midnightGarden: {
       title: 'Midnight Garden',
       emoji: '🌙',
       duration: 25,
-      instructions: ['Click fireflies and healthy flowers', 'Avoid spiders and withered blooms'],
-      startButton: 'Enter The Garden',
+      instructions: ['Click good omens, avoid bad signs', 'Watch out - things get confusing at high scores'],
+      startButton: 'Enter the Garden',
     },
 
     metamorphosisQueue: {
       title: 'Metamorphosis Queue',
       emoji: '🦋',
       duration: 25,
-      instructions: ['Click cocoons at the perfect moment', 'Watch for the green flash'],
-      startButton: 'Begin Transformation',
+      instructions: ['Click cocoons at the green flash', 'Perfect timing earns maximum points'],
+      startButton: 'Begin Preservation',
     },
 
     // Tier-specific celebration messages

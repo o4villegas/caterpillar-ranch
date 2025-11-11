@@ -16,6 +16,7 @@ import { GameResults } from '../lib/components/Games/GameResults';
 import { useGameState } from '../lib/components/Games/hooks/useGameState';
 import { useCart } from '../lib/contexts/CartContext';
 import { cn } from '../lib/utils';
+import { HORROR_COPY } from '../lib/constants/horror-copy';
 import type { Route } from './+types/games.cursed-harvest';
 
 // Card types - mutated crops
@@ -246,18 +247,19 @@ export default function CursedHarvestRoute() {
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
-              <p className="text-lg text-ranch-cream leading-relaxed text-center">
-                Match pairs of mutated crops
+              <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+                {HORROR_COPY.games.cursedHarvest.instructions[0]}
               </p>
-              <p className="text-lg text-ranch-lavender mt-1 text-center">
-                Find all pairs before time runs out
+              <p className="text-lg text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+                {HORROR_COPY.games.cursedHarvest.instructions[1]}
               </p>
             </div>
             <button
               onClick={handleStartGame}
               className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg font-bold text-lg hover:bg-ranch-cyan transition-colors"
+              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
             >
-              Start The Harvest
+              {HORROR_COPY.games.cursedHarvest.startButton}
             </button>
           </div>
         )}
