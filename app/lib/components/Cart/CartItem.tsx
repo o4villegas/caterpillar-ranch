@@ -65,7 +65,7 @@ export function CartItem({ item }: CartItemProps) {
           <h3 className="text-ranch-cream text-lg leading-tight" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
             {product.name}
           </h3>
-          <p className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <p className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
             Size: {variant.size} • {variant.color || 'Default'}
           </p>
         </div>
@@ -101,7 +101,7 @@ export function CartItem({ item }: CartItemProps) {
           <div className="text-right" style={{ fontFamily: 'Handjet, monospace' }}>
             {earnedDiscount > 0 ? (
               <>
-                <div className="text-lg text-ranch-lavender line-through" style={{ fontWeight: 500 }}>
+                <div className="text-lg text-ranch-lavender line-through" style={{ fontWeight: 600 }}>
                   ${(basePrice * quantity).toFixed(2)}
                 </div>
                 <div className="text-lg text-ranch-lime" style={{ fontWeight: 700 }}>

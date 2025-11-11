@@ -92,7 +92,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <p className="text-4xl text-ranch-cream leading-relaxed" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             Play mini-games to earn up to 40% off your order.
           </p>
-          <p className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <p className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
             Higher scores unlock bigger discounts.
           </p>
         </motion.div>
@@ -149,10 +149,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               </div>
 
               {/* Product Info */}
-              <h2 className="text-3xl mb-2 leading-tight text-ranch-cream group-hover:text-ranch-dark transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+              <h2 className="text-2xl mb-2 leading-tight text-ranch-cream group-hover:text-ranch-dark transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                 {product.name}
               </h2>
-              <p className="text-ranch-lavender group-hover:text-ranch-dark/80 text-lg mb-4 line-clamp-2 transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+              <p className="text-ranch-lavender group-hover:text-ranch-dark/80 text-lg mb-4 line-clamp-2 transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
                 {product.description}
               </p>
 

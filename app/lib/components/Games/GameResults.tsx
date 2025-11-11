@@ -111,7 +111,7 @@ export function GameResults({ score, onApplyDiscount, className }: GameResultsPr
           >
             {formatDiscount(discountPercent)}
           </div>
-          <div className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <div className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
             {discountPercent > 0 ? 'Discount Earned!' : 'No Discount'}
           </div>
         </div>
@@ -121,7 +121,7 @@ export function GameResults({ score, onApplyDiscount, className }: GameResultsPr
       <motion.p
         variants={itemVariants}
         className="text-center text-ranch-cream text-lg max-w-md px-4"
-        style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
+        style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
       >
         {message}
       </motion.p>
@@ -152,7 +152,7 @@ export function GameResults({ score, onApplyDiscount, className }: GameResultsPr
           variant="horror"
           size="lg"
           className="w-full text-lg"
-          style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
+          style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
         >
           {discountPercent > 0 ? 'Claim Discount & Return' : 'Return to Product'}
         </Button>
@@ -162,7 +162,7 @@ export function GameResults({ score, onApplyDiscount, className }: GameResultsPr
       <motion.div
         variants={itemVariants}
         className="text-lg text-ranch-lavender/60 text-center mt-2"
-        style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
+        style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
       >
         {discountPercent === 0 && score < 10 && 'Need 10+ points for any discount'}
         {score >= 10 && score < 20 && 'Need 20+ points for 20% off'}

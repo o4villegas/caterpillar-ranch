@@ -10,14 +10,14 @@ export function CartSummary() {
   return (
     <div className="space-y-3 bg-ranch-purple/20 rounded-lg p-4 border-2 border-ranch-purple">
       {/* Subtotal */}
-      <div className="flex justify-between items-center text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+      <div className="flex justify-between items-center text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
         <span>Subtotal</span>
         <span style={{ fontWeight: 700 }}>${totals.subtotal.toFixed(2)}</span>
       </div>
 
       {/* Discount (if any) */}
       {hasDiscount && (
-        <div className="flex justify-between items-center text-ranch-lime" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+        <div className="flex justify-between items-center text-ranch-lime" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
           <div className="flex items-center gap-2">
             <span>Earned Discount</span>
             {isAtDiscountCap && (
@@ -34,14 +34,14 @@ export function CartSummary() {
 
       {/* Discount cap warning */}
       {isAtDiscountCap && (
-        <div className="text-lg text-ranch-lavender/70 bg-ranch-purple/30 p-2 rounded border border-ranch-purple" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+        <div className="text-lg text-ranch-lavender/70 bg-ranch-purple/30 p-2 rounded border border-ranch-purple" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
           🎮 Maximum 40% discount reached! The Ranch rewards your skill.
         </div>
       )}
 
       {/* Savings display */}
       {totals.savings > 0 && (
-        <div className="text-lg text-ranch-cyan italic" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+        <div className="text-lg text-ranch-cyan italic" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
           You're saving ${totals.savings.toFixed(2)} from playing games! 🐛💚
         </div>
       )}
@@ -59,7 +59,7 @@ export function CartSummary() {
 
       {/* Free shipping message (if applicable) */}
       {totals.total >= 50 && (
-        <div className="text-lg text-ranch-lime bg-ranch-lime/10 p-2 rounded border border-ranch-lime/30" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+        <div className="text-lg text-ranch-lime bg-ranch-lime/10 p-2 rounded border border-ranch-lime/30" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
           🦋 Free shipping unlocked!
         </div>
       )}

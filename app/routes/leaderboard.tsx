@@ -41,7 +41,7 @@ export default function LeaderboardPage() {
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-ranch-lavender hover:text-ranch-lime transition-colors"
-            style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
+            style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
           >
             <span className="text-xl">←</span>
             <span>Back to Ranch</span>
@@ -57,7 +57,7 @@ export default function LeaderboardPage() {
           <h1 className="text-5xl text-ranch-cream mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             🏆 Leaderboards
           </h1>
-          <p className="text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <p className="text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
             The Ranch's Most Skilled Survivors
           </p>
         </motion.div>
@@ -132,7 +132,7 @@ export default function LeaderboardPage() {
                       <div className="text-ranch-cream" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                         {entry.username}
                       </div>
-                      <div className="text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+                      <div className="text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
                         {new Date(entry.timestamp).toLocaleDateString()}
                       </div>
                     </div>
@@ -157,7 +157,7 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Footer message */}
-          <div className="mt-6 text-center text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <div className="mt-6 text-center text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
             Play games on product pages to earn your spot on the leaderboard
           </div>
         </motion.div>

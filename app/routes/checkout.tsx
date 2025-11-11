@@ -100,7 +100,7 @@ export default function CheckoutPage() {
           <h1 className="text-5xl text-ranch-pink drip-text mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             {HORROR_COPY.checkout.title}
           </h1>
-          <p className="text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <p className="text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
             {HORROR_COPY.checkout.shippingTitle}
           </p>
         </motion.div>
@@ -118,7 +118,7 @@ export default function CheckoutPage() {
                 {totals.itemCount} {totals.itemCount === 1 ? 'item' : 'items'}
               </span>
               {totals.effectiveDiscountPercent > 0 && (
-                <span className="ml-2 text-ranch-lime text-lg" style={{ fontWeight: 500 }}>
+                <span className="ml-2 text-ranch-lime text-lg" style={{ fontWeight: 600 }}>
                   ({totals.effectiveDiscountPercent}% off applied)
                 </span>
               )}
@@ -273,7 +273,7 @@ export default function CheckoutPage() {
             size="lg"
             className="w-full h-14 text-lg"
             disabled={isSubmitting}
-            style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
+            style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
           >
             {isSubmitting ? 'Preparing...' : 'Continue to Review'}
           </Button>
@@ -284,7 +284,7 @@ export default function CheckoutPage() {
             variant="ghost"
             className="w-full text-ranch-lavender"
             onClick={() => navigate('/')}
-            style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
+            style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
           >
             ← Back to Shopping
           </Button>

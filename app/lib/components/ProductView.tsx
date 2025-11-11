@@ -87,16 +87,16 @@ export function ProductView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.4 }}
         >
-          <h3 className="text-3xl text-ranch-cream mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+          <h3 className="text-2xl text-ranch-cream mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
             {product.name}
           </h3>
-          <p className="text-ranch-lavender text-lg mb-3" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <p className="text-ranch-lavender text-lg mb-3" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
             {product.description}
           </p>
           <div className="text-4xl text-ranch-lime" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
             ${totalPrice.toFixed(2)}
             {earnedDiscount > 0 && (
-              <span className="ml-2 text-xl line-through text-ranch-lavender opacity-50" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+              <span className="ml-2 text-xl line-through text-ranch-lavender opacity-50" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
                 ${(product.price * quantity).toFixed(2)}
               </span>
             )}
@@ -107,7 +107,7 @@ export function ProductView({
             </div>
           )}
           {quantity > 1 && (
-            <div className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+            <div className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
               ${discountedPrice.toFixed(2)} each
             </div>
           )}
@@ -148,7 +148,7 @@ export function ProductView({
                 >
                   <span style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>{variant.size}</span>
                   {!isAvailable && (
-                    <div className="text-lg mt-1 text-ranch-pink" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>Claimed</div>
+                    <div className="text-lg mt-1 text-ranch-pink" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>Claimed</div>
                   )}
                 </motion.button>
               );
@@ -159,7 +159,7 @@ export function ProductView({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="mt-2 text-lg text-ranch-lavender"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
+              style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
             >
               Color: {selectedVariant.color}
             </motion.div>
@@ -233,7 +233,7 @@ export function ProductView({
                 transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-ranch-lime/20 to-transparent"
               />
-              <span className="relative z-10" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+              <span className="relative z-10" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
                 🎮 Play Game - Earn up to 40% Off
               </span>
             </Button>
@@ -246,7 +246,7 @@ export function ProductView({
             className="w-full h-14 text-lg"
             size="lg"
           >
-            <span style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+            <span style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
               {isAdding ? (
                 <span className="flex items-center justify-center gap-2">
                   <motion.span

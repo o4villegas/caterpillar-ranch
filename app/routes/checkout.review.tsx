@@ -103,7 +103,7 @@ export default function CheckoutReviewPage() {
           <h1 className="text-5xl text-ranch-pink drip-text mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             Review Your Harvest
           </h1>
-          <p className="text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+          <p className="text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
             Confirm your order before the Ranch accepts it
           </p>
         </motion.div>
@@ -127,12 +127,12 @@ export default function CheckoutReviewPage() {
                   size="sm"
                   onClick={() => navigate('/checkout')}
                   className="text-ranch-lavender hover:text-ranch-cyan"
-                  style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
+                  style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
                 >
                   Edit
                 </Button>
               </div>
-              <div className="text-ranch-lavender space-y-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+              <div className="text-ranch-lavender space-y-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
                 <p className="text-ranch-cream" style={{ fontWeight: 700 }}>{shippingInfo.name}</p>
                 <p>{shippingInfo.address}</p>
                 <p>{shippingInfo.city}, {shippingInfo.state} {shippingInfo.zip}</p>
@@ -161,7 +161,7 @@ export default function CheckoutReviewPage() {
                     />
                     <div className="flex-1">
                       <h3 className="text-ranch-cream" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>{item.product.name}</h3>
-                      <p className="text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+                      <p className="text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
                         Size: {item.variant.size} | Qty: {item.quantity}
                       </p>
                       {item.earnedDiscount > 0 && (
@@ -175,7 +175,7 @@ export default function CheckoutReviewPage() {
                         ${(item.product.price * (1 - item.earnedDiscount / 100) * item.quantity).toFixed(2)}
                       </p>
                       {item.earnedDiscount > 0 && (
-                        <p className="text-lg text-ranch-lavender line-through" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+                        <p className="text-lg text-ranch-lavender line-through" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
                           ${(item.product.price * item.quantity).toFixed(2)}
                         </p>
                       )}
@@ -199,7 +199,7 @@ export default function CheckoutReviewPage() {
               </h2>
 
               <div className="space-y-3 mb-6">
-                <div className="flex justify-between text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+                <div className="flex justify-between text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
                   <span>Subtotal</span>
                   <span style={{ fontWeight: 700 }}>${totals.subtotal.toFixed(2)}</span>
                 </div>
@@ -207,7 +207,7 @@ export default function CheckoutReviewPage() {
                 {totals.totalDiscount > 0 && (
                   <div className="flex justify-between text-ranch-lime" style={{ fontFamily: 'Handjet, monospace' }}>
                     <div className="flex items-center gap-2">
-                      <span style={{ fontWeight: 500 }}>{HORROR_COPY.checkout.discount}</span>
+                      <span style={{ fontWeight: 600 }}>{HORROR_COPY.checkout.discount}</span>
                       {totals.effectiveDiscountPercent >= 40 && (
                         <Badge variant="success">MAX</Badge>
                       )}
@@ -216,7 +216,7 @@ export default function CheckoutReviewPage() {
                   </div>
                 )}
 
-                <div className="flex justify-between text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}>
+                <div className="flex justify-between text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
                   <span>{HORROR_COPY.checkout.shipping}</span>
                   <span className="text-ranch-lime" style={{ fontWeight: 700 }}>FREE</span>
                 </div>
@@ -235,7 +235,7 @@ export default function CheckoutReviewPage() {
                 size="lg"
                 className="w-full h-14 text-lg mb-3"
                 disabled={isPlacingOrder}
-                style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
+                style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
               >
                 {isPlacingOrder ? HORROR_COPY.checkout.processing : HORROR_COPY.checkout.placeOrder}
               </Button>
@@ -245,7 +245,7 @@ export default function CheckoutReviewPage() {
                 className="w-full text-ranch-lavender"
                 onClick={() => navigate('/checkout')}
                 disabled={isPlacingOrder}
-                style={{ fontFamily: 'Handjet, monospace', fontWeight: 500 }}
+                style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
               >
                 ← Back to Shipping
               </Button>
