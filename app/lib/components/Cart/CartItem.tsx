@@ -62,10 +62,10 @@ export function CartItem({ item }: CartItemProps) {
       <div className="flex-1 flex flex-col justify-between">
         {/* Name and variant */}
         <div>
-          <h3 className="font-bold text-ranch-cream text-sm leading-tight">
+          <h3 className="text-ranch-cream text-sm leading-tight" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
             {product.name}
           </h3>
-          <p className="text-xs text-ranch-lavender mt-1">
+          <p className="text-xs text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
             Size: {variant.size} • {variant.color || 'Default'}
           </p>
         </div>
@@ -98,18 +98,18 @@ export function CartItem({ item }: CartItemProps) {
           </div>
 
           {/* Price display */}
-          <div className="text-right">
+          <div className="text-right" style={{ fontFamily: 'Handjet, monospace' }}>
             {earnedDiscount > 0 ? (
               <>
-                <div className="text-xs text-ranch-lavender line-through">
+                <div className="text-xs text-ranch-lavender line-through" style={{ fontWeight: 300 }}>
                   ${(basePrice * quantity).toFixed(2)}
                 </div>
-                <div className="text-sm font-bold text-ranch-lime">
+                <div className="text-sm text-ranch-lime" style={{ fontWeight: 700 }}>
                   ${itemTotal.toFixed(2)}
                 </div>
               </>
             ) : (
-              <div className="text-sm font-bold text-ranch-cream">
+              <div className="text-sm text-ranch-cream" style={{ fontWeight: 700 }}>
                 ${itemTotal.toFixed(2)}
               </div>
             )}

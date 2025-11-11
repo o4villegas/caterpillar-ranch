@@ -87,27 +87,27 @@ export function ProductView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.4 }}
         >
-          <h3 className="text-2xl font-bold text-ranch-cream mb-2">
+          <h3 className="text-2xl text-ranch-cream mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
             {product.name}
           </h3>
-          <p className="text-ranch-lavender text-sm mb-3">
+          <p className="text-ranch-lavender text-sm mb-3" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
             {product.description}
           </p>
-          <div className="text-3xl font-bold text-ranch-lime">
+          <div className="text-3xl text-ranch-lime" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
             ${totalPrice.toFixed(2)}
             {earnedDiscount > 0 && (
-              <span className="ml-2 text-lg line-through text-ranch-lavender opacity-50">
+              <span className="ml-2 text-lg line-through text-ranch-lavender opacity-50" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
                 ${(product.price * quantity).toFixed(2)}
               </span>
             )}
           </div>
           {earnedDiscount > 0 && (
-            <div className="text-sm text-ranch-lime font-bold mt-1">
+            <div className="text-sm text-ranch-lime mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
               🎉 {earnedDiscount}% Ranch Blessing Applied!
             </div>
           )}
           {quantity > 1 && (
-            <div className="text-sm text-ranch-lavender mt-1">
+            <div className="text-sm text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
               ${discountedPrice.toFixed(2)} each
             </div>
           )}
@@ -119,7 +119,7 @@ export function ProductView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.4 }}
         >
-          <label className="block text-ranch-cream font-semibold mb-3">
+          <label className="block text-ranch-cream mb-3" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
             Choose Your Offering Size
           </label>
           <div className="grid grid-cols-4 gap-2">
@@ -146,9 +146,9 @@ export function ProductView({
                   aria-pressed={isSelected}
                   aria-disabled={!isAvailable}
                 >
-                  {variant.size}
+                  <span style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>{variant.size}</span>
                   {!isAvailable && (
-                    <div className="text-xs mt-1 text-ranch-pink">Claimed</div>
+                    <div className="text-xs mt-1 text-ranch-pink" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>Claimed</div>
                   )}
                 </motion.button>
               );
@@ -159,6 +159,7 @@ export function ProductView({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="mt-2 text-sm text-ranch-lavender"
+              style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}
             >
               Color: {selectedVariant.color}
             </motion.div>
@@ -171,7 +172,7 @@ export function ProductView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.4 }}
         >
-          <label className="block text-ranch-cream font-semibold mb-3">
+          <label className="block text-ranch-cream mb-3" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
             How Many Shall Join?
           </label>
           <div className="flex items-center gap-3">
@@ -194,7 +195,8 @@ export function ProductView({
                   const val = parseInt(e.target.value) || 1;
                   setQuantity(Math.max(1, Math.min(99, val)));
                 }}
-                className="w-full bg-ranch-purple/20 border-2 border-ranch-purple text-ranch-cream text-center text-lg font-bold py-2 rounded-lg focus:border-ranch-lime focus:outline-none transition-colors"
+                className="w-full bg-ranch-purple/20 border-2 border-ranch-purple text-ranch-cream text-center text-lg py-2 rounded-lg focus:border-ranch-lime focus:outline-none transition-colors"
+                style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
                 aria-label="Quantity"
               />
             </div>
@@ -231,7 +233,7 @@ export function ProductView({
                 transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-ranch-lime/20 to-transparent"
               />
-              <span className="relative z-10">
+              <span className="relative z-10" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
                 🎮 Play Game - Earn up to 40% Off
               </span>
             </Button>
@@ -244,22 +246,24 @@ export function ProductView({
             className="w-full h-14 text-lg"
             size="lg"
           >
-            {isAdding ? (
-              <span className="flex items-center justify-center gap-2">
-                <motion.span
-                  className="inline-block w-5 h-5 border-3 border-ranch-dark/30 border-t-ranch-dark rounded-full"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                />
-                {loadingMessage}
-              </span>
-            ) : inStockVariants.length === 0 ? (
-              HORROR_COPY.products.outOfStock
-            ) : !selectedVariant ? (
-              'Choose Your Size'
-            ) : (
-              `Claim Your Harvest${earnedDiscount > 0 ? ` - Save ${earnedDiscount}%` : ''}`
-            )}
+            <span style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
+              {isAdding ? (
+                <span className="flex items-center justify-center gap-2">
+                  <motion.span
+                    className="inline-block w-5 h-5 border-3 border-ranch-dark/30 border-t-ranch-dark rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+                  />
+                  {loadingMessage}
+                </span>
+              ) : inStockVariants.length === 0 ? (
+                HORROR_COPY.products.outOfStock
+              ) : !selectedVariant ? (
+                'Choose Your Size'
+              ) : (
+                `Claim Your Harvest${earnedDiscount > 0 ? ` - Save ${earnedDiscount}%` : ''}`
+              )}
+            </span>
           </Button>
         </motion.div>
 
