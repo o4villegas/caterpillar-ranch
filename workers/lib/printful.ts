@@ -28,6 +28,23 @@ export interface PrintfulVariant {
 /**
  * Store Product Types (from /store/products endpoint)
  */
+
+/**
+ * Simplified product list item (from GET /store/products)
+ */
+export interface PrintfulStoreProductListItem {
+  id: number;
+  external_id: string;
+  name: string;
+  variants: number; // Count of variants
+  synced: number; // Count of synced variants
+  thumbnail_url: string;
+  is_ignored: boolean;
+}
+
+/**
+ * Full product details (from GET /store/products/:id)
+ */
 export interface PrintfulStoreProduct {
   sync_product: {
     id: number;
@@ -205,13 +222,14 @@ export class PrintfulClient {
    * Get all store products (with designs)
    * GET /store/products
    * Requires X-PF-Store-Id header
+   * Returns simplified list without full variant details
    */
-  async getStoreProducts(): Promise<PrintfulStoreProduct[]> {
+  async getStoreProducts(): Promise<PrintfulStoreProductListItem[]> {
     const url = `/store/products`;
 
     const response = await this.request<{
       code: number;
-      result: PrintfulStoreProduct[];
+      result: PrintfulStoreProductListItem[];
     }>(url, {
       headers: {
         'X-PF-Store-Id': this.storeId,
@@ -362,7 +380,7 @@ export class PrintfulCache {
   /**
    * Get cached products list
    */
-  async getProducts(): Promise<PrintfulStoreProduct[] | null> {
+  async getProducts(): Promise<PrintfulStoreProductListItem[] | null> {
     const cached = await this.kv.get('printful:products:list');
     if (!cached) return null;
 
@@ -376,7 +394,7 @@ export class PrintfulCache {
   /**
    * Cache products list
    */
-  async setProducts(products: PrintfulStoreProduct[]): Promise<void> {
+  async setProducts(products: PrintfulStoreProductListItem[]): Promise<void> {
     await this.kv.put(
       'printful:products:list',
       JSON.stringify(products),

@@ -5,7 +5,7 @@
  */
 
 import type { Product, ProductVariant } from '../types/product';
-import type { PrintfulProduct, PrintfulVariant, PrintfulStoreProduct } from './catalog';
+import type { PrintfulProduct, PrintfulVariant, PrintfulStoreProduct, PrintfulStoreProductListItem } from './catalog';
 
 /**
  * Generate URL-friendly slug from product name
@@ -145,4 +145,29 @@ export function transformStoreProduct(storeProduct: PrintfulStoreProduct): Produ
  */
 export function transformStoreProducts(storeProducts: PrintfulStoreProduct[]): Product[] {
   return storeProducts.map(transformStoreProduct);
+}
+
+/**
+ * Transform simplified store product list item to our Product type
+ * Used for homepage product grid (without full variant details)
+ */
+export function transformStoreProductListItem(listItem: PrintfulStoreProductListItem): Product {
+  return {
+    id: listItem.id.toString(),
+    name: listItem.name,
+    slug: generateSlug(listItem.name),
+    description: `A unique design from Caterpillar Ranch. ${listItem.name}`,
+    price: 0, // Price will be fetched when viewing product details
+    imageUrl: listItem.thumbnail_url,
+    variants: [], // Variants will be loaded on product detail page
+    tags: extractTagsFromStoreProduct(listItem.name),
+    createdAt: new Date().toISOString(),
+  };
+}
+
+/**
+ * Transform array of simplified store product list items
+ */
+export function transformStoreProductListItems(listItems: PrintfulStoreProductListItem[]): Product[] {
+  return listItems.map(transformStoreProductListItem);
 }

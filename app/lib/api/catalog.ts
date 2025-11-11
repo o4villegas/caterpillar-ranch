@@ -29,6 +29,23 @@ export interface PrintfulVariant {
 /**
  * Store Product Types (from /store/products endpoint)
  */
+
+/**
+ * Simplified product list item (from GET /store/products)
+ */
+export interface PrintfulStoreProductListItem {
+  id: number;
+  external_id: string;
+  name: string;
+  variants: number; // Count of variants
+  synced: number; // Count of synced variants
+  thumbnail_url: string;
+  is_ignored: boolean;
+}
+
+/**
+ * Full product details (from GET /store/products/:id)
+ */
 export interface PrintfulStoreProduct {
   sync_product: {
     id: number;
@@ -56,7 +73,7 @@ export interface PrintfulStoreProduct {
 }
 
 export interface CatalogAPIResponse {
-  data: PrintfulStoreProduct[];
+  data: PrintfulStoreProductListItem[];
   meta: {
     cached: boolean;
     source: string;
@@ -105,11 +122,12 @@ export async function fetchProduct(productId: number): Promise<{
  * @param request - Optional Request object for SSR (to construct absolute URLs)
  */
 export async function fetchProductBySlug(slug: string, request?: Request): Promise<PrintfulStoreProduct | null> {
-  const response = await fetchCatalogProducts(request);
+  // First, get the product list to find the ID
+  const listResponse = await fetchCatalogProducts(request);
 
   // Import transformer to generate slug
-  const { transformStoreProducts } = await import('./transformers');
-  const products = transformStoreProducts(response.data);
+  const { transformStoreProductListItems } = await import('./transformers');
+  const products = transformStoreProductListItems(listResponse.data);
 
   // Find product by slug
   const product = products.find((p) => p.slug === slug);
@@ -118,8 +136,20 @@ export async function fetchProductBySlug(slug: string, request?: Request): Promi
     return null;
   }
 
-  // Find the original Printful store product by ID
-  const storeProduct = response.data.find((p) => p.sync_product.id.toString() === product.id);
+  // Now fetch the full product details with variants
+  const url = request
+    ? new URL(`/api/catalog/products/${product.id}`, request.url).toString()
+    : `/api/catalog/products/${product.id}`;
 
-  return storeProduct || null;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch product ${product.id}: ${response.status} ${response.statusText}`);
+  }
+
+  const fullProduct = await response.json() as {
+    data: PrintfulStoreProduct;
+    meta: { cached: boolean; source: string };
+  };
+  return fullProduct.data;
 }
