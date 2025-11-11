@@ -11,7 +11,7 @@
     "VALUE_FROM_CLOUDFLARE": "Hello from Hono/CF",
     "JWT_SECRET": "local-dev-secret-change-in-production",
     "PRINTFUL_API_TOKEN": "b4ge8jNnrPn3i5cvv848qmEtJiE1vCiCygI0nURj",
-    "PRINTFUL_STORE_ID": "15661969"
+    "PRINTFUL_STORE_ID": "17027254"
   },
   "observability": {
     "enabled": true
