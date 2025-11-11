@@ -59,7 +59,7 @@ export function GameModal({ isOpen, onClose, productId, productSlug, onGameCompl
                 className="p-6 bg-ranch-purple/30 rounded-lg border-2 border-ranch-purple hover:border-ranch-cyan transition-all"
               >
                 <div className="text-5xl mb-3">{game.emoji}</div>
-                <div className="text-ranch-cream mb-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>{game.name}</div>
+                <div className="text-ranch-cream mb-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>{game.title}</div>
                 <div className="text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>{game.duration}s</div>
               </motion.button>
             ))}
