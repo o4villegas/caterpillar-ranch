@@ -71,13 +71,11 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 y: { duration: 8, repeat: Infinity, ease: "easeInOut" },
                 filter: { duration: 2, repeat: Infinity, ease: "easeInOut" }
               }}
-              // Hover effects (scale + rotate)
+              // Hover effects (scale only)
               whileHover={{
                 scale: 1.05,
-                rotate: [0, -7, 7, -5, 5, 0],
                 transition: {
-                  scale: { duration: 0.3 },
-                  rotate: { duration: 0.5, ease: "easeInOut" }
+                  scale: { duration: 0.3 }
                 }
               }}
             />

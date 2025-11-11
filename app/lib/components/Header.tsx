@@ -16,10 +16,10 @@ export function Header() {
             className="group transition-all hover:scale-105"
           >
             <span
-              className="text-2xl font-bold text-ranch-pink"
+              className="text-3xl font-bold text-ranch-pink"
               style={{
                 fontFamily: 'Creepster, cursive',
-                textShadow: '0 0 8px #32CD32, 0 0 12px #32CD32, 0 0 16px #32CD32, -1px -1px 0 #32CD32, 1px -1px 0 #32CD32, -1px 1px 0 #32CD32, 1px 1px 0 #32CD32'
+                textShadow: '0 0 4px #32CD32, 0 0 6px #32CD32, 0 0 8px #32CD32, -1px -1px 0 #32CD32, 1px -1px 0 #32CD32, -1px 1px 0 #32CD32, 1px 1px 0 #32CD32'
               }}
             >
               Caterpillar Rancch
