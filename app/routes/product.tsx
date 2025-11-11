@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import type { Route } from './+types/product';
 import type { ProductVariant } from '~/lib/types/product';
-import { getProductBySlug } from '~/lib/mocks/products';
+import { fetchProductBySlug } from '~/lib/api/catalog';
+import { transformProduct } from '~/lib/api/transformers';
 import { useCart } from '~/lib/contexts/CartContext';
 import { useGamePlaySession } from '~/lib/hooks/useGamePlaySession';
 import { HORROR_COPY, getRandomLoadingMessage } from '~/lib/constants/horror-copy';
@@ -13,11 +14,15 @@ import { GameModal } from '~/lib/components/GameModal';
 import { ProductView } from '~/lib/components/ProductView';
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const product = getProductBySlug(params.slug);
+  // Fetch product from Printful API by slug
+  const printfulProduct = await fetchProductBySlug(params.slug);
 
-  if (!product) {
+  if (!printfulProduct) {
     throw new Response('Product not found', { status: 404 });
   }
+
+  // Transform to our Product type
+  const product = transformProduct(printfulProduct);
 
   return { product };
 }

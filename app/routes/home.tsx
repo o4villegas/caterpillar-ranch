@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import type { Route } from "./+types/home";
-import { mockProducts } from "../lib/mocks/products";
+import { fetchCatalogProducts } from "../lib/api/catalog";
+import { transformProducts } from "../lib/api/transformers";
 import { Badge } from "../lib/components/ui/badge";
 
 export function meta({}: Route.MetaArgs) {
@@ -18,12 +19,33 @@ export function links() {
   ];
 }
 
-export function loader({ context }: Route.LoaderArgs) {
+export async function loader({ context }: Route.LoaderArgs) {
   const cloudflare = context.cloudflare as { env: Env };
-  return {
-    products: mockProducts,
-    message: cloudflare.env.VALUE_FROM_CLOUDFLARE,
-  };
+
+  try {
+    // Fetch products from Printful API via our catalog routes
+    const catalogResponse = await fetchCatalogProducts();
+
+    // Transform Printful format to our Product type
+    const products = transformProducts(catalogResponse.data);
+
+    return {
+      products,
+      message: cloudflare.env.VALUE_FROM_CLOUDFLARE,
+      cached: catalogResponse.meta.cached,
+    };
+  } catch (error) {
+    console.error('Failed to fetch products:', error);
+
+    // Return empty products array on error
+    // TODO: Add error boundary or fallback UI
+    return {
+      products: [],
+      message: cloudflare.env.VALUE_FROM_CLOUDFLARE,
+      cached: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
