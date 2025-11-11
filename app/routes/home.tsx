@@ -89,7 +89,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
         >
-          <p className="text-lg text-ranch-cream leading-relaxed" style={{ fontFamily: 'VT323, monospace' }}>
+          <p className="text-2xl font-bold text-ranch-cream leading-relaxed" style={{ fontFamily: 'VT323, monospace' }}>
             Play mini-games to earn up to 40% off your order.
           </p>
           <p className="text-sm text-ranch-lavender mt-1">
@@ -149,7 +149,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               </div>
 
               {/* Product Info */}
-              <h2 className="text-lg font-bold mb-2 leading-tight text-ranch-cream group-hover:text-ranch-dark transition-colors duration-300">
+              <h2 className="text-lg font-bold mb-2 leading-tight text-ranch-cream group-hover:text-ranch-dark transition-colors duration-300" style={{ fontFamily: 'VT323, monospace' }}>
                 {product.name}
               </h2>
               <p className="text-ranch-lavender group-hover:text-ranch-dark/80 text-sm mb-4 line-clamp-2 transition-colors duration-300">
