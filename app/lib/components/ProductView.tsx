@@ -55,7 +55,7 @@ export function ProductView({
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       >
-        <motion.picture
+        <motion.div
           className="block w-full max-w-sm mx-auto"
           animate={{
             scale: [1, 1.02, 1],
@@ -66,17 +66,13 @@ export function ProductView({
             repeat: Infinity,
           }}
         >
-          <source
-            srcSet={product.imageUrl.replace('.png', '.webp')}
-            type="image/webp"
-          />
           <motion.img
             src={product.imageUrl}
             alt={product.name}
             className="w-full"
             style={{ imageRendering: 'crisp-edges' }}
           />
-        </motion.picture>
+        </motion.div>
       </motion.div>
 
       {/* Product details */}

@@ -71,7 +71,8 @@ export function meta({ data }: Route.MetaArgs) {
 
   const { product } = data;
   const productUrl = `https://caterpillar-ranch.lando555.workers.dev/products/${product.slug}`;
-  const imageUrl = `https://caterpillar-ranch.lando555.workers.dev${product.imageUrl}`;
+  // imageUrl already contains full Printful CDN URL, don't prepend domain
+  const imageUrl = product.imageUrl;
 
   return [
     { title: `${product.name} | Caterpillar Ranch` },
