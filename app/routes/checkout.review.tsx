@@ -63,32 +63,89 @@ export default function CheckoutReviewPage() {
   const handlePlaceOrder = async () => {
     setIsPlacingOrder(true);
 
-    // Simulate order placement
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      // Generate external order ID (our reference)
+      const externalId = `RANCH-${Date.now()}`;
 
-    // Generate mock order ID
-    const orderId = `RANCH-${Date.now()}`;
+      // Transform cart items to Printful format
+      const printfulItems = cart.items.map((item) => ({
+        variant_id: item.variant.printfulVariantId,
+        quantity: item.quantity,
+        retail_price: (item.product.price * (1 - item.earnedDiscount / 100)).toFixed(2),
+      }));
 
-    // Store order in localStorage (MVP - Phase 7 will use Printful API)
-    const order = {
-      id: orderId,
-      items: cart.items,
-      shipping: shippingInfo,
-      totals,
-      placedAt: new Date().toISOString(),
-      status: 'confirmed',
-    };
+      // Transform shipping info to Printful recipient format
+      const recipient = {
+        name: shippingInfo.name,
+        email: shippingInfo.email,
+        phone: shippingInfo.phone || '',
+        address1: shippingInfo.address,
+        city: shippingInfo.city,
+        state_code: shippingInfo.state,
+        country_code: shippingInfo.country,
+        zip: shippingInfo.zip,
+      };
 
-    const orders = JSON.parse(localStorage.getItem('caterpillar-ranch-orders') || '[]');
-    orders.push(order);
-    localStorage.setItem('caterpillar-ranch-orders', JSON.stringify(orders));
+      // Create order with Printful
+      const createResponse = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          externalId,
+          recipient,
+          items: printfulItems,
+          discountPercent: totals.effectiveDiscountPercent,
+        }),
+      });
 
-    // Clear cart and shipping info
-    clearCart();
-    sessionStorage.removeItem('checkout_shipping');
+      if (!createResponse.ok) {
+        const error = await createResponse.json() as { details?: string };
+        throw new Error(error.details || 'Failed to create order');
+      }
 
-    // Navigate to confirmation
-    navigate(`/checkout/confirmation?order=${orderId}`);
+      const createData = await createResponse.json() as { data: { id: number } };
+      const printfulOrderId = createData.data.id;
+
+      // Confirm order (moves to fulfillment)
+      const confirmResponse = await fetch(`/api/orders/${printfulOrderId}/confirm`, {
+        method: 'POST',
+      });
+
+      if (!confirmResponse.ok) {
+        const error = await confirmResponse.json() as { details?: string };
+        throw new Error(error.details || 'Failed to confirm order');
+      }
+
+      const confirmData = await confirmResponse.json() as { data: { status: string } };
+
+      // Store order info in localStorage for order history
+      const order = {
+        externalId,
+        printfulOrderId,
+        items: cart.items,
+        shipping: shippingInfo,
+        totals,
+        placedAt: new Date().toISOString(),
+        status: confirmData.data.status,
+      };
+
+      const orders = JSON.parse(localStorage.getItem('caterpillar-ranch-orders') || '[]');
+      orders.push(order);
+      localStorage.setItem('caterpillar-ranch-orders', JSON.stringify(orders));
+
+      // Clear cart and shipping info
+      clearCart();
+      sessionStorage.removeItem('checkout_shipping');
+
+      // Navigate to confirmation
+      navigate(`/checkout/confirmation?order=${externalId}`);
+    } catch (error) {
+      console.error('Order placement error:', error);
+      setIsPlacingOrder(false);
+
+      // Show error to user (TODO: Add toast notification)
+      alert(`Order placement failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+    }
   };
 
   return (
