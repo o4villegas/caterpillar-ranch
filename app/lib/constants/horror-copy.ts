@@ -78,16 +78,6 @@ export const HORROR_COPY = {
     maxDiscount: 'Maximum Blessing Reached (40%)',
   },
 
-  // Leaderboard
-  leaderboard: {
-    title: 'The Ranch Leaderboard',
-    topPoints: 'Top Point Earners',
-    topDiscounts: 'Biggest Discount Winners',
-    mostActive: 'Most Active Players',
-    yourRank: 'Your Standing',
-    anonymous: 'Anonymous Caterpillar',
-  },
-
   // Errors & Warnings
   errors: {
     generic: 'The Ranch Encountered an Issue...',

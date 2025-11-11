@@ -178,22 +178,6 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           ))}
         </div>
 
-        {/* Leaderboard Link */}
-        <motion.div
-          className="text-center mt-12"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <Link
-            to="/leaderboard"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-ranch-purple/30 border-2 border-ranch-purple text-ranch-cream font-bold rounded-lg hover:bg-ranch-purple/50 hover:border-ranch-lime hover:text-ranch-lime transition-all hover:scale-105"
-          >
-            <span className="text-xl">🏆</span>
-            <span>View Leaderboards</span>
-          </Link>
-        </motion.div>
-
         {/* Debug Info (Dev Only) */}
         {import.meta.env.DEV && (
           <div className="mt-12 p-4 bg-ranch-purple/10 rounded-lg">
