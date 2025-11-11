@@ -41,6 +41,7 @@ export default function LeaderboardPage() {
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-ranch-lavender hover:text-ranch-lime transition-colors"
+            style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}
           >
             <span className="text-xl">←</span>
             <span>Back to Ranch</span>
@@ -53,10 +54,10 @@ export default function LeaderboardPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-4xl font-bold text-ranch-cream mb-2">
+          <h1 className="text-4xl text-ranch-cream mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             🏆 Leaderboards
           </h1>
-          <p className="text-ranch-lavender">
+          <p className="text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
             The Ranch's Most Skilled Survivors
           </p>
         </motion.div>
@@ -72,11 +73,12 @@ export default function LeaderboardPage() {
             <button
               key={lb.gameType}
               onClick={() => setSelectedGame(lb.gameType)}
-              className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+              className={`px-4 py-2 rounded-lg text-sm transition-all ${
                 selectedGame === lb.gameType
                   ? 'bg-ranch-lime text-ranch-dark shadow-lg scale-105'
                   : 'bg-ranch-purple/30 text-ranch-cream hover:bg-ranch-purple/50 border-2 border-ranch-purple'
               }`}
+              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
             >
               {lb.gameName}
             </button>
@@ -91,7 +93,7 @@ export default function LeaderboardPage() {
           transition={{ duration: 0.3 }}
           className="bg-ranch-purple/20 rounded-xl p-6 border-2 border-ranch-purple"
         >
-          <h2 className="text-2xl font-bold text-ranch-cream mb-4 text-center">
+          <h2 className="text-2xl text-ranch-cream mb-4 text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
             {currentLeaderboard.gameName}
           </h2>
 
@@ -127,10 +129,10 @@ export default function LeaderboardPage() {
 
                     {/* Username */}
                     <div className="flex-1">
-                      <div className="text-ranch-cream font-semibold">
+                      <div className="text-ranch-cream" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                         {entry.username}
                       </div>
-                      <div className="text-xs text-ranch-lavender">
+                      <div className="text-xs text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
                         {new Date(entry.timestamp).toLocaleDateString()}
                       </div>
                     </div>
@@ -139,7 +141,7 @@ export default function LeaderboardPage() {
                   {/* Score and discount */}
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <div className="text-xl font-bold text-ranch-lime">
+                      <div className="text-xl text-ranch-lime" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                         {entry.score} pts
                       </div>
                       {entry.discountEarned > 0 && (
@@ -155,7 +157,7 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Footer message */}
-          <div className="mt-6 text-center text-sm text-ranch-lavender">
+          <div className="mt-6 text-center text-sm text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
             Play games on product pages to earn your spot on the leaderboard
           </div>
         </motion.div>
