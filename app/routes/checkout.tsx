@@ -97,10 +97,10 @@ export default function CheckoutPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-3xl font-bold text-ranch-pink drip-text mb-2">
+          <h1 className="text-3xl text-ranch-pink drip-text mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
             {HORROR_COPY.checkout.title}
           </h1>
-          <p className="text-ranch-lavender">
+          <p className="text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}>
             {HORROR_COPY.checkout.shippingTitle}
           </p>
         </motion.div>
@@ -112,18 +112,18 @@ export default function CheckoutPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center" style={{ fontFamily: 'Handjet, monospace' }}>
             <div>
-              <span className="text-ranch-cream font-semibold">
+              <span className="text-ranch-cream" style={{ fontWeight: 700 }}>
                 {totals.itemCount} {totals.itemCount === 1 ? 'item' : 'items'}
               </span>
               {totals.effectiveDiscountPercent > 0 && (
-                <span className="ml-2 text-ranch-lime text-sm">
+                <span className="ml-2 text-ranch-lime text-sm" style={{ fontWeight: 300 }}>
                   ({totals.effectiveDiscountPercent}% off applied)
                 </span>
               )}
             </div>
-            <div className="text-2xl font-bold text-ranch-cyan">
+            <div className="text-2xl text-ranch-cyan" style={{ fontWeight: 700 }}>
               ${totals.total.toFixed(2)}
             </div>
           </div>
@@ -138,13 +138,13 @@ export default function CheckoutPage() {
           transition={{ delay: 0.2 }}
         >
           <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
-            <h2 className="text-xl font-bold text-ranch-cream mb-4">
+            <h2 className="text-xl text-ranch-cream mb-4" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
               Contact Information
             </h2>
 
             {/* Email */}
             <div className="mb-4">
-              <label className="block text-ranch-cream text-sm font-semibold mb-2">
+              <label className="block text-ranch-cream text-sm mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                 Email <span className="text-ranch-pink">*</span>
               </label>
               <Input
@@ -161,7 +161,7 @@ export default function CheckoutPage() {
 
             {/* Name */}
             <div>
-              <label className="block text-ranch-cream text-sm font-semibold mb-2">
+              <label className="block text-ranch-cream text-sm mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                 Full Name <span className="text-ranch-pink">*</span>
               </label>
               <Input
@@ -178,13 +178,13 @@ export default function CheckoutPage() {
           </div>
 
           <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
-            <h2 className="text-xl font-bold text-ranch-cream mb-4">
+            <h2 className="text-xl text-ranch-cream mb-4" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
               {HORROR_COPY.checkout.shippingAddress}
             </h2>
 
             {/* Address */}
             <div className="mb-4">
-              <label className="block text-ranch-cream text-sm font-semibold mb-2">
+              <label className="block text-ranch-cream text-sm mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                 Street Address <span className="text-ranch-pink">*</span>
               </label>
               <Input
@@ -202,7 +202,7 @@ export default function CheckoutPage() {
             {/* City, State, ZIP */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <label className="block text-ranch-cream text-sm font-semibold mb-2">
+                <label className="block text-ranch-cream text-sm mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                   City <span className="text-ranch-pink">*</span>
                 </label>
                 <Input
@@ -218,7 +218,7 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-ranch-cream text-sm font-semibold mb-2">
+                <label className="block text-ranch-cream text-sm mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                   State <span className="text-ranch-pink">*</span>
                 </label>
                 <Input
@@ -235,7 +235,7 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-ranch-cream text-sm font-semibold mb-2">
+                <label className="block text-ranch-cream text-sm mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                   ZIP Code <span className="text-ranch-pink">*</span>
                 </label>
                 <Input
@@ -254,7 +254,7 @@ export default function CheckoutPage() {
 
             {/* Phone (Optional) */}
             <div>
-              <label className="block text-ranch-cream text-sm font-semibold mb-2">
+              <label className="block text-ranch-cream text-sm mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
                 Phone (optional)
               </label>
               <Input
@@ -273,6 +273,7 @@ export default function CheckoutPage() {
             size="lg"
             className="w-full h-14 text-lg"
             disabled={isSubmitting}
+            style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}
           >
             {isSubmitting ? 'Preparing...' : 'Continue to Review'}
           </Button>
@@ -283,6 +284,7 @@ export default function CheckoutPage() {
             variant="ghost"
             className="w-full text-ranch-lavender"
             onClick={() => navigate('/')}
+            style={{ fontFamily: 'Handjet, monospace', fontWeight: 300 }}
           >
             ← Back to Shopping
           </Button>
