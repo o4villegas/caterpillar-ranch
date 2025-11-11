@@ -8,6 +8,7 @@ export type ProductSize = 'S' | 'M' | 'L' | 'XL' | 'XXL';
 
 export interface ProductVariant {
   id: string;
+  printfulVariantId: number; // Numeric Printful variant ID for order creation
   size: ProductSize;
   color: string;
   inStock: boolean;

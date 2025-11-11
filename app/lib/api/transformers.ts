@@ -42,6 +42,7 @@ function extractTags(product: PrintfulProduct): string[] {
 function transformVariant(printfulVariant: PrintfulVariant): ProductVariant {
   return {
     id: printfulVariant.id.toString(),
+    printfulVariantId: printfulVariant.id, // Preserve numeric ID for order creation
     size: printfulVariant.size as any, // Printful sizes should match our ProductSize type
     color: printfulVariant.color,
     inStock: printfulVariant.in_stock,

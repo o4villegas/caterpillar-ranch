@@ -173,14 +173,20 @@ function cartReducer(state: Cart, action: CartAction): Cart {
     case 'ADD_DISCOUNT': {
       const newDiscount = action.payload;
 
-      // Check if discount already exists
+      // Check if discount already exists (by ID)
       if (state.discounts.some((d) => d.id === newDiscount.id)) {
         return state;
       }
 
+      // BEHAVIOR: One discount per product (replaces existing)
+      // Remove any existing discount for the same product
+      const filteredDiscounts = state.discounts.filter(
+        (d) => d.productId !== newDiscount.productId
+      );
+
       return {
         ...state,
-        discounts: [...state.discounts, newDiscount],
+        discounts: [...filteredDiscounts, newDiscount],
         lastUpdated: new Date().toISOString(),
       };
     }
@@ -273,7 +279,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (typeof window === 'undefined') return;
 
     const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-    const savedSession = localStorage.getItem(SESSION_TOKEN_KEY);
+    let savedSession = localStorage.getItem(SESSION_TOKEN_KEY);
 
     if (savedCart) {
       try {
@@ -284,9 +290,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    if (savedSession) {
-      setSessionToken(savedSession);
+    // Generate session token if not exists
+    if (!savedSession) {
+      savedSession = crypto.randomUUID();
+      localStorage.setItem(SESSION_TOKEN_KEY, savedSession);
     }
+    setSessionToken(savedSession);
   }, []);
 
   // Save cart to localStorage whenever it changes

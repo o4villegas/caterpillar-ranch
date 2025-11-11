@@ -12,4 +12,5 @@ export default [
   route("games/hungry-caterpillar", "routes/games.hungry-caterpillar.tsx"),
   route("games/midnight-garden", "routes/games.midnight-garden.tsx"),
   route("games/metamorphosis-queue", "routes/games.metamorphosis-queue.tsx"),
+  route("admin/login", "routes/admin.login.tsx"),
 ] satisfies RouteConfig;

@@ -52,7 +52,7 @@ catalog.get('/products', async (c) => {
 
 /**
  * GET /api/catalog/products/:id
- * Get product by ID (cached)
+ * Get product by ID with variants (cached)
  */
 catalog.get('/products/:id', async (c) => {
   try {
@@ -63,22 +63,31 @@ catalog.get('/products/:id', async (c) => {
     }
 
     const cache = new PrintfulCache(c.env.CATALOG_CACHE);
+    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN);
 
-    // Check cache first
+    // Check cache for both product and variants
     const cachedProduct = await cache.getProduct(productId);
-    if (cachedProduct) {
+    const cachedVariants = await cache.getVariants(productId);
+
+    if (cachedProduct && cachedVariants) {
+      // Both cached - combine and return
+      cachedProduct.variants = cachedVariants;
       return c.json({
         data: cachedProduct,
         meta: { cached: true, source: 'kv' },
       });
     }
 
-    // Fetch from Printful if not cached
-    const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN);
+    // Fetch product and variants from Printful
     const product = await printful.getProduct(productId);
+    const variants = await printful.getCatalogVariants(productId);
 
-    // Cache the result
+    // Attach variants to product
+    product.variants = variants;
+
+    // Cache both product and variants
     await cache.setProduct(product);
+    await cache.setVariants(productId, variants);
 
     return c.json({
       data: product,

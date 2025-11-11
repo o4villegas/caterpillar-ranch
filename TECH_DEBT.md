@@ -181,25 +181,6 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 
 ---
 
-## Testing
-
-### 8. E2E Test Coverage Gaps
-
-**Current Coverage**: Product modal only (`test-modal.mjs`)
-
-**Missing Tests**:
-- Cart functionality (add/remove/update quantities)
-- Checkout flow
-- Environmental horror components (rare events)
-- Mobile responsive breakpoints
-- Game modal interaction
-
-**Priority**: MEDIUM - Address before Phase 3 (Game Implementation)
-
-**Effort**: 6-8 hours for comprehensive suite
-
----
-
 ## Summary
 
 **Immediate Action Required**:

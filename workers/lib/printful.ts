@@ -142,6 +142,18 @@ export class PrintfulClient {
   }
 
   /**
+   * Get catalog variants for a product
+   * GET /v2/catalog-products/:id/catalog-variants
+   */
+  async getCatalogVariants(productId: number): Promise<PrintfulVariant[]> {
+    const response = await this.request<{
+      data: PrintfulVariant[];
+    }>(`/v2/catalog-products/${productId}/catalog-variants`);
+
+    return response.data;
+  }
+
+  /**
    * Get variant by ID
    * GET /store/variants/:id
    */
@@ -308,10 +320,36 @@ export class PrintfulCache {
   }
 
   /**
+   * Get cached variants for a product
+   */
+  async getVariants(productId: number): Promise<PrintfulVariant[] | null> {
+    const cached = await this.kv.get(`printful:variants:${productId}`);
+    if (!cached) return null;
+
+    try {
+      return JSON.parse(cached);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Cache variants for a product
+   */
+  async setVariants(productId: number, variants: PrintfulVariant[]): Promise<void> {
+    await this.kv.put(
+      `printful:variants:${productId}`,
+      JSON.stringify(variants),
+      { expirationTtl: this.ttl.variants }
+    );
+  }
+
+  /**
    * Invalidate product cache
    */
   async invalidateProduct(productId: number): Promise<void> {
     await this.kv.delete(`printful:product:${productId}`);
+    await this.kv.delete(`printful:variants:${productId}`);
     await this.kv.delete('printful:products:list');
   }
 
