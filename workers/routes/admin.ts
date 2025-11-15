@@ -3,10 +3,15 @@
  *
  * Endpoints for admin portal functionality
  * GET /api/admin/search - Global search across products and orders
+ * GET /api/admin/analytics/dashboard-stats - Dashboard stats
+ * GET /api/admin/analytics/recent-activity - Recent orders and games
+ * GET /api/admin/products - Product management (list, sync, reorder)
  */
 
 import { Hono } from 'hono';
 import { requireAuth } from '../lib/auth';
+import analyticsRoutes from './admin/analytics';
+import productsRoutes from './admin/products';
 
 type Variables = {
   userId: number;
@@ -14,6 +19,12 @@ type Variables = {
 };
 
 const admin = new Hono<{ Bindings: Cloudflare.Env; Variables: Variables }>();
+
+// Mount analytics routes
+admin.route('/analytics', analyticsRoutes);
+
+// Mount products routes
+admin.route('/products', productsRoutes);
 
 /**
  * GET /api/admin/search

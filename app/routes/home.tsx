@@ -22,7 +22,64 @@ export async function loader({ context }: Route.LoaderArgs) {
   const cloudflare = context.cloudflare as { env: Env };
 
   try {
-    // Import PrintfulClient directly for SSR (avoid self-fetch issues)
+    const db = cloudflare.env.DB;
+
+    // Step 1: Query D1 database for active products (ordered by display_order)
+    const dbProductsResult = await db.prepare(`
+      SELECT
+        id, name, slug, description,
+        base_price, retail_price,
+        image_url, tags, status, display_order,
+        created_at
+      FROM products
+      WHERE status = 'active'
+      ORDER BY display_order ASC NULLS LAST, created_at DESC
+    `).all();
+
+    // If D1 has products, use them (fast path - ~5ms)
+    if (dbProductsResult.results && dbProductsResult.results.length > 0) {
+      // Step 2: Fetch variants for each product
+      const productsWithVariants = await Promise.all(
+        dbProductsResult.results.map(async (dbProduct: any) => {
+          const variantsResult = await db.prepare(`
+            SELECT id, size, color, printful_variant_id, in_stock
+            FROM product_variants
+            WHERE product_id = ?
+            ORDER BY size ASC
+          `).bind(dbProduct.id).all();
+
+          // Transform D1 row to Product type
+          return {
+            id: dbProduct.id,
+            name: dbProduct.name,
+            slug: dbProduct.slug,
+            description: dbProduct.description || 'A unique design from Caterpillar Ranch.',
+            price: dbProduct.retail_price || dbProduct.base_price || 0,
+            imageUrl: dbProduct.image_url,
+            tags: dbProduct.tags ? JSON.parse(dbProduct.tags) : ['apparel'],
+            createdAt: dbProduct.created_at,
+            variants: (variantsResult.results || []).map((v: any) => ({
+              id: v.id,
+              printfulVariantId: v.printful_variant_id,
+              size: v.size,
+              color: v.color,
+              inStock: v.in_stock === 1,
+            })),
+          };
+        })
+      );
+
+      return {
+        products: productsWithVariants,
+        message: cloudflare.env.VALUE_FROM_CLOUDFLARE,
+        cached: false,
+        source: 'database',
+      };
+    }
+
+    // Step 3: Fallback to Printful API (fresh install or no products synced yet)
+    console.log('No products in D1 database, falling back to Printful API');
+
     const { PrintfulClient, PrintfulCache } = await import('../../workers/lib/printful');
 
     const cache = new PrintfulCache(cloudflare.env.CATALOG_CACHE);
@@ -31,7 +88,7 @@ export async function loader({ context }: Route.LoaderArgs) {
       cloudflare.env.PRINTFUL_STORE_ID
     );
 
-    // Step 1: Get list of product IDs
+    // Get list of product IDs
     let storeProducts = await cache.getProducts();
     let cached = true;
 
@@ -42,10 +99,7 @@ export async function loader({ context }: Route.LoaderArgs) {
       cached = false;
     }
 
-    // Step 2: Fetch full details for each product (with prices and variants)
-    // Using Promise.allSettled for graceful degradation if individual products fail
-    // Note: With 2-10 products, this adds 2-10 API calls (parallel). For 20+ products,
-    // consider implementing a scheduled cron job to cache prices separately.
+    // Fetch full details for each product (with prices and variants)
     const productPromises = storeProducts.map(async (item) => {
       try {
         const cachedFull = await cache.getProduct(item.id);
@@ -74,6 +128,7 @@ export async function loader({ context }: Route.LoaderArgs) {
       products,
       message: cloudflare.env.VALUE_FROM_CLOUDFLARE,
       cached,
+      source: 'printful',
     };
   } catch (error) {
     console.error('Failed to fetch products:', error);
@@ -83,6 +138,7 @@ export async function loader({ context }: Route.LoaderArgs) {
       products: [],
       message: cloudflare.env.VALUE_FROM_CLOUDFLARE,
       cached: false,
+      source: 'error',
       error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
