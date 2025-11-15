@@ -29,17 +29,21 @@ export async function loader({ context }: Route.LoaderArgs) {
 
   const gamesPlayedToday = await db
     .prepare(
-      `SELECT COUNT(*) as plays,
-       COUNT(CASE WHEN converted_to_purchase = 1 THEN 1 END) as conversions
+      `SELECT COUNT(*) as plays
        FROM game_completions
-       WHERE DATE(created_at) = DATE('now')`
+       WHERE DATE(completed_at) = DATE('now')`
     )
-    .first<{ plays: number; conversions: number }>();
+    .first<{ plays: number }>();
+
+  // TODO: Implement conversion tracking
+  // Currently no way to link game_completions to orders (no session_token in orders table)
+  // For now, set conversions to 0 until we add proper tracking
+  const conversions = 0;
 
   // Recent orders
   const recentOrders = await db
     .prepare(
-      `SELECT id, customer_email, total, status, created_at
+      `SELECT id, customer_email, total, printful_status as status, created_at
        FROM orders
        ORDER BY created_at DESC
        LIMIT 5`
@@ -57,7 +61,7 @@ export async function loader({ context }: Route.LoaderArgs) {
       },
       games: {
         plays: gamesPlayedToday?.plays || 0,
-        conversions: gamesPlayedToday?.conversions || 0,
+        conversions: conversions,
       },
     },
     recentOrders: recentOrders.results,

@@ -45,9 +45,9 @@ admin.get('/search', requireAuth, async (c) => {
     // Note: products table stores Printful catalog data
     const productsResult = await db
       .prepare(
-        `SELECT id, name, printful_id
+        `SELECT id, name, printful_product_id
          FROM products
-         WHERE LOWER(name) LIKE ?1 OR CAST(printful_id AS TEXT) LIKE ?1
+         WHERE LOWER(name) LIKE ?1 OR CAST(printful_product_id AS TEXT) LIKE ?1
          ORDER BY name ASC
          LIMIT 5`
       )
@@ -58,7 +58,7 @@ admin.get('/search', requireAuth, async (c) => {
       type: 'product' as const,
       id: p.id.toString(),
       label: p.name,
-      sublabel: `ID: ${p.printful_id}`,
+      sublabel: `Printful ID: ${p.printful_product_id}`,
     }));
 
     // Search orders by order ID or customer email
