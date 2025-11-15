@@ -2500,3 +2500,4 @@ git push origin main  # Triggers Cloudflare auto-deploy
 # Then wait for user to provide build logs before testing
 ```
 - always use AskUserQuestions tool to ask me questions
+- 2 is approved --> please ask me up to 10 T/F questions to verify my expetations. Do not ask technical questions and do not ask any questions that could be answered by reviewing the code itself or the planning document. Please note that this repo wa used in developing our implementation plan: "\\wsl$\Ubuntu\home\lando555\medusa" -> use it for reference

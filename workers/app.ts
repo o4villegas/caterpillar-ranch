@@ -3,6 +3,7 @@ import { createRequestHandler } from "react-router";
 import authRoutes from "./routes/auth";
 import catalogRoutes from "./routes/catalog";
 import ordersRoutes from "./routes/orders";
+import adminRoutes from "./routes/admin";
 
 const app = new Hono();
 
@@ -10,6 +11,7 @@ const app = new Hono();
 app.route("/api/auth", authRoutes);
 app.route("/api/catalog", catalogRoutes);
 app.route("/api/orders", ordersRoutes);
+app.route("/api/admin", adminRoutes);
 
 // Add more API routes here
 
