@@ -245,14 +245,18 @@ export default function Dashboard() {
                     <td className="py-3 px-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          order.status === 'confirmed'
-                            ? 'bg-[#32CD32] text-[#1a1a1a]'
+                          order.status === 'fulfilled'
+                            ? 'bg-[#32CD32] text-[#1a1a1a]'  // Green - success
                             : order.status === 'pending'
-                              ? 'bg-[#FFA500] text-[#1a1a1a]'
-                              : 'bg-[#6B7280] text-[#F5F5DC]'
+                              ? 'bg-[#FFA500] text-[#1a1a1a]'  // Orange - in progress
+                              : order.status === 'draft'
+                                ? 'bg-[#9B8FB5] text-[#1a1a1a]'  // Lavender - draft
+                                : order.status === 'cancelled'
+                                  ? 'bg-[#FF1493] text-[#F5F5DC]'  // Pink - cancelled
+                                  : 'bg-[#6B7280] text-[#F5F5DC]'  // Gray - unknown
                         }`}
                       >
-                        {order.status}
+                        {order.status || 'unknown'}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-[#9B8FB5] text-sm">
