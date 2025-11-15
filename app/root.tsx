@@ -20,6 +20,8 @@ import { WhisperDisplay } from "./lib/components/WhisperDisplay";
 import { Toaster } from "sonner";
 import { CartProvider } from "./lib/contexts/CartContext";
 import { Header } from "./lib/components/Header";
+import { Footer } from "./lib/components/Footer";
+import { ErrorHeader } from "./lib/components/ErrorHeader";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -103,6 +105,7 @@ export default function App() {
       <div style={{ position: 'relative', zIndex: 10 }}>
         <Header />
         <Outlet />
+        <Footer />
       </div>
     </CartProvider>
   );
@@ -125,14 +128,18 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1 className="drip-text text-4xl mb-4">{message}</h1>
-      <p className="text-lg mb-4">{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto bg-ranch-purple/20 rounded-lg">
-          <code className="text-base">{stack}</code>
-        </pre>
-      )}
-    </main>
+    <>
+      <ErrorHeader />
+      <main className="pt-16 p-4 container mx-auto">
+        <h1 className="drip-text text-4xl mb-4">{message}</h1>
+        <p className="text-lg mb-4">{details}</p>
+        {stack && (
+          <pre className="w-full p-4 overflow-x-auto bg-ranch-purple/20 rounded-lg">
+            <code className="text-base">{stack}</code>
+          </pre>
+        )}
+      </main>
+      <Footer />
+    </>
   );
 }
