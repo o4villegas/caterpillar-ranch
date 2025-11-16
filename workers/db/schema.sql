@@ -64,7 +64,9 @@ CREATE TABLE IF NOT EXISTS product_variants (
   color TEXT NOT NULL,
 
   -- Printful Integration
-  printful_variant_id INTEGER NOT NULL UNIQUE,
+  -- NOTE: printful_variant_id is NOT UNIQUE because multiple products can use
+  -- the same Printful base garment (e.g., Gildan 64000 Black/S) with different designs
+  printful_variant_id INTEGER NOT NULL,
 
   -- Inventory
   in_stock INTEGER NOT NULL DEFAULT 1, -- Boolean: 1=available, 0=out of stock
