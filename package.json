@@ -39,6 +39,7 @@
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.7.5",
     "@cloudflare/workers-types": "^4.20250425.0",
+    "@playwright/test": "^1.56.1",
     "@react-router/dev": "7.6.3",
     "@tailwindcss/vite": "4.1.4",
     "@types/node": "24.0.4",
@@ -56,6 +57,12 @@
     "deploy": "npm run build && wrangler deploy",
     "dev": "react-router dev",
     "preview": "npm run build && vite preview",
-    "typecheck": "npm run cf-typegen && react-router typegen && tsc -b"
+    "typecheck": "npm run cf-typegen && react-router typegen && tsc -b",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:prod": "TEST_URL=https://caterpillar-ranch.lando555.workers.dev playwright test",
+    "test:report": "playwright show-report"
   }
 }
