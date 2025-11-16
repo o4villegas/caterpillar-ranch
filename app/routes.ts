@@ -18,5 +18,6 @@ export default [
   route("admin/login", "routes/admin.login.tsx"),
   layout("routes/admin/layout.tsx", [
     route("admin/dashboard", "routes/admin/dashboard.tsx"),
+    route("admin/products", "routes/admin/products.tsx"),
   ]),
 ] satisfies RouteConfig;
