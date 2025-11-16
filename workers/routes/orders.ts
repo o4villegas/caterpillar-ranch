@@ -107,7 +107,7 @@ orders.post('/estimate', async (c) => {
 
 /**
  * POST /api/orders
- * Create draft order with Printful
+ * Create draft order with Printful and persist to D1 database
  */
 orders.post('/', async (c) => {
   try {
@@ -116,9 +116,20 @@ orders.post('/', async (c) => {
       recipient: PrintfulRecipient;
       items: PrintfulOrderItem[];
       discountPercent?: number;
+      cartItems?: Array<{
+        productId: string;
+        productName: string;
+        variantId: string;
+        variantSize: string;
+        variantColor: string;
+        printfulVariantId: number;
+        unitPrice: number;
+        quantity: number;
+        discountPercent: number;
+      }>;
     }>();
 
-    const { externalId, recipient, items, discountPercent = 0 } = body;
+    const { externalId, recipient, items, discountPercent = 0, cartItems = [] } = body;
 
     // Validate required fields
     if (!externalId || !recipient || !items || items.length === 0) {
@@ -139,7 +150,7 @@ orders.post('/', async (c) => {
     const subtotal = parseFloat(estimate.costs.subtotal);
     const retailCosts = calculateRetailCosts(subtotal, discountPercent);
 
-    // Create draft order
+    // Create draft order with Printful
     const order = await printful.createOrder(
       externalId,
       recipient,
@@ -147,13 +158,82 @@ orders.post('/', async (c) => {
       retailCosts
     );
 
+    // Persist order to D1 database
+    const db = c.env.DB;
+    const now = new Date().toISOString();
+    const validatedDiscount = validateDiscount(discountPercent);
+    const discountAmount = parseFloat(retailCosts.discount);
+    const totalAmount = parseFloat(retailCosts.total);
+
+    // Insert into orders table
+    await db
+      .prepare(
+        `INSERT INTO orders (
+          id, customer_email, customer_name,
+          shipping_address_line1, shipping_city, shipping_state, shipping_zip, shipping_country,
+          subtotal, discount_amount, total,
+          printful_order_id, printful_status,
+          created_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      )
+      .bind(
+        externalId,
+        recipient.email,
+        recipient.name,
+        recipient.address1,
+        recipient.city,
+        recipient.state_code,
+        recipient.zip,
+        recipient.country_code,
+        subtotal,
+        discountAmount,
+        totalAmount,
+        order.id,
+        'draft',
+        now
+      )
+      .run();
+
+    // Insert order items (if cartItems provided)
+    if (cartItems.length > 0) {
+      for (const item of cartItems) {
+        const itemSubtotal = item.unitPrice * (1 - item.discountPercent / 100) * item.quantity;
+
+        await db
+          .prepare(
+            `INSERT INTO order_items (
+              order_id, product_id, product_name,
+              variant_id, variant_size, variant_color,
+              unit_price, quantity, discount_percent, subtotal,
+              printful_variant_id, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          )
+          .bind(
+            externalId,
+            item.productId,
+            item.productName,
+            item.variantId,
+            item.variantSize,
+            item.variantColor,
+            item.unitPrice,
+            item.quantity,
+            item.discountPercent,
+            itemSubtotal,
+            item.printfulVariantId,
+            now
+          )
+          .run();
+      }
+    }
+
     return c.json({
       data: {
         ...order,
-        appliedDiscountPercent: validateDiscount(discountPercent),
+        externalId,
+        appliedDiscountPercent: validatedDiscount,
         maxDiscountPercent: MAX_DISCOUNT_PERCENT,
       },
-      meta: { source: 'printful-api', status: 'draft' },
+      meta: { source: 'printful-api', status: 'draft', persisted: true },
     });
   } catch (error) {
     console.error('Error creating order:', error);
@@ -169,7 +249,7 @@ orders.post('/', async (c) => {
 
 /**
  * POST /api/orders/:id/confirm
- * Confirm draft order (moves to fulfillment)
+ * Confirm draft order (moves to fulfillment) and update D1 database
  */
 orders.post('/:id/confirm', async (c) => {
   try {
@@ -181,12 +261,25 @@ orders.post('/:id/confirm', async (c) => {
 
     const printful = new PrintfulClient(c.env.PRINTFUL_API_TOKEN, c.env.PRINTFUL_STORE_ID);
 
-    // Confirm the order
+    // Confirm the order with Printful
     const order = await printful.confirmOrder(orderId);
+
+    // Update order in D1 database
+    const db = c.env.DB;
+    const now = new Date().toISOString();
+
+    await db
+      .prepare(
+        `UPDATE orders
+         SET printful_status = ?, confirmed_at = ?
+         WHERE printful_order_id = ?`
+      )
+      .bind('confirmed', now, orderId)
+      .run();
 
     return c.json({
       data: order,
-      meta: { source: 'printful-api', status: 'confirmed' },
+      meta: { source: 'printful-api', status: 'confirmed', persisted: true },
     });
   } catch (error) {
     console.error('Error confirming order:', error);

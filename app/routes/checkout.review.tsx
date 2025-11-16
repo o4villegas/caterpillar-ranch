@@ -74,6 +74,19 @@ export default function CheckoutReviewPage() {
         retail_price: (item.product.price * (1 - item.earnedDiscount / 100)).toFixed(2),
       }));
 
+      // Transform cart items for D1 persistence (order_items table)
+      const cartItems = cart.items.map((item) => ({
+        productId: item.product.id,
+        productName: item.product.name,
+        variantId: item.variantId,
+        variantSize: item.variant.size,
+        variantColor: item.variant.color,
+        printfulVariantId: item.variant.printfulVariantId,
+        unitPrice: item.product.price,
+        quantity: item.quantity,
+        discountPercent: item.earnedDiscount,
+      }));
+
       // Transform shipping info to Printful recipient format
       const recipient = {
         name: shippingInfo.name,
@@ -86,7 +99,7 @@ export default function CheckoutReviewPage() {
         zip: shippingInfo.zip,
       };
 
-      // Create order with Printful
+      // Create order with Printful and persist to D1
       const createResponse = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -94,6 +107,7 @@ export default function CheckoutReviewPage() {
           externalId,
           recipient,
           items: printfulItems,
+          cartItems, // Added for D1 persistence
           discountPercent: totals.effectiveDiscountPercent,
         }),
       });
