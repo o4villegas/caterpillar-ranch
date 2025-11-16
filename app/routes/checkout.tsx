@@ -29,6 +29,7 @@ export default function CheckoutPage() {
     email: '',
     name: '',
     address: '',
+    address2: '',
     city: '',
     state: '',
     zip: '',
@@ -197,6 +198,19 @@ export default function CheckoutPage() {
               {errors.address && (
                 <p className="text-ranch-pink text-lg mt-1">{errors.address}</p>
               )}
+            </div>
+
+            {/* Address Line 2 (Optional) */}
+            <div className="mb-4">
+              <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+                Apartment, Suite, etc. (optional)
+              </label>
+              <Input
+                type="text"
+                value={formData.address2}
+                onChange={(e) => handleChange('address2', e.target.value)}
+                placeholder="Apt 4B"
+              />
             </div>
 
             {/* City, State, ZIP */}

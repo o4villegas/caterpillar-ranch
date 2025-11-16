@@ -18,6 +18,7 @@ interface ShippingInfo {
   email: string;
   name: string;
   address: string;
+  address2?: string;
   city: string;
   state: string;
   zip: string;
@@ -93,6 +94,7 @@ export default function CheckoutReviewPage() {
         email: shippingInfo.email,
         phone: shippingInfo.phone || '',
         address1: shippingInfo.address,
+        address2: shippingInfo.address2 || undefined,
         city: shippingInfo.city,
         state_code: shippingInfo.state,
         country_code: shippingInfo.country,
@@ -206,6 +208,7 @@ export default function CheckoutReviewPage() {
               <div className="text-ranch-lavender space-y-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
                 <p className="text-ranch-cream" style={{ fontWeight: 700 }}>{shippingInfo.name}</p>
                 <p>{shippingInfo.address}</p>
+                {shippingInfo.address2 && <p>{shippingInfo.address2}</p>}
                 <p>{shippingInfo.city}, {shippingInfo.state} {shippingInfo.zip}</p>
                 <p className="pt-2 text-lg">{shippingInfo.email}</p>
                 {shippingInfo.phone && <p className="text-base">{shippingInfo.phone}</p>}
