@@ -8,9 +8,10 @@
   "compatibility_flags": ["nodejs_compat"],
   "main": "./workers/app.ts",
   "vars": {
-    "VALUE_FROM_CLOUDFLARE": "Hello from Hono/CF",
-    "PRINTFUL_API_TOKEN": "b4ge8jNnrPn3i5cvv848qmEtJiE1vCiCygI0nURj",
-    "PRINTFUL_STORE_ID": "17197624"
+    "VALUE_FROM_CLOUDFLARE": "Hello from Hono/CF"
+    // PRINTFUL_API_TOKEN, PRINTFUL_STORE_ID, and JWT_SECRET are now in:
+    // - Local: .dev.vars (gitignored)
+    // - Production: Cloudflare Secrets (set via: wrangler secret put <NAME>)
   },
   "observability": {
     "enabled": true
