@@ -5,7 +5,7 @@
  * Usage: node create-admin.mjs <email> <password> <name>
  */
 
-import bcrypt from 'bcryptjs';
+import crypto from 'node:crypto';
 import { execSync } from 'child_process';
 
 const [email, password, name] = process.argv.slice(2);
@@ -16,9 +16,25 @@ if (!email || !password) {
   process.exit(1);
 }
 
+/**
+ * Hash password using PBKDF2 (same algorithm as Workers)
+ * Must match workers/lib/password.ts implementation
+ */
+function hashPasswordPBKDF2(password) {
+  const PBKDF2_ITERATIONS = 100000;
+  const HASH_LENGTH = 32;
+  const SALT_LENGTH = 16;
+
+  const salt = crypto.randomBytes(SALT_LENGTH);
+  const hash = crypto.pbkdf2Sync(password, salt, PBKDF2_ITERATIONS, HASH_LENGTH, 'sha256');
+
+  const combined = Buffer.concat([salt, hash]);
+  return combined.toString('base64');
+}
+
 // Hash password
-console.log('🔐 Hashing password...');
-const passwordHash = await bcrypt.hash(password, 10);
+console.log('🔐 Hashing password with PBKDF2...');
+const passwordHash = hashPasswordPBKDF2(password);
 console.log(`✅ Hash generated: ${passwordHash.substring(0, 20)}...`);
 
 // Create SQL command (escape single quotes in name and hash)

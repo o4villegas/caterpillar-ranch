@@ -3,17 +3,16 @@
  *
  * JWT-based admin authentication for Caterpillar Ranch
  * - Token generation and verification
- * - Password hashing with bcryptjs
+ * - Password hashing with PBKDF2 (Web Crypto API)
  * - Middleware for protecting admin routes
  */
 
 import type { Context, Next } from 'hono';
 import { sign, verify } from 'hono/jwt';
-import bcrypt from 'bcryptjs';
+import { hashPassword, verifyPassword } from './password';
 
 // JWT Configuration
 const JWT_EXPIRY = 60 * 60 * 24 * 7; // 7 days in seconds
-const SALT_ROUNDS = 10;
 
 /**
  * JWT Payload Structure
@@ -74,22 +73,9 @@ export async function verifyToken(
   }
 }
 
-/**
- * Hash password using bcryptjs
- */
-export async function hashPassword(password: string): Promise<string> {
-  return await bcrypt.hash(password, SALT_ROUNDS);
-}
-
-/**
- * Compare password with hash
- */
-export async function comparePassword(
-  password: string,
-  hash: string
-): Promise<boolean> {
-  return await bcrypt.compare(password, hash);
-}
+// Re-export password hashing functions from password.ts
+export { hashPassword } from './password';
+export { verifyPassword as comparePassword } from './password';
 
 /**
  * Extract JWT token from Authorization header or cookie
