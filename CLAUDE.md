@@ -23,10 +23,11 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 
 ## 🏗️ Current Implementation Status
 
-**Last Updated**: 2025-11-11
-**Current Phase**: Phase 3.1 Complete - Frontend Now Displays Real Printful Catalog
-**Codebase Size**: 42 TypeScript files, 4,700+ lines of application code
+**Last Updated**: 2025-11-16
+**Current Phase**: Phase 3.2 Complete - Backend Analytics & Admin Infrastructure
+**Codebase Size**: 47 TypeScript files, 5,900+ lines of application code
 **Production Status**: ✅ Live at https://caterpillar-ranch.lando555.workers.dev/
+**Latest Version**: bb14ff38-e737-4d9a-acee-4f04910ff4c3
 
 ### ✅ Completed Phases
 
@@ -98,8 +99,8 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
   - Physics simulation (gravity, velocity)
   - Horror color palette (lime, cyan, pink)
 - ✅ Integration with homepage (CartIcon + CartDrawer)
-- ⏳ Session token management and KV storage (placeholders for Phase 3)
-- ⏳ Server sync API routes (placeholders for Phase 3)
+- ✅ Session token management and KV storage (completed in Phase 3.2)
+- ✅ Server sync API routes (completed in Phase 3.2)
 
 **Phase 2.9: Printful API Integration** (✅ Complete)
 - ✅ Printful API client library (`workers/lib/printful.ts` - 331 lines)
@@ -169,17 +170,79 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
   - KV caching operational
   - HTTP 200 status on all routes
 
+**Phase 3.2: Backend Analytics & Admin Infrastructure** (✅ Complete - 2025-11-16)
+- ✅ Order Persistence to D1 Database (Commit: c9e76da)
+  - Modified POST /api/orders to INSERT orders and order_items
+  - Modified POST /api/orders/:id/confirm to UPDATE order status
+  - Captures complete order data: customer info, shipping, items, totals
+  - Enables order history tracking and revenue analytics
+- ✅ Game Completion Tracking API (Commit: cf45d9c)
+  - Created `/api/games/complete` endpoint (POST)
+  - Created `/api/games/stats/:sessionToken` endpoint (GET)
+  - Score-to-discount conversion: 60+ = 15%, 50+ = 12%, 40+ = 9%, etc.
+  - Tracks: sessionToken, gameType, productId, score, discountEarned
+  - Validates game types against schema CHECK constraint
+  - New file: `workers/routes/games.ts` (225 lines)
+- ✅ Cart Session Persistence (Commit: 450affa)
+  - Created `/api/cart/sync` endpoint (POST) - writes to KV
+  - Created `/api/cart/session/:sessionToken` endpoint (GET) - reads from KV
+  - Created `/api/cart/session/:sessionToken` endpoint (DELETE) - clears session
+  - 30-minute TTL for cart sessions
+  - UUID validation for session tokens
+  - Enables cross-device cart access
+  - New file: `workers/routes/cart.ts` (196 lines)
+- ✅ Orders Admin Page (Commit: 06b18d9)
+  - Order list with status filter (draft/confirmed/cancelled/all)
+  - Search by order ID or customer email
+  - Order detail modal with full order info
+  - Revenue stats footer (total orders, net revenue, avg order value)
+  - Protected by authentication (redirects to /admin/login)
+  - New file: `app/routes/admin/orders.tsx` (393 lines)
+- ✅ Analytics Admin Dashboard (Commit: 6aadccf)
+  - Revenue overview (total orders, net revenue, avg order value)
+  - Orders by status breakdown
+  - Game performance statistics (plays, avg score, total discounts)
+  - Top 10 products by revenue
+  - Recent activity timeline
+  - Protected by authentication
+  - New file: `app/routes/admin/analytics.tsx` (356 lines)
+- ✅ Bug Fixes (Commits: 6770e6e, 1f351f6)
+  - Fixed missing `shipping_address_line2` column in order INSERT
+  - Added address2 field to checkout form (apartment/suite collection)
+  - Added address2 to ShippingInfo interface and recipient object
+  - Complete end-to-end data flow: Form → SessionStorage → API → D1 → Printful
+  - Prevents data loss for multi-line shipping addresses
+- ✅ Production Verification (Version: bb14ff38-e737-4d9a-acee-4f04910ff4c3)
+  - All API endpoints operational (games, cart, admin)
+  - Admin pages protected and accessible after login
+  - Complete checkout flow with address2 collection
+  - Zero TypeScript compilation errors
+  - Worker size: 1706.31 KiB / gzip: 333.87 KiB
+
 ### 🚧 In Progress
 
-**Phase 3: Game Implementation & Backend Integration** (In Progress)
+**Phase 3.3: Game Implementation** (Next Priority)
 - ✅ Game modal selection UI (`app/lib/components/GameModal.tsx` - 87 lines)
-- ✅ Printful API catalog routes (Phase 2.9)
-- ✅ Frontend integration with real Printful catalog data (Phase 3.1)
-- ⏳ 6 horror-themed discount games (implementation pending)
-- ⏳ Score-to-discount conversion system
-- ⏳ Printful order creation and confirmation flow
-- ⏳ KV storage for cart sessions
-- ⏳ Server-side discount validation
+- ✅ Score-to-discount conversion system (backend API complete)
+- ✅ Game completion tracking API (ready to record plays)
+- ⏳ 6 horror-themed discount games (implementation pending):
+  1. The Culling (Whack-A-Mole) - 25 seconds
+  2. Cursed Harvest (Memory Match) - 30 seconds
+  3. Bug Telegram (Speed Typing) - 30 seconds
+  4. Hungry Hungry Caterpillar (Snake Game) - 45 seconds
+  5. Midnight Garden (Reflex Clicker) - 25 seconds
+  6. Metamorphosis Queue (Timing Game) - 25 seconds
+- ⏳ Integrate games with `/api/games/complete` endpoint
+- ⏳ Game state management and React components
+- ⏳ Mobile-friendly touch controls for all games
+
+**Phase 4: Checkout & Order Fulfillment** (Pending)
+- ✅ Printful order creation and confirmation flow (API complete)
+- ✅ Order persistence to D1 database (complete)
+- ✅ Complete shipping address collection (with address2 field)
+- ⏳ Payment processing integration (Stripe/PayPal)
+- ⏳ Order confirmation email flow
+- ⏳ Order tracking page for customers
 
 ---
 
@@ -1080,8 +1143,9 @@ export default function App() {
 
 ## 📦 Actual Component Structure & File Inventory
 
-**Last Verified**: 2025-01-15
-**Total Files**: 37 TypeScript files, 4,049 lines of code
+**Last Verified**: 2025-11-16
+**Total Files**: 47 TypeScript files, 5,900+ lines of code
+**Backend API Routes**: 8 route modules (auth, catalog, orders, games, cart, admin)
 
 ### Application Routes
 ```
@@ -1319,6 +1383,74 @@ app/
     ├── Environmental horror CSS: barn-light, garden-shadows, cursor-trail
     ├── Modal animations: backdrop-fade-in, modal-slide-up
     └── Accessibility: prefers-reduced-motion support
+```
+
+### Admin Routes (Phase 3.2)
+```
+app/routes/admin/
+├── layout.tsx (87 lines) - Admin layout with navigation
+├── dashboard.tsx (234 lines) - Admin dashboard overview
+├── products.tsx (389 lines) - Product management page
+│   ├── Product list with edit/delete
+│   ├── Add new product form
+│   └── Integration with Printful catalog
+├── orders.tsx (393 lines) - Order management page (NEW - 2025-11-16)
+│   ├── Order list with status filter
+│   ├── Search by order ID or customer email
+│   ├── Order detail modal
+│   └── Revenue stats footer
+└── analytics.tsx (356 lines) - Analytics dashboard (NEW - 2025-11-16)
+    ├── Revenue overview
+    ├── Orders by status breakdown
+    ├── Game performance statistics
+    └── Top products by revenue
+```
+
+### Backend API Routes (Workers)
+```
+workers/routes/
+├── auth.ts (143 lines) - Authentication endpoints
+│   ├── POST /api/auth/login
+│   └── POST /api/auth/logout
+├── catalog.ts (146 lines) - Printful catalog integration
+│   ├── GET /api/catalog/products
+│   ├── GET /api/catalog/products/:id
+│   └── POST /api/catalog/invalidate
+├── orders.ts (289 lines) - Order management (UPDATED - 2025-11-16)
+│   ├── POST /api/orders - Create draft order + persist to D1
+│   └── POST /api/orders/:id/confirm - Confirm order + update status
+├── games.ts (225 lines) - Game completion tracking (NEW - 2025-11-16)
+│   ├── POST /api/games/complete
+│   └── GET /api/games/stats/:sessionToken
+├── cart.ts (196 lines) - Cart session persistence (NEW - 2025-11-16)
+│   ├── POST /api/cart/sync
+│   ├── GET /api/cart/session/:sessionToken
+│   └── DELETE /api/cart/session/:sessionToken
+└── admin.ts (94 lines) - Admin-only endpoints
+    └── Middleware for authentication checks
+```
+
+### Backend Libraries (Workers)
+```
+workers/lib/
+├── printful.ts (331 lines) - Printful API client
+│   ├── PrintfulClient class
+│   ├── V2 API endpoints
+│   └── PrintfulCache KV helper
+└── auth.ts (297 lines) - Authentication utilities
+    ├── JWT token generation/validation
+    ├── Password hashing (bcrypt)
+    └── Session management
+```
+
+### Database Schema
+```
+workers/db/
+└── schema.sql (232 lines) - D1 database schema
+    ├── users table (admin authentication)
+    ├── orders table (order persistence)
+    ├── order_items table (order line items)
+    └── game_completions table (game tracking)
 ```
 
 ### Static Assets
