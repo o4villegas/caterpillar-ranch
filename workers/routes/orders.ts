@@ -170,17 +170,19 @@ orders.post('/', async (c) => {
       .prepare(
         `INSERT INTO orders (
           id, customer_email, customer_name,
-          shipping_address_line1, shipping_city, shipping_state, shipping_zip, shipping_country,
+          shipping_address_line1, shipping_address_line2,
+          shipping_city, shipping_state, shipping_zip, shipping_country,
           subtotal, discount_amount, total,
           printful_order_id, printful_status,
           created_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .bind(
         externalId,
         recipient.email,
         recipient.name,
         recipient.address1,
+        recipient.address2 || null, // Optional address line 2
         recipient.city,
         recipient.state_code,
         recipient.zip,
