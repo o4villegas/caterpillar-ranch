@@ -13,6 +13,7 @@
 
 import { Hono } from 'hono';
 import { requireAuth } from '../../lib/auth';
+import type { PrintfulStoreProduct } from '../../lib/printful';
 
 const products = new Hono<{ Bindings: Env }>();
 
@@ -60,6 +61,52 @@ function mapSize(printfulSize: string): string | null {
 
   console.warn(`Unknown size from Printful: "${printfulSize}" - skipping variant`);
   return null;
+}
+
+/**
+ * Extract size and color from Printful variant data
+ * Handles both 2-part and 3-part variant name formats
+ *
+ * Printful format is INCONSISTENT:
+ * - 2 parts: "Product / Size" (single-color products)
+ * - 3 parts: "Product / Color / Size" (multi-color products)
+ *
+ * @param variant - Printful sync_variant object
+ * @returns { size: string | null, color: string } or null if invalid
+ */
+function extractSizeAndColor(
+  variant: PrintfulStoreProduct['sync_variants'][0]
+): { size: string | null; color: string } | null {
+  const nameParts = variant.name.split(' / ');
+
+  let rawSize: string;
+  let color: string;
+
+  if (nameParts.length === 3) {
+    // Format: "Product / Color / Size"
+    color = nameParts[1];
+    rawSize = nameParts[2];
+  } else if (nameParts.length === 2) {
+    // Format: "Product / Size"
+    // Extract color from variant.product.name
+    // Example: "Gildan 64000... (Black / S)" → "Black"
+    const productNameMatch = variant.product.name.match(/\(([^/]+)\s*\/\s*[^)]+\)/);
+    color = productNameMatch ? productNameMatch[1].trim() : 'Black';
+    rawSize = nameParts[1];
+  } else {
+    // Unexpected format
+    console.warn(`Unexpected variant name format: "${variant.name}" (${nameParts.length} parts)`);
+    return null;
+  }
+
+  // Map and validate size
+  const size = mapSize(rawSize);
+  if (!size) {
+    console.warn(`Skipping variant ${variant.variant_id} - unsupported size: "${rawSize}"`);
+    return null;
+  }
+
+  return { size, color };
 }
 
 /**
@@ -337,17 +384,12 @@ products.post('/:id/sync', async (c) => {
       if (!variant.synced || variant.is_ignored) continue;
 
       // Extract size and color from variant name
-      // Format: "Product Name / Color / Size" (e.g., "Resistance Tee / Black / S")
-      const nameParts = variant.name.split(' / ');
-      const rawSize = nameParts.length >= 3 ? nameParts[2] : 'M';  // Size is at index 2
-      const color = nameParts.length >= 2 ? nameParts[1] : 'Black';  // Color is at index 1
-      const size = mapSize(rawSize);
-
-      // Skip variants with unsupported sizes
-      if (!size) {
-        console.warn(`Skipping variant ${variant.variant_id} - unsupported size: "${rawSize}"`);
-        continue;
+      const extracted = extractSizeAndColor(variant);
+      if (!extracted) {
+        continue; // Skip this variant (logged by helper function)
       }
+
+      const { size, color } = extracted;
 
       const variantId = `${productId}-${size.toLowerCase()}-${variant.variant_id}`;
 
@@ -515,17 +557,12 @@ products.post('/sync-all', async (c) => {
               if (!variant.synced || variant.is_ignored) continue;
 
               // Extract size and color from variant name
-              // Format: "Product Name / Color / Size" (e.g., "Resistance Tee / Black / S")
-              const nameParts = variant.name.split(' / ');
-              const rawSize = nameParts.length >= 3 ? nameParts[2] : 'M';  // Size is at index 2
-              const color = nameParts.length >= 2 ? nameParts[1] : 'Black';  // Color is at index 1
-              const size = mapSize(rawSize);
-
-              // Skip variants with unsupported sizes
-              if (!size) {
-                console.warn(`Skipping variant ${variant.variant_id} - unsupported size: "${rawSize}"`);
-                continue;
+              const extracted = extractSizeAndColor(variant);
+              if (!extracted) {
+                continue; // Skip this variant (logged by helper function)
               }
+
+              const { size, color } = extracted;
 
               const variantId = `${productId}-${size.toLowerCase()}-${variant.variant_id}`;
 

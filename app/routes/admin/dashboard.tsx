@@ -1,273 +1,175 @@
 /**
- * Admin Dashboard
+ * Admin Dashboard - Phase 2 Implementation
  *
- * Main landing page with stats and activity feed
+ * Main dashboard view with real-time stats and activity feed
+ * - Polls every 30 seconds for updates
+ * - Shows orders, revenue, products, games stats
+ * - Recent activity feed (last 10 orders, last 10 games)
+ * - Mobile-first responsive design
+ * - Horror-themed styling
  */
 
-import { useLoaderData } from 'react-router';
-import type { Route } from './+types/dashboard';
-import { Breadcrumbs } from '~/lib/components/admin/Breadcrumbs';
+import { formatDistanceToNow } from 'date-fns';
+import { usePolling } from '../../lib/hooks/usePolling';
+import { StatCard } from '../../lib/components/admin/StatCard';
+import { ActivityFeed } from '../../lib/components/admin/ActivityFeed';
 
-/**
- * Loader - Fetch dashboard stats
- */
-export async function loader({ context }: Route.LoaderArgs) {
-  const db = (context.cloudflare as { env: Cloudflare.Env }).env.DB;
-
-  // Fetch basic stats
-  const ordersToday = await db
-    .prepare(
-      `SELECT COUNT(*) as count, SUM(CAST(total as REAL)) as revenue
-       FROM orders
-       WHERE DATE(created_at) = DATE('now')`
-    )
-    .first<{ count: number; revenue: number }>();
-
-  const productsActive = await db
-    .prepare('SELECT COUNT(*) as count FROM products WHERE status = "active"')
-    .first<{ count: number }>();
-
-  const gamesPlayedToday = await db
-    .prepare(
-      `SELECT COUNT(*) as plays
-       FROM game_completions
-       WHERE DATE(completed_at) = DATE('now')`
-    )
-    .first<{ plays: number }>();
-
-  // TODO: Implement conversion tracking
-  // Currently no way to link game_completions to orders (no session_token in orders table)
-  // For now, set conversions to 0 until we add proper tracking
-  const conversions = 0;
-
-  // Recent orders
-  const recentOrders = await db
-    .prepare(
-      `SELECT id, customer_email, total, printful_status as status, created_at
-       FROM orders
-       ORDER BY created_at DESC
-       LIMIT 5`
-    )
-    .all();
-
-  return {
-    stats: {
-      orders: {
-        today: ordersToday?.count || 0,
-        revenue: ordersToday?.revenue || 0,
-      },
-      products: {
-        active: productsActive?.count || 0,
-      },
-      games: {
-        plays: gamesPlayedToday?.plays || 0,
-        conversions: conversions,
-      },
-    },
-    recentOrders: recentOrders.results,
+interface DashboardStats {
+  orders: {
+    today: number;
+    week: number;
+    month: number;
   };
+  revenue: {
+    today: number;
+    week: number;
+    month: number;
+  };
+  products: {
+    active: number;
+  };
+  games: {
+    today: number;
+    total: number;
+  };
+  timestamp: string;
 }
 
-/**
- * Dashboard Component
- */
-export default function Dashboard() {
-  const { stats, recentOrders } = useLoaderData<typeof loader>();
+interface RecentActivity {
+  orders: Array<{
+    id: string;
+    customer_email: string;
+    total: string;
+    discount_amount: string;
+    printful_status: string | null;
+    created_at: string;
+  }>;
+  games: Array<{
+    game_type: string;
+    score: number;
+    discount_earned: number;
+    product_id: string;
+    completed_at: string;
+  }>;
+  timestamp: string;
+}
 
-  const conversionRate =
-    stats.games.plays > 0
-      ? ((stats.games.conversions / stats.games.plays) * 100).toFixed(1)
-      : '0';
+export default function AdminDashboard() {
+  // Fetch dashboard stats (polls every 30 seconds)
+  const {
+    data: stats,
+    lastUpdated: statsUpdated,
+    isLoading: statsLoading,
+  } = usePolling<DashboardStats>(
+    () =>
+      fetch('/api/admin/analytics/dashboard-stats', {
+        credentials: 'include',
+      }).then((r) => {
+        if (!r.ok) throw new Error('Failed to fetch stats');
+        return r.json();
+      }),
+    30000 // 30 seconds
+  );
+
+  // Fetch recent activity (polls every 30 seconds)
+  const {
+    data: activity,
+    lastUpdated: activityUpdated,
+    isLoading: activityLoading,
+  } = usePolling<RecentActivity>(
+    () =>
+      fetch('/api/admin/analytics/recent-activity', {
+        credentials: 'include',
+      }).then((r) => {
+        if (!r.ok) throw new Error('Failed to fetch activity');
+        return r.json();
+      }),
+    30000 // 30 seconds
+  );
+
+  // Format numbers
+  const formatCurrency = (value: number) => {
+    return `$${value.toFixed(2)}`;
+  };
+
+  const formatNumber = (value: number) => {
+    return value.toLocaleString();
+  };
 
   return (
-    <div>
-      <Breadcrumbs items={[{ label: 'Dashboard' }]} />
-
-      <h1
-        className="text-4xl text-[#F5F5DC] mb-8"
-        style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}
-      >
-        Dashboard
-      </h1>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Orders Today */}
-        <div className="bg-[#2d1f3a] border-2 border-[#4A3258] rounded-lg p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl">📋</span>
-            <h3
-              className="text-lg text-[#9B8FB5]"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
-            >
-              Orders Today
-            </h3>
-          </div>
-          <p
-            className="text-4xl text-[#32CD32]"
-            style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}
+    <div className="min-h-screen bg-[#1a1a1a] px-4 md:px-8 py-6 md:py-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-6 md:mb-8">
+          <h1
+            className="text-3xl md:text-4xl text-[#F5F5DC] font-bold mb-2"
+            style={{ fontFamily: 'Creepster, cursive' }}
           >
-            {stats.orders.today}
-          </p>
-          <p className="text-sm text-[#9B8FB5] mt-1">
-            ${stats.orders.revenue.toFixed(2)} revenue
-          </p>
-        </div>
-
-        {/* Active Products */}
-        <div className="bg-[#2d1f3a] border-2 border-[#4A3258] rounded-lg p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl">📦</span>
-            <h3
-              className="text-lg text-[#9B8FB5]"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+            Dashboard
+          </h1>
+          {statsUpdated && (
+            <p
+              className="text-sm text-[#9B8FB5]"
+              style={{ fontFamily: 'Inter, sans-serif' }}
             >
-              Active Products
-            </h3>
-          </div>
-          <p
-            className="text-4xl text-[#00CED1]"
-            style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}
-          >
-            {stats.products.active}
-          </p>
-          <p className="text-sm text-[#9B8FB5] mt-1">Synced from Printful</p>
-        </div>
-
-        {/* Games Played */}
-        <div className="bg-[#2d1f3a] border-2 border-[#4A3258] rounded-lg p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl">🎮</span>
-            <h3
-              className="text-lg text-[#9B8FB5]"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
-            >
-              Games Today
-            </h3>
-          </div>
-          <p
-            className="text-4xl text-[#FF1493]"
-            style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}
-          >
-            {stats.games.plays}
-          </p>
-          <p className="text-sm text-[#9B8FB5] mt-1">{conversionRate}% conversion</p>
-        </div>
-
-        {/* Conversions */}
-        <div className="bg-[#2d1f3a] border-2 border-[#4A3258] rounded-lg p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl">✨</span>
-            <h3
-              className="text-lg text-[#9B8FB5]"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
-            >
-              Conversions
-            </h3>
-          </div>
-          <p
-            className="text-4xl text-[#32CD32]"
-            style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}
-          >
-            {stats.games.conversions}
-          </p>
-          <p className="text-sm text-[#9B8FB5] mt-1">Games → Purchases</p>
-        </div>
-      </div>
-
-      {/* Recent Orders */}
-      <div className="bg-[#2d1f3a] border-2 border-[#4A3258] rounded-lg p-6">
-        <h2
-          className="text-2xl text-[#F5F5DC] mb-4"
-          style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
-        >
-          Recent Orders
-        </h2>
-
-        {recentOrders.length === 0 ? (
-          <div className="text-center py-8">
-            <span className="text-6xl mb-4 block">🐛</span>
-            <p className="text-[#9B8FB5]">No orders yet</p>
-            <p className="text-sm text-[#9B8FB5] mt-1">
-              Orders will appear here after checkout
+              Updated {formatDistanceToNow(statsUpdated, { addSuffix: true })}
             </p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b-2 border-[#4A3258]">
-                  <th
-                    className="text-left py-3 px-4 text-[#9B8FB5]"
-                    style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
-                  >
-                    Order ID
-                  </th>
-                  <th
-                    className="text-left py-3 px-4 text-[#9B8FB5]"
-                    style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
-                  >
-                    Customer
-                  </th>
-                  <th
-                    className="text-left py-3 px-4 text-[#9B8FB5]"
-                    style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
-                  >
-                    Total
-                  </th>
-                  <th
-                    className="text-left py-3 px-4 text-[#9B8FB5]"
-                    style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
-                  >
-                    Status
-                  </th>
-                  <th
-                    className="text-left py-3 px-4 text-[#9B8FB5]"
-                    style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
-                  >
-                    Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentOrders.map((order: any, index: number) => (
-                  <tr
-                    key={order.id}
-                    className={index % 2 === 0 ? 'bg-[#1a1a1a]' : 'bg-[#2d1f3a]'}
-                  >
-                    <td className="py-3 px-4 text-[#F5F5DC] font-mono text-sm">
-                      {order.id}
-                    </td>
-                    <td className="py-3 px-4 text-[#F5F5DC]">{order.customer_email}</td>
-                    <td className="py-3 px-4 text-[#32CD32] font-semibold">
-                      ${order.total}
-                    </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          order.status === 'fulfilled'
-                            ? 'bg-[#32CD32] text-[#1a1a1a]'  // Green - success
-                            : order.status === 'pending'
-                              ? 'bg-[#FFA500] text-[#1a1a1a]'  // Orange - in progress
-                              : order.status === 'draft'
-                                ? 'bg-[#9B8FB5] text-[#1a1a1a]'  // Lavender - draft
-                                : order.status === 'cancelled'
-                                  ? 'bg-[#FF1493] text-[#F5F5DC]'  // Pink - cancelled
-                                  : 'bg-[#6B7280] text-[#F5F5DC]'  // Gray - unknown
-                        }`}
-                      >
-                        {order.status || 'unknown'}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-[#9B8FB5] text-sm">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+          )}
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+          {/* Orders Today */}
+          <StatCard
+            title="Orders Today"
+            value={formatNumber(stats?.orders.today || 0)}
+            subtitle={`${formatNumber(stats?.orders.week || 0)} this week`}
+            colorScheme="cyan"
+            isLoading={statsLoading}
+          />
+
+          {/* Revenue Today */}
+          <StatCard
+            title="Revenue Today"
+            value={formatCurrency(stats?.revenue.today || 0)}
+            subtitle={`${formatCurrency(stats?.revenue.week || 0)} this week`}
+            colorScheme="lime"
+            isLoading={statsLoading}
+          />
+
+          {/* Active Products */}
+          <StatCard
+            title="Active Products"
+            value={formatNumber(stats?.products.active || 0)}
+            subtitle="Synced from Printful"
+            colorScheme="purple"
+            isLoading={statsLoading}
+          />
+
+          {/* Games Played */}
+          <StatCard
+            title="Games Today"
+            value={formatNumber(stats?.games.today || 0)}
+            subtitle={`${formatNumber(stats?.games.total || 0)} total`}
+            colorScheme="pink"
+            isLoading={statsLoading}
+          />
+        </div>
+
+        {/* Activity Feed */}
+        <div className="mb-6 md:mb-8">
+          <h2
+            className="text-2xl text-[#F5F5DC] font-bold mb-4"
+            style={{ fontFamily: 'Handjet, monospace' }}
+          >
+            Recent Activity
+          </h2>
+          <ActivityFeed
+            orders={activity?.orders || []}
+            games={activity?.games || []}
+            isLoading={activityLoading}
+          />
+        </div>
       </div>
     </div>
   );
