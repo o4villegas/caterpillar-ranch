@@ -7,6 +7,7 @@
 
 import { Hono } from 'hono';
 import { PrintfulClient, PrintfulCache } from '../lib/printful';
+import { requireAuth } from '../lib/auth';
 
 const catalog = new Hono<{ Bindings: Cloudflare.Env }>();
 
@@ -104,11 +105,8 @@ catalog.get('/products/:id', async (c) => {
  * Invalidate product cache (admin only)
  * Requires authentication
  */
-catalog.post('/invalidate', async (c) => {
+catalog.post('/invalidate', requireAuth, async (c) => {
   try {
-    // TODO: Add requireAuth middleware when admin endpoints are ready
-    // For now, this is accessible without auth in development
-
     const body = await c.req.json<{
       productId?: number;
       all?: boolean;

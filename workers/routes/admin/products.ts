@@ -72,11 +72,11 @@ function mapSize(printfulSize: string): string | null {
  * - 3 parts: "Product / Color / Size" (multi-color products)
  *
  * @param variant - Printful sync_variant object
- * @returns { size: string | null, color: string } or null if invalid
+ * @returns { size: string, color: string } or null if invalid
  */
 function extractSizeAndColor(
   variant: PrintfulStoreProduct['sync_variants'][0]
-): { size: string | null; color: string } | null {
+): { size: string; color: string } | null {
   const nameParts = variant.name.split(' / ');
 
   let rawSize: string;

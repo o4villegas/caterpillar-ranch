@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS products (
   -- Admin Control
   status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'hidden')),
   published_at TEXT,
+  display_order INTEGER, -- Controls homepage display order (NULL = sorted last)
 
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -50,6 +51,7 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE INDEX idx_products_slug ON products(slug);
 CREATE INDEX idx_products_status ON products(status);
 CREATE INDEX idx_products_printful_product_id ON products(printful_product_id);
+CREATE INDEX idx_products_display_order ON products(display_order ASC);
 
 -- ============================================================================
 -- Table: product_variants
