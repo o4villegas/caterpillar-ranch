@@ -13,9 +13,10 @@
 
 import { Hono } from 'hono';
 import { requireAuth } from '../../lib/auth';
+import type { AuthVariables } from '../../lib/auth';
 import type { PrintfulStoreProduct } from '../../lib/printful';
 
-const products = new Hono<{ Bindings: Env }>();
+const products = new Hono<{ Bindings: Cloudflare.Env; Variables: AuthVariables }>();
 
 // All routes require authentication
 products.use('*', requireAuth);
