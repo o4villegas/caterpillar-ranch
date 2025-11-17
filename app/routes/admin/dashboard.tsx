@@ -58,8 +58,9 @@ interface RecentActivity {
 
 /**
  * Loader - Fetch dashboard data on page load and manual refresh
+ * Queries D1 database directly (no HTTP self-fetch)
  */
-export async function loader({ request }: Route.LoaderArgs) {
+export async function loader({ request, context }: Route.LoaderArgs) {
   // Get auth token from cookie
   const cookieHeader = request.headers.get('Cookie');
   const match = cookieHeader?.match(/admin_token=([^;]+)/);
@@ -69,32 +70,135 @@ export async function loader({ request }: Route.LoaderArgs) {
     throw new Response('Unauthorized', { status: 401 });
   }
 
-  // Fetch dashboard stats and recent activity in parallel
-  const [statsRes, activityRes] = await Promise.all([
-    fetch(new URL('/api/admin/analytics/dashboard-stats', request.url), {
-      headers: {
-        Cookie: cookieHeader || '',
-      },
-    }),
-    fetch(new URL('/api/admin/analytics/recent-activity', request.url), {
-      headers: {
-        Cookie: cookieHeader || '',
-      },
-    }),
-  ]);
+  const cloudflare = context.cloudflare as { env: Cloudflare.Env };
+  const db = cloudflare.env.DB;
 
-  if (!statsRes.ok || !activityRes.ok) {
-    throw new Response('Failed to fetch dashboard data', { status: 500 });
+  try {
+    // Fetch dashboard stats - Orders today
+    const ordersToday = await db
+      .prepare(
+        `SELECT
+           COUNT(*) as count,
+           COALESCE(SUM(CAST(total as REAL)), 0) as revenue
+         FROM orders
+         WHERE DATE(created_at) = DATE('now')`
+      )
+      .first<{ count: number; revenue: number }>();
+
+    // Orders this week
+    const ordersWeek = await db
+      .prepare(
+        `SELECT
+           COUNT(*) as count,
+           COALESCE(SUM(CAST(total as REAL)), 0) as revenue
+         FROM orders
+         WHERE DATE(created_at) >= DATE('now', '-7 days')`
+      )
+      .first<{ count: number; revenue: number }>();
+
+    // Active products
+    const productsActive = await db
+      .prepare(
+        `SELECT COUNT(*) as count
+         FROM products
+         WHERE status = 'active'`
+      )
+      .first<{ count: number }>();
+
+    // Games played today
+    const gamesToday = await db
+      .prepare(
+        `SELECT COUNT(*) as plays
+         FROM game_completions
+         WHERE DATE(completed_at) = DATE('now')`
+      )
+      .first<{ plays: number }>();
+
+    // Total games all time
+    const gamesTotal = await db
+      .prepare(`SELECT COUNT(*) as total FROM game_completions`)
+      .first<{ total: number }>();
+
+    // Recent orders
+    const recentOrders = await db
+      .prepare(
+        `SELECT
+           id,
+           customer_email,
+           total,
+           discount_amount,
+           printful_status,
+           created_at
+         FROM orders
+         ORDER BY created_at DESC
+         LIMIT 10`
+      )
+      .all<{
+        id: string;
+        customer_email: string;
+        total: string;
+        discount_amount: string;
+        printful_status: string | null;
+        created_at: string;
+      }>();
+
+    // Recent games
+    const recentGames = await db
+      .prepare(
+        `SELECT
+           game_type,
+           score,
+           discount_earned,
+           product_id,
+           completed_at
+         FROM game_completions
+         ORDER BY completed_at DESC
+         LIMIT 10`
+      )
+      .all<{
+        game_type: string;
+        score: number;
+        discount_earned: number;
+        product_id: string;
+        completed_at: string;
+      }>();
+
+    const stats: DashboardStats = {
+      orders: {
+        today: ordersToday?.count || 0,
+        week: ordersWeek?.count || 0,
+        month: 0, // Not needed for current display
+      },
+      revenue: {
+        today: ordersToday?.revenue || 0,
+        week: ordersWeek?.revenue || 0,
+        month: 0, // Not needed for current display
+      },
+      products: {
+        active: productsActive?.count || 0,
+      },
+      games: {
+        today: gamesToday?.plays || 0,
+        total: gamesTotal?.total || 0,
+      },
+      timestamp: new Date().toISOString(),
+    };
+
+    const activity: RecentActivity = {
+      orders: recentOrders.results || [],
+      games: recentGames.results || [],
+      timestamp: new Date().toISOString(),
+    };
+
+    return {
+      stats,
+      activity,
+      loadedAt: new Date().toISOString(),
+    };
+  } catch (error) {
+    console.error('Dashboard loader error:', error);
+    throw new Response('Failed to load dashboard data', { status: 500 });
   }
-
-  const stats = (await statsRes.json()) as DashboardStats;
-  const activity = (await activityRes.json()) as RecentActivity;
-
-  return {
-    stats,
-    activity,
-    loadedAt: new Date().toISOString(),
-  };
 }
 
 export default function AdminDashboard() {
