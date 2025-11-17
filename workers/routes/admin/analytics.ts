@@ -9,8 +9,9 @@
 
 import { Hono } from 'hono';
 import { requireAuth } from '../../lib/auth';
+import type { AuthVariables } from '../../lib/auth';
 
-const analytics = new Hono<{ Bindings: Cloudflare.Env }>();
+const analytics = new Hono<{ Bindings: Cloudflare.Env; Variables: AuthVariables }>();
 
 /**
  * GET /api/admin/analytics/dashboard-stats
