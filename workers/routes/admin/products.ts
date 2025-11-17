@@ -437,178 +437,19 @@ products.post('/:id/sync', async (c) => {
  * POST /api/admin/products/sync-all
  *
  * Sync all products from Printful catalog
- * Uses streaming for progress updates (Phase 3 MVP: simple batch processing)
+ * Uses shared sync logic from workers/lib/sync-products.ts
  */
 products.post('/sync-all', async (c) => {
-  const db = c.env.DB;
-
   try {
-    // Import Printful client
-    const { PrintfulClient } = await import('../../lib/printful');
-    const printful = new PrintfulClient(
-      c.env.PRINTFUL_API_TOKEN,
-      c.env.PRINTFUL_STORE_ID
-    );
-
-    const startTime = Date.now();
-    let addedCount = 0;
-    let updatedCount = 0;
-    const errors: string[] = [];
-
-    // Fetch all store products from Printful
-    const storeProducts = await printful.getStoreProducts();
-
-    // Process products in batches of 10 (rate limiting: 500ms delay between batches)
-    const batchSize = 10;
-    for (let i = 0; i < storeProducts.length; i += batchSize) {
-      const batch = storeProducts.slice(i, i + batchSize);
-
-      // Process batch in parallel
-      await Promise.all(
-        batch.map(async (item) => {
-          try {
-            // Fetch full product details
-            const fullProduct = await printful.getStoreProduct(item.id);
-
-            if (!fullProduct || !fullProduct.sync_product) {
-              errors.push(`Failed to fetch product ${item.id}`);
-              return;
-            }
-
-            const { sync_product, sync_variants } = fullProduct;
-
-            // Generate ID and slug
-            const productId = `cr-${sync_product.id}`;
-            const slug = sync_product.name
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, '-')
-              .replace(/^-|-$/g, '');
-
-            const tags = JSON.stringify(['apparel']);
-            const basePrice = sync_variants.length > 0
-              ? parseFloat(sync_variants[0].retail_price)
-              : 0;
-
-            // Check if product exists
-            const existingProduct = await db.prepare(`
-              SELECT id FROM products WHERE id = ?
-            `).bind(productId).first();
-
-            if (existingProduct) {
-              // Update existing product
-              await db.prepare(`
-                UPDATE products
-                SET
-                  name = ?,
-                  slug = ?,
-                  base_price = ?,
-                  image_url = ?,
-                  tags = ?,
-                  printful_synced_at = datetime('now'),
-                  updated_at = datetime('now')
-                WHERE id = ?
-              `).bind(
-                sync_product.name,
-                slug,
-                basePrice,
-                sync_product.thumbnail_url,
-                tags,
-                productId
-              ).run();
-
-              updatedCount++;
-            } else {
-              // Insert new product (auto-publish: status='active')
-              // New products get display_order = NULL (sorted last)
-              await db.prepare(`
-                INSERT INTO products (
-                  id, name, slug, description,
-                  base_price, retail_price,
-                  printful_product_id,
-                  image_url, tags,
-                  status, published_at,
-                  printful_synced_at,
-                  display_order,
-                  created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'), NULL, datetime('now'), datetime('now'))
-              `).bind(
-                productId,
-                sync_product.name,
-                slug,
-                `A unique design from Caterpillar Ranch. ${sync_product.name}`,
-                basePrice,
-                null,
-                sync_product.id,
-                sync_product.thumbnail_url,
-                tags,
-                'active'
-              ).run();
-
-              addedCount++;
-            }
-
-            // Delete existing variants
-            await db.prepare(`
-              DELETE FROM product_variants WHERE product_id = ?
-            `).bind(productId).run();
-
-            // Insert variants
-            for (const variant of sync_variants) {
-              if (!variant.synced || variant.is_ignored) continue;
-
-              // Extract size and color from variant name
-              const extracted = extractSizeAndColor(variant);
-              if (!extracted) {
-                continue; // Skip this variant (logged by helper function)
-              }
-
-              const { size, color } = extracted;
-
-              const variantId = `${productId}-${size.toLowerCase()}-${variant.variant_id}`;
-
-              await db.prepare(`
-                INSERT INTO product_variants (
-                  id, product_id,
-                  size, color,
-                  printful_variant_id,
-                  in_stock,
-                  created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
-              `).bind(
-                variantId,
-                productId,
-                size,
-                color,  // Use extracted color from variant name
-                variant.variant_id,
-                1
-              ).run();
-            }
-          } catch (error) {
-            console.error(`Failed to sync product ${item.id}:`, error);
-            errors.push(`Product ${item.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-          }
-        })
-      );
-
-      // Rate limiting: 500ms delay between batches
-      if (i + batchSize < storeProducts.length) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      }
-    }
-
-    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+    const { syncAllProducts } = await import('../../lib/sync-products');
+    const result = await syncAllProducts(c.env, '[API]');
 
     return c.json({
       success: true,
-      results: {
-        added: addedCount,
-        updated: updatedCount,
-        errors,
-        duration: `${duration}s`,
-      },
+      results: result,
     });
   } catch (error) {
-    console.error('Failed to sync all products:', error);
+    console.error('[API] Failed to sync all products:', error);
     return c.json(
       { error: 'Failed to sync products', details: error instanceof Error ? error.message : 'Unknown error' },
       500

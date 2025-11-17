@@ -57,7 +57,7 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 - ✅ Quantity controls with validation (1-99 range)
 - ✅ Add to Cart with loading states and toast notifications
 - ✅ Framer Motion animations (spring physics, breathing effect)
-- ✅ Playwright testing suite (`test-modal.mjs` - 153 lines, 8 screenshot tests)
+- ✅ E2E testing with Playwright (comprehensive test suite in `tests/e2e/`)
 
 **Phase 1.5: Interactive Polish** (Complete)
 - ✅ Rare event system (`app/lib/components/EyeInCorner.tsx`, `app/lib/components/BackgroundBlur.tsx`)
@@ -66,7 +66,7 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 - ✅ Horror-themed copy integration (ProductModal uses HORROR_COPY throughout)
 - ✅ Advanced card hover effects (lime/cyan glow + text color transitions in `home.tsx`)
 - ✅ Product image tiny eye pattern overlay (`public/patterns/tiny-eyes.svg`, `.product-image::after` in `app.css`)
-- ✅ Playwright tests updated for horror-themed UI text (test-modal.mjs)
+- ✅ E2E tests cover horror-themed UI, animations, and user flows
 - ✅ Production verified: All Phase 1.5 features live and functional
 
 **Phase 2: Cart State Management** (✅ Complete)
@@ -219,22 +219,25 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
   - Zero TypeScript compilation errors
   - Worker size: 1706.31 KiB / gzip: 333.87 KiB
 
-### 🚧 In Progress
+**Phase 3.3: Game Implementation** (✅ Complete - 2025-11-17)
+- ✅ All 6 horror-themed discount games fully implemented and production-ready
+- ✅ Game routes in `app/routes/`:
+  1. `games.the-culling.tsx` (295 lines) - Whack-a-mole with invasive caterpillars
+  2. `games.cursed-harvest.tsx` (350 lines) - Memory match with mutated crops
+  3. `games.bug-telegram.tsx` (408 lines) - Speed typing with bug-themed words
+  4. `games.hungry-caterpillar.tsx` (528 lines) - Snake game with transformation cutscene
+  5. `games.midnight-garden.tsx` (474 lines) - Reflex clicker with confusion mode
+  6. `games.metamorphosis-queue.tsx` (559 lines) - Timing game with cocoon state machines
+- ✅ Full CartContext integration (addDiscount, removeDiscount, cart state)
+- ✅ Score-to-discount conversion: 60+ = 15%, 50-59 = 12%, 40-49 = 9%, 30-39 = 6%, 20-29 = 3%
+- ✅ localStorage high score persistence per game
+- ✅ GameResults modal with discount application
+- ✅ Mobile-friendly controls (touch + keyboard for all games)
+- ✅ Horror aesthetic: animations, visual feedback, HORROR_COPY integration
+- ✅ Navigation flow: Game → Product page with applied discount
+- ✅ Game completion API integration (`/api/games/complete`)
 
-**Phase 3.3: Game Implementation** (Next Priority)
-- ✅ Game modal selection UI (`app/lib/components/GameModal.tsx` - 87 lines)
-- ✅ Score-to-discount conversion system (backend API complete)
-- ✅ Game completion tracking API (ready to record plays)
-- ⏳ 6 horror-themed discount games (implementation pending):
-  1. The Culling (Whack-A-Mole) - 25 seconds
-  2. Cursed Harvest (Memory Match) - 30 seconds
-  3. Bug Telegram (Speed Typing) - 30 seconds
-  4. Hungry Hungry Caterpillar (Snake Game) - 45 seconds
-  5. Midnight Garden (Reflex Clicker) - 25 seconds
-  6. Metamorphosis Queue (Timing Game) - 25 seconds
-- ⏳ Integrate games with `/api/games/complete` endpoint
-- ⏳ Game state management and React components
-- ⏳ Mobile-friendly touch controls for all games
+### 🚧 In Progress
 
 **Phase 4: Checkout & Order Fulfillment** (Pending)
 - ✅ Printful order creation and confirmation flow (API complete)
@@ -1010,6 +1013,132 @@ wrangler deploy          # ❌ DO NOT USE - Deploy via git push only
 wrangler publish         # ❌ DO NOT USE - Deploy via git push only
 ```
 
+## E2E Testing with Playwright
+
+**Test Structure:**
+- `tests/e2e/` - Test spec files (294 tests across 9 suites)
+- `tests/pages/` - Page Object Model classes (HomePage, CartDrawer, CheckoutPage, AdminPages)
+- `tests/utils/` - Helpers (selectors.ts, helpers.ts with animation waits, performance assertions)
+
+**Page Object Model Pattern:**
+- Encapsulates page interactions for maintainability
+- Centralized selectors in `tests/utils/selectors.ts`
+- Animation-aware helpers (waitForAnimations, waitForProductsToLoad)
+- Example: `HomePage.ts` (87 lines) provides methods like `clickProduct()`, `assertLoaded()`
+
+**Test Execution:**
+```bash
+npm test              # Run all tests locally (auto-starts dev server)
+npm run test:prod     # Test production site
+npm run test:ui       # Playwright UI mode for debugging
+npm run test:debug    # Debug mode with headed browser
+```
+
+**Multi-Viewport Testing:**
+- 6 device profiles: mobile (iPhone SE, Pixel 5), tablet (iPad Air), desktop (1920x1080, 2560x1440, 3840x2160)
+- Tests automatically run across all viewports for responsive verification
+
+**Current Status:**
+- ✅ 9 tests passing (Homepage, basic cart operations)
+- ⚠️ ~10+ tests failing (Cart functionality, Checkout flow - needs investigation)
+- Common issues: Fixture errors, product loading 404s
+
+## Database Setup (D1)
+
+**Schema:** `workers/db/schema.sql` (254 lines with triggers, indexes, constraints)
+
+**Initialize Database:**
+```bash
+# Local development
+wrangler d1 execute Rancch-DB --file=workers/db/schema.sql --local
+
+# Production
+wrangler d1 execute Rancch-DB --file=workers/db/schema.sql --remote
+```
+
+**Query Database:**
+```bash
+# Local
+wrangler d1 execute Rancch-DB --command="SELECT * FROM products;" --local
+
+# Production
+wrangler d1 execute Rancch-DB --command="SELECT * FROM products;" --remote
+```
+
+**Database Tables:**
+- `users` - Admin authentication (PBKDF2 password hashes via Web Crypto API)
+- `products` / `product_variants` - Product catalog synced from Printful
+- `orders` / `order_items` - Order persistence and line items
+- `game_completions` - Game analytics tracking
+- `newsletter_subscribers` / `contact_messages` - Customer data
+
+**Admin User Creation:**
+```sql
+-- First, generate hash using workers/lib/password.ts hashPassword() function
+-- Then insert into database:
+INSERT INTO users (email, password_hash, name)
+VALUES ('admin@example.com', '<base64-pbkdf2-hash>', 'Admin User');
+```
+
+**Note:** No seed scripts exist yet - admin users must be created manually via SQL.
+
+## Secrets Management
+
+**Local Development:** Use `.dev.vars` file (gitignored)
+```
+PRINTFUL_API_TOKEN=your-printful-token-here
+JWT_SECRET=your-jwt-secret-here
+```
+
+**Production:** Use Cloudflare Secrets (encrypted at rest)
+```bash
+wrangler secret put PRINTFUL_API_TOKEN
+# Paste token when prompted
+
+wrangler secret put JWT_SECRET
+# Paste secret when prompted (generate with: openssl rand -base64 32)
+```
+
+**Required Secrets:**
+- `PRINTFUL_API_TOKEN` - Printful API v2 private token (from Printful dashboard)
+- `JWT_SECRET` - JWT signing key for admin authentication (32+ bytes recommended)
+
+**Security Best Practices:**
+- ✅ Never commit `.dev.vars` to git (already in .gitignore)
+- ✅ Never hardcode secrets in code
+- ✅ Rotate secrets periodically
+- ✅ Use different secrets for local vs production
+
+## API Routes Architecture
+
+**Route Organization:** Routes are modular Hono sub-routers mounted in `workers/app.ts` (38 lines)
+
+**Mounted Routes:**
+```typescript
+// workers/app.ts
+app.route("/api/auth", authRoutes);          // workers/routes/auth.ts
+app.route("/api/catalog", catalogRoutes);    // workers/routes/catalog.ts
+app.route("/api/orders", ordersRoutes);      // workers/routes/orders.ts
+app.route("/api/games", gamesRoutes);        // workers/routes/games.ts
+app.route("/api/cart", cartRoutes);          // workers/routes/cart.ts
+app.route("/api/admin", adminRoutes);        // workers/routes/admin.ts + admin/ subdirectory
+app.route("/api/newsletter", newsletterRoutes); // workers/routes/newsletter.ts
+app.route("/api/contact", contactRoutes);    // workers/routes/contact.ts
+
+app.get("*", /* React Router SSR catch-all */);
+```
+
+**Pattern:** API routes are added BEFORE the catch-all handler to prevent React Router from handling API requests.
+
+**Admin Subroutes:**
+- `workers/routes/admin/` contains additional modules (analytics.ts, products.ts, search.ts)
+- Organized by feature area for better maintainability
+
+**Adding New Routes:**
+1. Create route file in `workers/routes/yourRoute.ts`
+2. Export a Hono router instance
+3. Mount in `workers/app.ts` before the catch-all
+
 ## Architecture
 
 ### Entry Points
@@ -1466,13 +1595,27 @@ public/
 
 ### Testing
 ```
-/ (root)
-└── test-modal.mjs (153 lines)
-    ├── Playwright test script
-    ├── Tests modal open/close, size selection, quantity controls
-    ├── Tests Add to Cart flow, mobile responsive layout
-    ├── Generates 8 screenshot files
-    └── Run with: node test-modal.mjs
+tests/
+├── e2e/                    # End-to-end test suites (294 tests)
+│   ├── 01-homepage.spec.ts
+│   ├── 02-cart.spec.ts
+│   ├── 03-checkout.spec.ts
+│   ├── 04-admin.spec.ts
+│   ├── 05-game-culling.spec.ts
+│   ├── 06-visual-regression.spec.ts
+│   ├── 07-api-validation.spec.ts
+│   ├── 08-performance.spec.ts
+│   └── 09-horror-ui.spec.ts
+├── pages/                  # Page Object Model classes
+│   ├── HomePage.ts
+│   ├── CartDrawer.ts
+│   ├── CheckoutPage.ts
+│   └── AdminPages.ts
+└── utils/                  # Test helpers
+    ├── selectors.ts
+    └── helpers.ts
+
+Run with: npm test (local) or npm run test:prod (production)
 ```
 
 ---
@@ -1492,7 +1635,7 @@ public/
 | **clsx** | ^2.1.1 | 1 file | 1 import | utils.ts cn() function |
 | **tailwind-merge** | ^3.3.1 | 1 file | 1 import | utils.ts cn() function |
 | **class-variance-authority** | ^0.7.1 | 2 files | 2 imports | ui/button.tsx, ui/badge.tsx variants |
-| **@playwright/test** | ^1.56.0 | 1 file | 1 import | test-modal.mjs (dev dependency) |
+| **@playwright/test** | ^1.56.0 | 14 files | 294 tests | E2E test suite (dev dependency) |
 
 **Installed But NOT Used** (ready for future phases):
 
