@@ -87,8 +87,8 @@ export async function loader({ request }: Route.LoaderArgs) {
     throw new Response('Failed to fetch dashboard data', { status: 500 });
   }
 
-  const stats = await statsRes.json();
-  const activity = await activityRes.json();
+  const stats = (await statsRes.json()) as DashboardStats;
+  const activity = (await activityRes.json()) as RecentActivity;
 
   return {
     stats,
