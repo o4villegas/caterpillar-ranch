@@ -1,18 +1,20 @@
 /**
  * Admin Dashboard - Phase 2 Implementation
  *
- * Main dashboard view with real-time stats and activity feed
- * - Polls every 30 seconds for updates
+ * Main dashboard view with manual refresh
  * - Shows orders, revenue, products, games stats
  * - Recent activity feed (last 10 orders, last 10 games)
+ * - Manual refresh button (no auto-polling)
  * - Mobile-first responsive design
  * - Horror-themed styling
  */
 
 import { formatDistanceToNow } from 'date-fns';
-import { usePolling } from '../../lib/hooks/usePolling';
+import { useLoaderData, useRevalidator } from 'react-router';
+import type { Route } from './+types/dashboard';
 import { StatCard } from '../../lib/components/admin/StatCard';
 import { ActivityFeed } from '../../lib/components/admin/ActivityFeed';
+import { Button } from '../../lib/components/ui/button';
 
 interface DashboardStats {
   orders: {
@@ -54,38 +56,51 @@ interface RecentActivity {
   timestamp: string;
 }
 
-export default function AdminDashboard() {
-  // Fetch dashboard stats (polls every 30 seconds)
-  const {
-    data: stats,
-    lastUpdated: statsUpdated,
-    isLoading: statsLoading,
-  } = usePolling<DashboardStats>(
-    () =>
-      fetch('/api/admin/analytics/dashboard-stats', {
-        credentials: 'include',
-      }).then((r) => {
-        if (!r.ok) throw new Error('Failed to fetch stats');
-        return r.json();
-      }),
-    30000 // 30 seconds
-  );
+/**
+ * Loader - Fetch dashboard data on page load and manual refresh
+ */
+export async function loader({ request }: Route.LoaderArgs) {
+  // Get auth token from cookie
+  const cookieHeader = request.headers.get('Cookie');
+  const match = cookieHeader?.match(/admin_token=([^;]+)/);
+  const token = match ? match[1] : null;
 
-  // Fetch recent activity (polls every 30 seconds)
-  const {
-    data: activity,
-    lastUpdated: activityUpdated,
-    isLoading: activityLoading,
-  } = usePolling<RecentActivity>(
-    () =>
-      fetch('/api/admin/analytics/recent-activity', {
-        credentials: 'include',
-      }).then((r) => {
-        if (!r.ok) throw new Error('Failed to fetch activity');
-        return r.json();
-      }),
-    30000 // 30 seconds
-  );
+  if (!token) {
+    throw new Response('Unauthorized', { status: 401 });
+  }
+
+  // Fetch dashboard stats and recent activity in parallel
+  const [statsRes, activityRes] = await Promise.all([
+    fetch(new URL('/api/admin/analytics/dashboard-stats', request.url), {
+      headers: {
+        Cookie: cookieHeader || '',
+      },
+    }),
+    fetch(new URL('/api/admin/analytics/recent-activity', request.url), {
+      headers: {
+        Cookie: cookieHeader || '',
+      },
+    }),
+  ]);
+
+  if (!statsRes.ok || !activityRes.ok) {
+    throw new Response('Failed to fetch dashboard data', { status: 500 });
+  }
+
+  const stats = await statsRes.json();
+  const activity = await activityRes.json();
+
+  return {
+    stats,
+    activity,
+    loadedAt: new Date().toISOString(),
+  };
+}
+
+export default function AdminDashboard() {
+  const { stats, activity, loadedAt } = useLoaderData<typeof loader>();
+  const revalidator = useRevalidator();
+  const isRefreshing = revalidator.state === 'loading';
 
   // Format numbers
   const formatCurrency = (value: number) => {
@@ -100,21 +115,30 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-[#1a1a1a] px-4 md:px-8 py-6 md:py-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6 md:mb-8">
-          <h1
-            className="text-3xl md:text-4xl text-[#F5F5DC] font-bold mb-2"
-            style={{ fontFamily: 'Creepster, cursive' }}
-          >
-            Dashboard
-          </h1>
-          {statsUpdated && (
-            <p
-              className="text-sm text-[#9B8FB5]"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+        <div className="mb-6 md:mb-8 flex items-center justify-between">
+          <div>
+            <h1
+              className="text-3xl md:text-4xl text-[#F5F5DC] font-bold mb-2"
+              style={{ fontFamily: 'Creepster, cursive' }}
             >
-              Updated {formatDistanceToNow(statsUpdated, { addSuffix: true })}
-            </p>
-          )}
+              Dashboard
+            </h1>
+            {loadedAt && (
+              <p
+                className="text-sm text-[#9B8FB5]"
+                style={{ fontFamily: 'Inter, sans-serif' }}
+              >
+                Updated {formatDistanceToNow(new Date(loadedAt), { addSuffix: true })}
+              </p>
+            )}
+          </div>
+          <Button
+            onClick={() => revalidator.revalidate()}
+            disabled={isRefreshing}
+            className="bg-ranch-cyan hover:bg-ranch-cyan/90 text-ranch-dark font-semibold"
+          >
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
+          </Button>
         </div>
 
         {/* Stats Grid */}
@@ -125,7 +149,7 @@ export default function AdminDashboard() {
             value={formatNumber(stats?.orders.today || 0)}
             subtitle={`${formatNumber(stats?.orders.week || 0)} this week`}
             colorScheme="cyan"
-            isLoading={statsLoading}
+            isLoading={isRefreshing}
           />
 
           {/* Revenue Today */}
@@ -134,16 +158,16 @@ export default function AdminDashboard() {
             value={formatCurrency(stats?.revenue.today || 0)}
             subtitle={`${formatCurrency(stats?.revenue.week || 0)} this week`}
             colorScheme="lime"
-            isLoading={statsLoading}
+            isLoading={isRefreshing}
           />
 
           {/* Active Products */}
           <StatCard
             title="Active Products"
             value={formatNumber(stats?.products.active || 0)}
-            subtitle="Synced from Printful"
+            subtitle="Auto-synced daily at 2 AM UTC"
             colorScheme="purple"
-            isLoading={statsLoading}
+            isLoading={isRefreshing}
           />
 
           {/* Games Played */}
@@ -152,7 +176,7 @@ export default function AdminDashboard() {
             value={formatNumber(stats?.games.today || 0)}
             subtitle={`${formatNumber(stats?.games.total || 0)} total`}
             colorScheme="pink"
-            isLoading={statsLoading}
+            isLoading={isRefreshing}
           />
         </div>
 
@@ -167,7 +191,7 @@ export default function AdminDashboard() {
           <ActivityFeed
             orders={activity?.orders || []}
             games={activity?.games || []}
-            isLoading={activityLoading}
+            isLoading={isRefreshing}
           />
         </div>
       </div>

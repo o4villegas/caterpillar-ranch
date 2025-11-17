@@ -3,7 +3,7 @@
  *
  * Manage product catalog from Printful
  * - View all products with status and display order
- * - Sync products from Printful (individual or bulk)
+ * - Products auto-sync daily at 2 AM UTC via scheduled handler
  * - Control visibility (draft/active/hidden)
  * - Reorder products for homepage display
  */
@@ -14,6 +14,7 @@ import type { Route } from './+types/products';
 import { Button } from '~/lib/components/ui/button';
 import { Badge } from '~/lib/components/ui/badge';
 import { toast } from 'sonner';
+import { formatDistanceToNow } from 'date-fns';
 
 /**
  * Loader - Fetch products from admin API
@@ -66,8 +67,6 @@ export default function AdminProductsPage() {
   const { products } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
   const fetcher = useFetcher();
-  const [syncing, setSyncing] = useState<string | null>(null);
-  const [syncingAll, setSyncingAll] = useState(false);
 
   /**
    * Change product status (draft/active/hidden)
@@ -119,60 +118,6 @@ export default function AdminProductsPage() {
     }
   };
 
-  /**
-   * Sync single product from Printful
-   */
-  const handleSyncProduct = async (productId: string) => {
-    setSyncing(productId);
-    try {
-      const res = await fetch(`/api/admin/products/${productId}/sync`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${getTokenFromCookie()}`,
-        },
-        credentials: 'include',
-      });
-
-      if (!res.ok) throw new Error('Failed to sync product');
-
-      const data = (await res.json()) as { product: { name: string }; variants_synced: number };
-      toast.success(`Synced ${data.product.name} with ${data.variants_synced} variants`);
-      revalidator.revalidate(); // Auto-refresh
-    } catch (error) {
-      toast.error('Failed to sync product');
-      console.error(error);
-    } finally {
-      setSyncing(null);
-    }
-  };
-
-  /**
-   * Sync all products from Printful
-   */
-  const handleSyncAll = async () => {
-    setSyncingAll(true);
-    try {
-      const res = await fetch('/api/admin/products/sync-all', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${getTokenFromCookie()}`,
-        },
-        credentials: 'include',
-      });
-
-      if (!res.ok) throw new Error('Failed to sync all products');
-
-      const data = (await res.json()) as { products_synced: number; variants_synced: number };
-      toast.success(`Synced ${data.products_synced} products, ${data.variants_synced} variants total`);
-      revalidator.revalidate(); // Auto-refresh
-    } catch (error) {
-      toast.error('Failed to sync all products');
-      console.error(error);
-    } finally {
-      setSyncingAll(false);
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -180,15 +125,15 @@ export default function AdminProductsPage() {
         <div>
           <h1 className="text-3xl font-bold text-ranch-cream">Products</h1>
           <p className="text-ranch-lavender mt-1">
-            Manage product catalog from Printful
+            Auto-synced daily at 2 AM UTC via scheduled handler
           </p>
         </div>
         <Button
-          onClick={handleSyncAll}
-          disabled={syncingAll}
+          onClick={() => revalidator.revalidate()}
+          disabled={revalidator.state === 'loading'}
           className="bg-ranch-cyan hover:bg-ranch-cyan/90 text-ranch-dark font-semibold"
         >
-          {syncingAll ? 'Syncing...' : 'Sync All from Printful'}
+          {revalidator.state === 'loading' ? 'Refreshing...' : 'Refresh'}
         </Button>
       </div>
 
@@ -217,7 +162,7 @@ export default function AdminProductsPage() {
                   Price
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-ranch-cream">
-                  Actions
+                  Last Synced
                 </th>
               </tr>
             </thead>
@@ -225,7 +170,7 @@ export default function AdminProductsPage() {
               {products.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-8 text-center text-ranch-lavender">
-                    No products found. Click "Sync All from Printful" to import products.
+                    No products found. Products auto-sync daily at 2 AM UTC.
                   </td>
                 </tr>
               ) : (
@@ -329,17 +274,13 @@ export default function AdminProductsPage() {
                       ${(product.retail_price || product.base_price).toFixed(2)}
                     </td>
 
-                    {/* Actions */}
-                    <td className="px-4 py-3">
-                      <Button
-                        onClick={() => handleSyncProduct(product.id)}
-                        disabled={syncing === product.id}
-                        size="sm"
-                        variant="outline"
-                        className="border-ranch-purple text-ranch-cyan hover:bg-ranch-purple/20"
-                      >
-                        {syncing === product.id ? 'Syncing...' : 'Sync'}
-                      </Button>
+                    {/* Last Synced */}
+                    <td className="px-4 py-3 text-ranch-lavender text-sm">
+                      {product.printful_synced_at
+                        ? formatDistanceToNow(new Date(product.printful_synced_at), {
+                            addSuffix: true,
+                          })
+                        : 'Never'}
                     </td>
                   </tr>
                 ))
