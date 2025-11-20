@@ -201,3 +201,10 @@ dist
 ### React Router ###
 .react-router/
 /build/
+
+### Design Images (uploaded to R2, not stored in Git) ###
+/designs/
+
+### Playwright Test Results ###
+/test-results/
+/playwright-report/

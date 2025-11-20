@@ -58,8 +58,15 @@ export function ProductView({
     product.colorVariants?.[0] || null
   );
 
+  // Image view state: 'design' or 'mockup'
+  const [imageView, setImageView] = useState<'design' | 'mockup'>(
+    designImageUrl ? 'design' : 'mockup'
+  );
+
   // Determine current image to display
-  const currentImage = designImageUrl || selectedColor?.mockupUrl || product.imageUrl;
+  const currentImage = imageView === 'design' && designImageUrl
+    ? designImageUrl
+    : selectedColor?.mockupUrl || product.imageUrl;
 
   // Get variants to display based on color selection
   const displayVariants = showColorSelection && selectedColor
@@ -80,6 +87,34 @@ export function ProductView({
 
   return (
     <div className="space-y-6">
+      {/* Image view toggle (only show if design image exists) */}
+      {designImageUrl && (
+        <div className="flex gap-2 justify-center">
+          <button
+            onClick={() => setImageView('design')}
+            className={`px-4 py-2 rounded-lg transition-all ${
+              imageView === 'design'
+                ? 'bg-ranch-lime text-ranch-dark font-bold'
+                : 'bg-ranch-purple/30 text-ranch-lavender hover:bg-ranch-purple/50'
+            }`}
+            style={{ fontFamily: 'Handjet, monospace', fontWeight: imageView === 'design' ? 700 : 600 }}
+          >
+            Design
+          </button>
+          <button
+            onClick={() => setImageView('mockup')}
+            className={`px-4 py-2 rounded-lg transition-all ${
+              imageView === 'mockup'
+                ? 'bg-ranch-lime text-ranch-dark font-bold'
+                : 'bg-ranch-purple/30 text-ranch-lavender hover:bg-ranch-purple/50'
+            }`}
+            style={{ fontFamily: 'Handjet, monospace', fontWeight: imageView === 'mockup' ? 700 : 600 }}
+          >
+            Mockup
+          </button>
+        </div>
+      )}
+
       {/* Product image with Framer Motion */}
       <motion.div
         className="relative bg-ranch-purple/20 p-8 rounded-xl"

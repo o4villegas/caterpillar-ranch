@@ -32,6 +32,21 @@ export const selectors = {
     discountBadge: 'div:has-text("Ranch Blessing Applied")',
   },
 
+  // Product Page (dedicated route with color selection)
+  productPage: {
+    backButton: 'button:has-text("Back to Products")',
+    colorLabel: 'label:has-text("Choose Your Color")',
+    colorSwatchGroup: 'div.flex.flex-wrap.gap-3',
+    colorSwatch: 'button.rounded-full.w-10.h-10', // All color swatches
+    colorSwatchSelected: 'button.rounded-full:has(.ring-2.ring-ranch-lime)', // Selected swatch
+    colorSwatchAvailable: 'button.rounded-full.cursor-pointer', // Available colors
+    colorSwatchUnavailable: 'button.rounded-full.cursor-not-allowed', // Out of stock colors
+    colorTooltip: '.absolute.-bottom-8', // Tooltip on hover
+    sizeLabel: 'label:has-text("Choose Your Offering Size")',
+    sizeGrid: 'div.grid.grid-cols-4.gap-2',
+    colorText: 'div:has-text("Color:")', // Only in modal (not product page)
+  },
+
   // Cart Icon & Drawer
   cart: {
     icon: 'button[aria-label*="Shopping cart"]',

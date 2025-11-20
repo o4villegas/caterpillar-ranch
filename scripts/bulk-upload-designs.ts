@@ -55,7 +55,8 @@ async function fetchProducts(): Promise<Product[]> {
   }
 
   const data = await response.json() as { products: Product[] };
-  return data.products.filter(p => p.design_url === null); // Only products without designs
+  // Return all products since API doesn't include design_url field
+  return data.products;
 }
 
 /**
@@ -100,7 +101,10 @@ function matchProductByFilename(filename: string, products: Product[]): Product 
  */
 async function uploadDesign(filePath: string, productId: string): Promise<void> {
   const formData = new FormData();
-  const file = await fileFromPath(filePath);
+  // Explicitly set MIME type based on extension
+  const ext = path.extname(filePath).toLowerCase();
+  const mimeType = ext === '.png' ? 'image/png' : ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : 'image/webp';
+  const file = await fileFromPath(filePath, { type: mimeType });
   formData.append('file', file);
   formData.append('productId', productId);
 
