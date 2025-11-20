@@ -251,3 +251,30 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 
 CREATE INDEX idx_contact_status ON contact_messages(status);
 CREATE INDEX idx_contact_created_at ON contact_messages(created_at DESC);
+
+-- ============================================================================
+-- Table: sync_logs
+-- Purpose: Audit trail for daily Printful product sync operations
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS sync_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  -- Sync Metadata
+  sync_timestamp TEXT NOT NULL DEFAULT (datetime('now')),
+  action TEXT NOT NULL CHECK (action IN ('added', 'updated', 'hidden', 'error')),
+
+  -- Product Reference
+  product_id TEXT, -- Our internal product ID (e.g., "cr-403422954")
+  printful_product_id INTEGER, -- Printful's product ID
+  product_name TEXT,
+
+  -- Action Details
+  reason TEXT NOT NULL, -- Human-readable reason (e.g., "Product no longer in Printful store")
+  details TEXT, -- JSON string with additional context (e.g., variant counts, error messages)
+
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_sync_logs_timestamp ON sync_logs(sync_timestamp DESC);
+CREATE INDEX idx_sync_logs_action ON sync_logs(action);
+CREATE INDEX idx_sync_logs_product_id ON sync_logs(product_id);

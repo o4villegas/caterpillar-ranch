@@ -19,6 +19,7 @@ const navItems: NavItem[] = [
   { path: '/admin/products', label: 'Products', icon: '📦' },
   { path: '/admin/orders', label: 'Orders', icon: '📋' },
   { path: '/admin/analytics', label: 'Game Analytics', icon: '🎮' },
+  { path: '/admin/sync-logs', label: 'Sync Logs', icon: '🔄' },
 ];
 
 interface SidebarProps {

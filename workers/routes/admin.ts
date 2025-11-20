@@ -13,6 +13,7 @@ import { requireAuth } from '../lib/auth';
 import analyticsRoutes from './admin/analytics';
 import productsRoutes from './admin/products';
 import designsRoutes from './admin/designs';
+import syncLogsRoutes from './admin/sync-logs';
 
 type Variables = {
   userId: number;
@@ -29,6 +30,9 @@ admin.route('/products', productsRoutes);
 
 // Mount designs routes
 admin.route('/designs', designsRoutes);
+
+// Mount sync logs routes
+admin.route('/sync-logs', syncLogsRoutes);
 
 /**
  * GET /api/admin/search

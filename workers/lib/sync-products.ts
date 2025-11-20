@@ -12,6 +12,7 @@ import type { PrintfulStoreProduct } from './printful';
 export interface SyncResult {
   added: number;
   updated: number;
+  hidden: number;
   errors: string[];
   duration: string;
 }
@@ -79,6 +80,7 @@ export async function syncAllProducts(
   const startTime = Date.now();
   let addedCount = 0;
   let updatedCount = 0;
+  let hiddenCount = 0;
   const errors: string[] = [];
 
   // Fetch all store products from Printful
@@ -144,6 +146,24 @@ export async function syncAllProducts(
               productId
             ).run();
 
+            // Log update to sync_logs
+            await db.prepare(`
+              INSERT INTO sync_logs (
+                action, product_id, printful_product_id, product_name,
+                reason, details
+              ) VALUES (?, ?, ?, ?, ?, ?)
+            `).bind(
+              'updated',
+              productId,
+              sync_product.id,
+              sync_product.name,
+              'Product information updated from Printful',
+              JSON.stringify({
+                priceUpdated: basePrice,
+                variantCount: sync_variants.filter(v => v.synced && !v.is_ignored).length
+              })
+            ).run();
+
             updatedCount++;
           } else {
             // Insert new product (auto-publish: status='active')
@@ -169,6 +189,25 @@ export async function syncAllProducts(
               sync_product.thumbnail_url,
               tags,
               'active'
+            ).run();
+
+            // Log addition to sync_logs
+            await db.prepare(`
+              INSERT INTO sync_logs (
+                action, product_id, printful_product_id, product_name,
+                reason, details
+              ) VALUES (?, ?, ?, ?, ?, ?)
+            `).bind(
+              'added',
+              productId,
+              sync_product.id,
+              sync_product.name,
+              'New product added from Printful store',
+              JSON.stringify({
+                initialPrice: basePrice,
+                variantCount: sync_variants.filter(v => v.synced && !v.is_ignored).length,
+                autoPublished: true
+              })
             ).run();
 
             addedCount++;
@@ -226,10 +265,108 @@ export async function syncAllProducts(
     }
   }
 
+  // Step 2: Detect and hide products that no longer exist in Printful
+  console.log(`${logPrefix} Checking for deleted products...`);
+
+  // Create a Set of all Printful product IDs for fast lookup
+  const printfulProductIds = new Set(storeProducts.map(p => p.id));
+
+  // Get all active products from D1
+  const activeProductsResult = await db.prepare(`
+    SELECT id, name, printful_product_id
+    FROM products
+    WHERE status = 'active'
+  `).all<{ id: string; name: string; printful_product_id: number }>();
+
+  const activeProducts = activeProductsResult.results || [];
+
+  // Find products in D1 that are NOT in Printful response
+  for (const dbProduct of activeProducts) {
+    if (!printfulProductIds.has(dbProduct.printful_product_id)) {
+      try {
+        console.log(`${logPrefix} Product no longer in Printful: ${dbProduct.name} (ID: ${dbProduct.printful_product_id})`);
+
+        // Hide the product (soft delete)
+        await db.prepare(`
+          UPDATE products
+          SET status = 'hidden', updated_at = datetime('now')
+          WHERE id = ?
+        `).bind(dbProduct.id).run();
+
+        // Log to sync_logs table
+        await db.prepare(`
+          INSERT INTO sync_logs (
+            action, product_id, printful_product_id, product_name,
+            reason, details
+          ) VALUES (?, ?, ?, ?, ?, ?)
+        `).bind(
+          'hidden',
+          dbProduct.id,
+          dbProduct.printful_product_id,
+          dbProduct.name,
+          'Product no longer exists in Printful store',
+          JSON.stringify({ detectedDuring: 'scheduled-sync', previousStatus: 'active' })
+        ).run();
+
+        hiddenCount++;
+      } catch (error) {
+        console.error(`${logPrefix} Failed to hide product ${dbProduct.id}:`, error);
+        errors.push(`Hide product ${dbProduct.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    }
+  }
+
+  // Step 3: Detect products with zero synced variants
+  console.log(`${logPrefix} Checking for products with zero variants...`);
+
+  const zeroVariantsResult = await db.prepare(`
+    SELECT p.id, p.name, p.printful_product_id
+    FROM products p
+    LEFT JOIN product_variants v ON p.id = v.product_id
+    WHERE p.status = 'active'
+    GROUP BY p.id
+    HAVING COUNT(v.id) = 0
+  `).all<{ id: string; name: string; printful_product_id: number }>();
+
+  const zeroVariantProducts = zeroVariantsResult.results || [];
+
+  for (const product of zeroVariantProducts) {
+    try {
+      console.log(`${logPrefix} Product has zero variants: ${product.name} (ID: ${product.printful_product_id})`);
+
+      // Hide the product
+      await db.prepare(`
+        UPDATE products
+        SET status = 'hidden', updated_at = datetime('now')
+        WHERE id = ?
+      `).bind(product.id).run();
+
+      // Log to sync_logs table
+      await db.prepare(`
+        INSERT INTO sync_logs (
+          action, product_id, printful_product_id, product_name,
+          reason, details
+        ) VALUES (?, ?, ?, ?, ?, ?)
+      `).bind(
+        'hidden',
+        product.id,
+        product.printful_product_id,
+        product.name,
+        'Product has zero available variants',
+        JSON.stringify({ detectedDuring: 'scheduled-sync', variantCount: 0 })
+      ).run();
+
+      hiddenCount++;
+    } catch (error) {
+      console.error(`${logPrefix} Failed to hide product ${product.id}:`, error);
+      errors.push(`Hide product ${product.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
   const duration = ((Date.now() - startTime) / 1000).toFixed(1);
 
   console.log(`${logPrefix} Sync completed in ${duration}s`);
-  console.log(`${logPrefix} Added: ${addedCount}, Updated: ${updatedCount}, Errors: ${errors.length}`);
+  console.log(`${logPrefix} Added: ${addedCount}, Updated: ${updatedCount}, Hidden: ${hiddenCount}, Errors: ${errors.length}`);
 
   if (errors.length > 0) {
     console.error(`${logPrefix} Errors during sync:`, errors);
@@ -238,6 +375,7 @@ export async function syncAllProducts(
   return {
     added: addedCount,
     updated: updatedCount,
+    hidden: hiddenCount,
     errors,
     duration: `${duration}s`,
   };

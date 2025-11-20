@@ -21,5 +21,6 @@ export default [
     route("admin/products", "routes/admin/products.tsx"),
     route("admin/orders", "routes/admin/orders.tsx"),
     route("admin/analytics", "routes/admin/analytics.tsx"),
+    route("admin/sync-logs", "routes/admin/sync-logs.tsx"),
   ]),
 ] satisfies RouteConfig;
