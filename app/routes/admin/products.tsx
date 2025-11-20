@@ -31,16 +31,18 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     throw new Response('Unauthorized', { status: 401 });
   }
 
-  // Fetch products from D1 database
+  // Fetch products from D1 database with design images
   const db = cloudflare.env.DB;
   const result = await db
     .prepare(`
       SELECT
-        id, name, slug, status, display_order,
-        image_url, printful_product_id, printful_synced_at,
-        base_price, retail_price, created_at
-      FROM products
-      ORDER BY display_order ASC NULLS LAST, created_at DESC
+        p.id, p.name, p.slug, p.status, p.display_order,
+        p.image_url, p.printful_product_id, p.printful_synced_at,
+        p.base_price, p.retail_price, p.created_at,
+        pd.design_url
+      FROM products p
+      LEFT JOIN product_designs pd ON p.id = pd.product_id
+      ORDER BY p.display_order ASC NULLS LAST, p.created_at DESC
     `)
     .all<Product>();
 
@@ -61,11 +63,13 @@ interface Product {
   base_price: number;
   retail_price: number | null;
   created_at: string;
+  design_url?: string | null; // Admin-uploaded design image
 }
 
 export default function AdminProductsPage() {
   const { products } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
+  const [uploadingDesign, setUploadingDesign] = useState<string | null>(null);
   const fetcher = useFetcher();
 
   /**
@@ -118,6 +122,57 @@ export default function AdminProductsPage() {
     }
   };
 
+  /**
+   * Upload design image for product
+   */
+  const handleDesignUpload = async (productId: string, file: File) => {
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('File must be an image (PNG, JPG, WebP)');
+      return;
+    }
+
+    // Validate file size (10MB max)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error('File too large (max 10MB)');
+      return;
+    }
+
+    setUploadingDesign(productId);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('productId', productId);
+
+      const res = await fetch('/api/admin/designs/upload', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${getTokenFromCookie()}`,
+        },
+        body: formData,
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json() as { error?: string };
+        throw new Error(errorData.error || 'Upload failed');
+      }
+
+      const result = await res.json();
+      toast.success('Design image uploaded successfully!');
+      revalidator.revalidate(); // Auto-refresh to show new image
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to upload design');
+      console.error(error);
+    } finally {
+      setUploadingDesign(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -147,6 +202,9 @@ export default function AdminProductsPage() {
                   Image
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-ranch-cream">
+                  Design Image
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-ranch-cream">
                   Name
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-ranch-cream">
@@ -169,7 +227,7 @@ export default function AdminProductsPage() {
             <tbody className="divide-y divide-ranch-purple/20">
               {products.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-ranch-lavender">
+                  <td colSpan={8} className="px-4 py-8 text-center text-ranch-lavender">
                     No products found. Products auto-sync daily at 2 AM UTC.
                   </td>
                 </tr>
@@ -186,6 +244,75 @@ export default function AdminProductsPage() {
                         alt={product.name}
                         className="w-16 h-16 object-cover rounded border border-ranch-purple"
                       />
+                    </td>
+
+                    {/* Design Image Upload */}
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-2">
+                        {product.design_url ? (
+                          <div className="space-y-2">
+                            <img
+                              src={`/api/admin/designs/serve/${product.design_url}`}
+                              alt="Design"
+                              className="w-16 h-16 object-cover rounded border-2 border-ranch-lime"
+                            />
+                            <div className="text-xs text-ranch-lime">✓ Uploaded</div>
+                          </div>
+                        ) : (
+                          <div className="text-xs text-ranch-lavender">No design</div>
+                        )}
+                        <label
+                          htmlFor={`design-upload-${product.id}`}
+                          className={`cursor-pointer inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded border-2 transition-colors ${
+                            uploadingDesign === product.id
+                              ? 'border-ranch-lavender text-ranch-lavender cursor-wait'
+                              : 'border-ranch-cyan text-ranch-cyan hover:bg-ranch-cyan hover:text-ranch-dark'
+                          }`}
+                        >
+                          {uploadingDesign === product.id ? (
+                            <>
+                              <svg
+                                className="animate-spin -ml-1 mr-2 h-3 w-3"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                />
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                />
+                              </svg>
+                              Uploading...
+                            </>
+                          ) : product.design_url ? (
+                            'Replace'
+                          ) : (
+                            'Upload'
+                          )}
+                        </label>
+                        <input
+                          id={`design-upload-${product.id}`}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          disabled={uploadingDesign === product.id}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              handleDesignUpload(product.id, file);
+                            }
+                          }}
+                        />
+                      </div>
                     </td>
 
                     {/* Name */}
