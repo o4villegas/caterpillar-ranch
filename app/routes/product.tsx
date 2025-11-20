@@ -54,6 +54,18 @@ export async function loader({ params, context }: Route.LoaderArgs) {
     // Transform to our Product type
     const transformedProduct = transformStoreProduct(fullProduct);
 
+    // Fetch design image from D1 if exists
+    const db = cloudflare.env.DB;
+    const designResult = await db
+      .prepare('SELECT design_url FROM product_designs WHERE product_id = ?')
+      .bind(product.id)
+      .first<{ design_url: string }>();
+
+    // Add design URL to product if exists
+    if (designResult?.design_url) {
+      transformedProduct.designImageUrl = `/api/admin/designs/serve/${designResult.design_url}`;
+    }
+
     return { product: transformedProduct };
   } catch (error) {
     console.error('Failed to fetch product:', error);
@@ -218,6 +230,8 @@ export default function ProductPage() {
           inStockVariants={inStockVariants}
           onPlayGame={handlePlayGame}
           onAddToCart={handleAddToCart}
+          showColorSelection={true}
+          designImageUrl={product.designImageUrl}
         />
       </div>
 
