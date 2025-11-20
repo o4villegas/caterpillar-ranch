@@ -8,10 +8,12 @@
  * Eliminates 90% code duplication by extracting common UI logic.
  */
 
-import { motion } from 'framer-motion';
-import type { Product, ProductVariant } from '../types/product';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import type { Product, ProductVariant, ColorVariant } from '../types/product';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import { ColorSwatch, ColorSwatchGroup } from './ColorSwatch';
 import { HORROR_COPY } from '../constants/horror-copy';
 
 interface ProductViewProps {
@@ -27,6 +29,9 @@ interface ProductViewProps {
   inStockVariants: ProductVariant[];
   onPlayGame: () => void;
   onAddToCart: () => void;
+  // Optional color selection props (only used on product page, not in modal)
+  showColorSelection?: boolean;
+  designImageUrl?: string;
 }
 
 export function ProductView({
@@ -42,9 +47,36 @@ export function ProductView({
   inStockVariants,
   onPlayGame,
   onAddToCart,
+  showColorSelection = false,
+  designImageUrl,
 }: ProductViewProps) {
   const discountedPrice = product.price * (1 - earnedDiscount / 100);
   const totalPrice = discountedPrice * quantity;
+
+  // Color selection state (only used when showColorSelection=true)
+  const [selectedColor, setSelectedColor] = useState<ColorVariant | null>(
+    product.colorVariants?.[0] || null
+  );
+
+  // Determine current image to display
+  const currentImage = designImageUrl || selectedColor?.mockupUrl || product.imageUrl;
+
+  // Get variants to display based on color selection
+  const displayVariants = showColorSelection && selectedColor
+    ? selectedColor.sizes
+    : product.variants;
+
+  // Handle color change
+  const handleColorChange = (color: ColorVariant) => {
+    setSelectedColor(color);
+    // Auto-select first available size for new color
+    const firstAvailable = color.sizes.find((v) => v.inStock);
+    if (firstAvailable) {
+      setSelectedVariant(firstAvailable);
+    } else {
+      setSelectedVariant(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -66,12 +98,19 @@ export function ProductView({
             repeat: Infinity,
           }}
         >
-          <motion.img
-            src={product.imageUrl}
-            alt={product.name}
-            className="w-full"
-            style={{ imageRendering: 'crisp-edges' }}
-          />
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentImage}
+              src={currentImage}
+              alt={product.name}
+              className="w-full"
+              style={{ imageRendering: 'crisp-edges' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            />
+          </AnimatePresence>
         </motion.div>
       </motion.div>
 
@@ -109,6 +148,28 @@ export function ProductView({
           )}
         </motion.div>
 
+        {/* Color selector (optional, only shown when showColorSelection=true) */}
+        {showColorSelection && product.colorVariants && product.colorVariants.length > 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.4 }}
+          >
+            <ColorSwatchGroup label="Choose Your Color">
+              {product.colorVariants.map((colorVariant) => (
+                <ColorSwatch
+                  key={colorVariant.color}
+                  color={colorVariant.color}
+                  hexCode={colorVariant.hexCode}
+                  isSelected={selectedColor?.color === colorVariant.color}
+                  isAvailable={colorVariant.inStock}
+                  onClick={() => handleColorChange(colorVariant)}
+                />
+              ))}
+            </ColorSwatchGroup>
+          </motion.div>
+        )}
+
         {/* Size selector */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -119,7 +180,7 @@ export function ProductView({
             Choose Your Offering Size
           </label>
           <div className="grid grid-cols-4 gap-2">
-            {product.variants.map((variant) => {
+            {displayVariants.map((variant) => {
               const isSelected = selectedVariant?.id === variant.id;
               const isAvailable = variant.inStock;
 
@@ -150,7 +211,8 @@ export function ProductView({
               );
             })}
           </div>
-          {selectedVariant && (
+          {/* Only show color text if not using color swatches */}
+          {!showColorSelection && selectedVariant && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
