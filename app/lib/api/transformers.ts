@@ -101,15 +101,27 @@ export function transformProducts(printfulProducts: PrintfulProduct[]): Product[
  * Transform Printful store product variant to our ProductVariant type
  */
 function transformStoreVariant(syncVariant: PrintfulStoreProduct['sync_variants'][0]): ProductVariant {
-  // Extract size from variant name (e.g., "CR-100 / S" -> "S")
-  const sizeParts = syncVariant.name.split(' / ');
-  const size = sizeParts.length > 1 ? sizeParts[1] : 'M';
+  // Extract size and color from variant name
+  // Format: "Product Name / Color / Size" (e.g., "Protest Tee / Black / S")
+  const parts = syncVariant.name.split(' / ');
+
+  let size = 'M';  // Default fallback
+  let color = 'Default';  // Default fallback
+
+  if (parts.length >= 3) {
+    // Standard format: [Product Name, Color, Size]
+    color = parts[parts.length - 2].trim();  // Second-to-last is color
+    size = parts[parts.length - 1].trim();   // Last is size
+  } else if (parts.length === 2) {
+    // Fallback: [Product Name, Size] (no color specified)
+    size = parts[1].trim();
+  }
 
   return {
     id: syncVariant.id.toString(),
     printfulVariantId: syncVariant.variant_id, // Use variant_id for order creation
     size: size as any,
-    color: 'Default', // Store products don't specify color in variant name
+    color: color,
     inStock: syncVariant.synced && !syncVariant.is_ignored,
   };
 }
