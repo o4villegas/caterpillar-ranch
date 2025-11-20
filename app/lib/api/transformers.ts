@@ -4,7 +4,7 @@
  * Converts Printful API responses to our internal Product types
  */
 
-import type { Product, ProductVariant } from '../types/product';
+import type { Product, ProductVariant, ColorVariant } from '../types/product';
 import type { PrintfulProduct, PrintfulVariant, PrintfulStoreProduct, PrintfulStoreProductListItem } from './catalog';
 
 /**
@@ -69,6 +69,62 @@ function transformVariant(printfulVariant: PrintfulVariant): ProductVariant {
 }
 
 /**
+ * Map color names to hex codes for swatch rendering
+ */
+function colorNameToHex(colorName: string): string {
+  const colorMap: Record<string, string> = {
+    'Black': '#000000',
+    'White': '#FFFFFF',
+    'Navy': '#000080',
+    'Grey': '#808080',
+    'Gray': '#808080',
+    'Dark Heather Grey': '#464646',
+    'Heather Grey': '#A9A9A9',
+    'Natural': '#F5F5DC',
+    'Red': '#FF0000',
+    'Blue': '#0000FF',
+    'Green': '#008000',
+    'Yellow': '#FFFF00',
+    'Pink': '#FFC0CB',
+    'Purple': '#800080',
+    'Orange': '#FFA500',
+    'Default': '#CCCCCC',
+  };
+  return colorMap[colorName] || '#CCCCCC';
+}
+
+/**
+ * Group variants by color for color swatch UI
+ */
+function groupVariantsByColor(variants: ProductVariant[]): ColorVariant[] {
+  const colorMap = new Map<string, ProductVariant[]>();
+
+  // Group variants by color
+  variants.forEach(v => {
+    if (!colorMap.has(v.color)) {
+      colorMap.set(v.color, []);
+    }
+    colorMap.get(v.color)!.push(v);
+  });
+
+  // Size order for sorting
+  const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
+
+  // Convert to ColorVariant array
+  return Array.from(colorMap.entries()).map(([color, sizes]) => ({
+    color,
+    mockupUrl: sizes[0].mockupUrl || '',  // Use first variant's mockup
+    hexCode: colorNameToHex(color),
+    sizes: sizes.sort((a, b) => {
+      const aIndex = sizeOrder.indexOf(a.size);
+      const bIndex = sizeOrder.indexOf(b.size);
+      return aIndex - bIndex;
+    }),
+    inStock: sizes.some(s => s.inStock),
+  }));
+}
+
+/**
  * Transform Printful product to our Product type
  */
 export function transformProduct(printfulProduct: PrintfulProduct): Product {
@@ -117,11 +173,19 @@ function transformStoreVariant(syncVariant: PrintfulStoreProduct['sync_variants'
     size = parts[1].trim();
   }
 
+  // Extract mockup URL from files array
+  // Priority: preview > default > product.image
+  const mockupUrl = syncVariant.files?.find(f => f.type === 'preview')?.preview_url
+    || syncVariant.files?.find(f => f.type === 'default')?.preview_url
+    || syncVariant.product?.image
+    || '';
+
   return {
     id: syncVariant.id.toString(),
     printfulVariantId: syncVariant.variant_id, // Use variant_id for order creation
     size: size as any,
     color: color,
+    mockupUrl,  // NEW: Include mockup URL
     inStock: syncVariant.synced && !syncVariant.is_ignored,
   };
 }
@@ -137,6 +201,11 @@ export function transformStoreProduct(storeProduct: PrintfulStoreProduct): Produ
     ? parseFloat(sync_variants[0].retail_price)
     : 0;
 
+  // Transform all synced variants
+  const transformedVariants = sync_variants
+    .filter((v) => v.synced && !v.is_ignored)
+    .map(transformStoreVariant);
+
   return {
     id: sync_product.id.toString(),
     name: sync_product.name,
@@ -144,9 +213,9 @@ export function transformStoreProduct(storeProduct: PrintfulStoreProduct): Produ
     description: `A unique design from Caterpillar Ranch. ${sync_product.name}`,
     price: basePrice,
     imageUrl: sync_product.thumbnail_url,
-    variants: sync_variants
-      .filter((v) => v.synced && !v.is_ignored)
-      .map(transformStoreVariant),
+    designImageUrl: undefined,  // Will be populated from D1 in loaders
+    variants: transformedVariants,
+    colorVariants: groupVariantsByColor(transformedVariants),  // NEW: Grouped by color
     tags: extractTagsFromStoreProduct(sync_product.name),
     createdAt: new Date().toISOString(),
   };

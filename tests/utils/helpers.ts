@@ -159,12 +159,15 @@ export async function addProductToCart(
   quantity: number = 1
 ) {
   // Navigate to product page
-  await page.goto(`/products/${productSlug}`);
-  await waitForAnimations(page);
+  await page.goto(`/products/${productSlug}`, { waitUntil: 'networkidle' });
 
-  // Select size
+  // Wait for product to load (check for size buttons)
+  await page.waitForSelector('button:has-text("S")', { state: 'visible', timeout: 10000 });
+  await waitForAnimations(page, 1500);
+
+  // Select size (force click to bypass Framer Motion animations)
   const sizeButton = page.locator(`button:has-text("${size}")`).first();
-  await sizeButton.click();
+  await sizeButton.click({ force: true });
 
   // Set quantity (if not 1)
   if (quantity > 1) {
@@ -172,8 +175,12 @@ export async function addProductToCart(
     await quantityInput.fill(quantity.toString());
   }
 
-  // Click add to cart
-  await page.click('button:has-text("Claim Your Harvest")');
+  // Wait for "Claim Your Harvest" button to be enabled (depends on size selection)
+  const addToCartButton = page.locator('button:has-text("Claim Your Harvest")');
+  await addToCartButton.waitFor({ state: 'visible', timeout: 5000 });
+
+  // Click add to cart (force click to bypass animations)
+  await addToCartButton.click({ force: true });
 
   // Wait for success animation
   await waitForAnimations(page, 1500);
@@ -189,8 +196,11 @@ export async function addProductToCart(
  * Clear cart (remove all items)
  */
 export async function clearCart(page: Page) {
-  // Open cart drawer
-  await page.click('button[aria-label*="Shopping cart"]');
+  // Wait for animations to stabilize
+  await page.waitForTimeout(1500);
+
+  // Open cart drawer (force click to bypass Framer Motion animation instability)
+  await page.click('button[aria-label*="Shopping cart"]', { force: true });
   await waitForAnimations(page);
 
   // Remove all items

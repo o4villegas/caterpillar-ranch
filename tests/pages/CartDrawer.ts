@@ -24,7 +24,11 @@ export class CartDrawer {
   }
 
   async open() {
-    await this.icon.click();
+    // Wait for Framer Motion animations to stabilize (whileHover, wiggle-wrong, heartbeat-pulse)
+    await this.page.waitForTimeout(1500);
+
+    // Force click to bypass stability checks (animations never fully stabilize)
+    await this.icon.click({ force: true });
     await waitForAnimations(this.page);
     await expect(this.drawer).toBeVisible();
   }

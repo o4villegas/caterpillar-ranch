@@ -12,6 +12,7 @@ import { Hono } from 'hono';
 import { requireAuth } from '../lib/auth';
 import analyticsRoutes from './admin/analytics';
 import productsRoutes from './admin/products';
+import designsRoutes from './admin/designs';
 
 type Variables = {
   userId: number;
@@ -25,6 +26,9 @@ admin.route('/analytics', analyticsRoutes);
 
 // Mount products routes
 admin.route('/products', productsRoutes);
+
+// Mount designs routes
+admin.route('/designs', designsRoutes);
 
 /**
  * GET /api/admin/search

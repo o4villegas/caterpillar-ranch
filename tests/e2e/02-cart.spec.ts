@@ -24,8 +24,8 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should add product to cart', async ({ page }) => {
-    // Add first product
-    const count = await addProductToCart(page, 'cr-100', 'M', 1);
+    // Add first product (using real Printful product slug)
+    const count = await addProductToCart(page, 'glitch-tee', 'M', 1);
 
     // Verify cart badge shows 1 item
     expect(count).toBe(1);
@@ -39,9 +39,9 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should show correct item count badge', async ({ page }) => {
-    // Add 3 items
-    await addProductToCart(page, 'cr-100', 'M', 1);
-    await addProductToCart(page, 'cr-101', 'L', 2);
+    // Add 3 items (using real Printful product slugs)
+    await addProductToCart(page, 'glitch-tee', 'M', 1);
+    await addProductToCart(page, 'resistance-tee', 'L', 2);
 
     // Badge should show 3
     const count = await cart.getItemCount();
@@ -49,9 +49,9 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should remove item from cart', async ({ page }) => {
-    // Add 2 products
-    await addProductToCart(page, 'cr-100', 'M', 1);
-    await addProductToCart(page, 'cr-101', 'L', 1);
+    // Add 2 products (using real Printful product slugs)
+    await addProductToCart(page, 'glitch-tee', 'M', 1);
+    await addProductToCart(page, 'resistance-tee', 'L', 1);
 
     // Open cart
     await cart.open();
@@ -65,8 +65,8 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should calculate totals correctly', async ({ page }) => {
-    // Add product
-    await addProductToCart(page, 'cr-100', 'M', 2);
+    // Add product (using real Printful product slug)
+    await addProductToCart(page, 'glitch-tee', 'M', 2);
 
     // Open cart
     await cart.open();
@@ -82,8 +82,8 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should persist cart to localStorage', async ({ page }) => {
-    // Add product
-    await addProductToCart(page, 'cr-100', 'M', 1);
+    // Add product (using real Printful product slug)
+    await addProductToCart(page, 'glitch-tee', 'M', 1);
 
     // Check localStorage
     const cartData = await page.evaluate(() => {
@@ -98,8 +98,8 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should load cart from localStorage on page refresh', async ({ page }) => {
-    // Add product
-    await addProductToCart(page, 'cr-100', 'M', 1);
+    // Add product (using real Printful product slug)
+    await addProductToCart(page, 'glitch-tee', 'M', 1);
 
     // Reload page
     await page.reload();
@@ -111,8 +111,8 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should navigate to checkout', async ({ page }) => {
-    // Add product
-    await addProductToCart(page, 'cr-100', 'M', 1);
+    // Add product (using real Printful product slug)
+    await addProductToCart(page, 'glitch-tee', 'M', 1);
 
     // Open cart
     await cart.open();
@@ -133,8 +133,8 @@ test.describe('Cart Functionality', () => {
     // TODO: Implement game playing to earn discount
     // For now, manually test discount calculation
 
-    // Add product
-    await addProductToCart(page, 'cr-100', 'M', 1);
+    // Add product (using real Printful product slug)
+    await addProductToCart(page, 'glitch-tee', 'M', 1);
 
     // Open cart
     await cart.open();

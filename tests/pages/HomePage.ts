@@ -32,7 +32,11 @@ export class HomePage {
   }
 
   async clickProduct(index: number = 0) {
-    await this.productCards.nth(index).click();
+    // Wait for Framer Motion animations to stabilize
+    await this.page.waitForTimeout(1500);
+
+    // Force click to bypass stability checks (animations never fully stabilize)
+    await this.productCards.nth(index).click({ force: true });
     await waitForAnimations(this.page);
   }
 

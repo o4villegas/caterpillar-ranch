@@ -9,11 +9,11 @@ export const selectors = {
   // Homepage
   homepage: {
     logo: 'img[alt="Caterpillar Ranch - Horror Tees"]',
-    productGrid: '.grid.grid-cols-1.md\\:grid-cols-2',
-    productCard: '.card.bg-ranch-purple\\/20',
-    productImage: 'img[alt*="CR-"]',
-    productName: 'h2.text-xl.mb-2',
-    productPrice: 'div.text-4xl.text-ranch-lime',
+    productGrid: 'main .grid',  // More specific - only grid inside main element
+    productCard: 'button.card',  // Simplified - just match button with .card class
+    productImage: 'img[alt*="Tee"], img[alt*="CR-"]',  // Match either Tee or CR-
+    productName: 'h2.text-xl',
+    productPrice: 'div.text-4xl',
     productDescription: 'p.text-ranch-lavender',
   },
 

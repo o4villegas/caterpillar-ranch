@@ -63,6 +63,23 @@ export interface PrintfulStoreProduct {
     retail_price: string;
     currency: string;
     is_ignored: boolean;
+    files?: Array<{
+      id: number;
+      type: string;
+      hash: string;
+      url?: string;
+      filename: string;
+      mime_type?: string;
+      size?: number;
+      width?: number;
+      height?: number;
+      dpi?: number;
+      status?: string;
+      created?: number;
+      thumbnail_url?: string;
+      preview_url?: string;
+      visible?: boolean;
+    }>;
     product: {
       variant_id: number;
       product_id: number;

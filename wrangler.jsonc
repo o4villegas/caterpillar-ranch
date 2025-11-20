@@ -40,6 +40,17 @@
     }
   ],
   /**
+   * R2 Bucket for Design Images
+   * Create: wrangler r2 bucket create caterpillar-ranch-designs
+   * Stores admin-uploaded product design images (hero/thumbnail)
+   */
+  "r2_buckets": [
+    {
+      "binding": "DESIGN_IMAGES",
+      "bucket_name": "caterpillar-ranch-designs"
+    }
+  ],
+  /**
    * Cron Trigger for Daily Inventory Sync (2 AM UTC)
    * Runs Phase 2.9 inventory sync from Printful API
    */
