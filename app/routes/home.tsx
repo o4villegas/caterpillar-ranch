@@ -24,16 +24,18 @@ export async function loader({ context }: Route.LoaderArgs) {
   try {
     const db = cloudflare.env.DB;
 
-    // Step 1: Query D1 database for active products (ordered by display_order)
+    // Step 1: Query D1 database for active products with design images (ordered by display_order)
     const dbProductsResult = await db.prepare(`
       SELECT
-        id, name, slug, description,
-        base_price, retail_price,
-        image_url, tags, status, display_order,
-        created_at
-      FROM products
-      WHERE status = 'active'
-      ORDER BY display_order ASC NULLS LAST, created_at DESC
+        p.id, p.name, p.slug, p.description,
+        p.base_price, p.retail_price,
+        p.image_url, p.tags, p.status, p.display_order,
+        p.created_at,
+        pd.design_url
+      FROM products p
+      LEFT JOIN product_designs pd ON p.id = pd.product_id
+      WHERE p.status = 'active'
+      ORDER BY p.display_order ASC NULLS LAST, p.created_at DESC
     `).all();
 
     // If D1 has products, use them (fast path - ~5ms)
@@ -49,13 +51,19 @@ export async function loader({ context }: Route.LoaderArgs) {
           `).bind(dbProduct.id).all();
 
           // Transform D1 row to Product type
+          // Prioritize design image over Printful thumbnail
+          const imageUrl = dbProduct.design_url
+            ? `/api/admin/designs/serve/${dbProduct.design_url}`
+            : dbProduct.image_url;
+
           return {
             id: dbProduct.id,
             name: dbProduct.name,
             slug: dbProduct.slug,
             description: dbProduct.description || 'A unique design from Caterpillar Ranch.',
             price: dbProduct.retail_price || dbProduct.base_price || 0,
-            imageUrl: dbProduct.image_url,
+            imageUrl,
+            designImageUrl: dbProduct.design_url ? imageUrl : undefined,
             tags: dbProduct.tags ? JSON.parse(dbProduct.tags) : ['apparel'],
             createdAt: dbProduct.created_at,
             variants: (variantsResult.results || []).map((v: any) => ({
@@ -124,8 +132,33 @@ export async function loader({ context }: Route.LoaderArgs) {
       .filter((r) => r.status === 'fulfilled')
       .map((r) => r.value.product);
 
+    // Fetch design images for all products
+    const designImagesResult = await db.prepare(`
+      SELECT product_id, design_url
+      FROM product_designs
+    `).all();
+
+    // Map design URLs to products
+    const designImagesMap = new Map(
+      (designImagesResult.results || []).map((d: any) => [d.product_id, d.design_url])
+    );
+
+    // Add design images to products
+    const productsWithDesigns = products.map((product) => {
+      const designUrl = designImagesMap.get(product.id);
+      if (designUrl) {
+        const designImageUrl = `/api/admin/designs/serve/${designUrl}`;
+        return {
+          ...product,
+          imageUrl: designImageUrl, // Prioritize design image
+          designImageUrl,
+        };
+      }
+      return product;
+    });
+
     return {
-      products,
+      products: productsWithDesigns,
       message: cloudflare.env.VALUE_FROM_CLOUDFLARE,
       cached,
       source: 'printful',
