@@ -252,6 +252,59 @@ export async function syncAllProducts(
               variant.variant_id  // For COALESCE to preserve original created_at
             ).run();
           }
+
+          // Step 1.5: Detect and remove variants that no longer exist in Printful
+          // Create a Set of Printful variant IDs for this product
+          const printfulVariantIds = new Set(
+            sync_variants
+              .filter(v => v.synced && !v.is_ignored)
+              .map(v => v.variant_id)
+          );
+
+          // Get all variants for this product from D1
+          const dbVariantsResult = await db.prepare(`
+            SELECT id, size, color, printful_variant_id
+            FROM product_variants
+            WHERE product_id = ?
+          `).bind(productId).all<{ id: string; size: string; color: string; printful_variant_id: number }>();
+
+          const dbVariants = dbVariantsResult.results || [];
+          const deletedVariants: Array<{ size: string; color: string; variantId: number }> = [];
+
+          // Find variants in D1 that are NOT in Printful response
+          for (const dbVariant of dbVariants) {
+            if (!printfulVariantIds.has(dbVariant.printful_variant_id)) {
+              // Delete the variant
+              await db.prepare(`
+                DELETE FROM product_variants WHERE id = ?
+              `).bind(dbVariant.id).run();
+
+              deletedVariants.push({
+                size: dbVariant.size,
+                color: dbVariant.color,
+                variantId: dbVariant.printful_variant_id
+              });
+            }
+          }
+
+          // Log variant deletions (summary per product)
+          if (deletedVariants.length > 0) {
+            console.log(`${logPrefix} Product ${sync_product.name}: removed ${deletedVariants.length} discontinued variants`);
+
+            await db.prepare(`
+              INSERT INTO sync_logs (
+                action, product_id, printful_product_id, product_name,
+                reason, details
+              ) VALUES (?, ?, ?, ?, ?, ?)
+            `).bind(
+              'updated',
+              productId,
+              sync_product.id,
+              sync_product.name,
+              `Removed ${deletedVariants.length} discontinued variant(s)`,
+              JSON.stringify({ deletedVariants, detectedDuring: 'scheduled-sync' })
+            ).run();
+          }
         } catch (error) {
           console.error(`${logPrefix} Failed to sync product ${item.id}:`, error);
           errors.push(`Product ${item.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
