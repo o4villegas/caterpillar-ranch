@@ -81,7 +81,7 @@ export function StatCard({
       <div className="flex items-center justify-between mb-2">
         <h3
           className="text-sm md:text-base text-[#9B8FB5] font-semibold"
-          style={{ fontFamily: 'Handjet, monospace' }}
+          style={{ fontFamily: 'Tourney, cursive' }}
         >
           {title}
         </h3>
@@ -91,7 +91,7 @@ export function StatCard({
       {/* Value */}
       <div
         className={`text-3xl md:text-4xl font-bold ${textColorClasses[colorScheme]} mb-1`}
-        style={{ fontFamily: 'Handjet, monospace' }}
+        style={{ fontFamily: 'Tourney, cursive' }}
       >
         {value}
       </div>

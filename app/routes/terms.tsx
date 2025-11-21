@@ -20,7 +20,7 @@ export default function Terms() {
 
         <h1
           className="text-4xl text-[#F5F5DC] mb-8"
-          style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}
+          style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
         >
           Terms of Service
         </h1>
@@ -36,7 +36,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Welcome to Caterpillar Ranch
             </h2>
@@ -50,7 +50,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Products & Services
             </h2>
@@ -75,7 +75,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Game Discounts
             </h2>
@@ -94,7 +94,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Orders & Payment
             </h2>
@@ -109,7 +109,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Intellectual Property
             </h2>
@@ -123,7 +123,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Limitation of Liability
             </h2>
@@ -137,7 +137,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Changes to Terms
             </h2>
@@ -150,7 +150,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Contact Us
             </h2>

@@ -97,7 +97,7 @@ export function ProductView({
                 ? 'bg-ranch-lime text-ranch-dark font-bold'
                 : 'bg-ranch-purple/30 text-ranch-lavender hover:bg-ranch-purple/50'
             }`}
-            style={{ fontFamily: 'Handjet, monospace', fontWeight: imageView === 'design' ? 700 : 600 }}
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: imageView === 'design' ? 700 : 600 }}
           >
             Design
           </button>
@@ -108,7 +108,7 @@ export function ProductView({
                 ? 'bg-ranch-lime text-ranch-dark font-bold'
                 : 'bg-ranch-purple/30 text-ranch-lavender hover:bg-ranch-purple/50'
             }`}
-            style={{ fontFamily: 'Handjet, monospace', fontWeight: imageView === 'mockup' ? 700 : 600 }}
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: imageView === 'mockup' ? 700 : 600 }}
           >
             Mockup
           </button>
@@ -157,27 +157,27 @@ export function ProductView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.4 }}
         >
-          <h3 className="text-2xl text-ranch-cream mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+          <h3 className="text-2xl text-ranch-cream mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
             {product.name}
           </h3>
-          <p className="text-ranch-lavender text-lg mb-3" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+          <p className="text-ranch-lavender text-lg mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
             {product.description}
           </p>
-          <div className="text-4xl text-ranch-lime" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+          <div className="text-4xl text-ranch-lime" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
             ${totalPrice.toFixed(2)}
             {earnedDiscount > 0 && (
-              <span className="ml-2 text-xl line-through text-ranch-lavender opacity-50" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+              <span className="ml-2 text-xl line-through text-ranch-lavender opacity-50" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
                 ${(product.price * quantity).toFixed(2)}
               </span>
             )}
           </div>
           {earnedDiscount > 0 && (
-            <div className="text-lg text-ranch-lime mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+            <div className="text-lg text-ranch-lime mt-1" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
               🎉 {earnedDiscount}% Ranch Blessing Applied!
             </div>
           )}
           {quantity > 1 && (
-            <div className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+            <div className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>
               ${discountedPrice.toFixed(2)} each
             </div>
           )}
@@ -211,7 +211,7 @@ export function ProductView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.4 }}
         >
-          <label className="block text-ranch-cream mb-3 text-lg" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+          <label className="block text-ranch-cream mb-3 text-lg" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
             Choose Your Offering Size
           </label>
           <div className="grid grid-cols-4 gap-2">
@@ -238,9 +238,9 @@ export function ProductView({
                   aria-pressed={isSelected}
                   aria-disabled={!isAvailable}
                 >
-                  <span style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>{variant.size}</span>
+                  <span style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>{variant.size}</span>
                   {!isAvailable && (
-                    <div className="text-lg mt-1 text-ranch-pink" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>Claimed</div>
+                    <div className="text-lg mt-1 text-ranch-pink" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>Claimed</div>
                   )}
                 </motion.button>
               );
@@ -252,7 +252,7 @@ export function ProductView({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="mt-2 text-lg text-ranch-lavender"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
             >
               Color: {selectedVariant.color}
             </motion.div>
@@ -265,7 +265,7 @@ export function ProductView({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.4 }}
         >
-          <label className="block text-ranch-cream mb-3 text-lg" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+          <label className="block text-ranch-cream mb-3 text-lg" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
             How Many Shall Join?
           </label>
           <div className="flex items-center gap-3">
@@ -289,7 +289,7 @@ export function ProductView({
                   setQuantity(Math.max(1, Math.min(99, val)));
                 }}
                 className="w-full bg-ranch-purple/20 border-2 border-ranch-purple text-ranch-cream text-center text-xl py-2 rounded-lg focus:border-ranch-lime focus:outline-none transition-colors"
-                style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
                 aria-label="Quantity"
               />
             </div>
@@ -326,7 +326,7 @@ export function ProductView({
                 transition={{ repeat: Infinity, duration: 2, ease: 'linear' }}
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-ranch-lime/20 to-transparent"
               />
-              <span className="relative z-10" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+              <span className="relative z-10" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
                 🎮 Play Game - Earn a Discount
               </span>
             </Button>
@@ -339,7 +339,7 @@ export function ProductView({
             className="w-full h-14 text-lg"
             size="lg"
           >
-            <span style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+            <span style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
               {isAdding ? (
                 <span className="flex items-center justify-center gap-2">
                   <motion.span

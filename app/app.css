@@ -11,6 +11,9 @@
     "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
+  /* Display font for headlines, product names, prices, and UI elements */
+  --font-display: "Tourney", cursive;
+
   /* Horror color palette */
   --color-primary-cyan: #00CED1;
   --color-primary-lime: #32CD32;
@@ -77,6 +80,11 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   letter-spacing: 0.03em;
   color: var(--color-neutral-cream);
+}
+
+/* Display font utility class */
+.font-display {
+  font-family: var(--font-display);
 }
 
 /* Drip effect - color inherits from parent for flexibility */

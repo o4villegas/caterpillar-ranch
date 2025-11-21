@@ -20,10 +20,10 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     <Drawer open={isOpen} onOpenChange={onClose}>
       <DrawerContent className="bg-ranch-dark border-4 border-ranch-purple max-h-[90vh]">
         <DrawerHeader className="border-b-2 border-ranch-purple/50">
-          <DrawerTitle className="text-2xl text-ranch-pink drip-text" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
+          <DrawerTitle className="text-2xl text-ranch-pink drip-text" style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}>
             {hasItems ? 'Your Order is Growing' : 'The Ranch Awaits'}
           </DrawerTitle>
-          <DrawerDescription className="text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+          <DrawerDescription className="text-ranch-lavender" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
             {hasItems
               ? `${totals.itemCount} ${totals.itemCount === 1 ? 'item' : 'items'} growing in your cart`
               : 'Select your harvest to begin'
@@ -55,7 +55,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     onClose(); // Close drawer
                     navigate('/checkout'); // Navigate to checkout
                   }}
-                  style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+                  style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
                 >
                   Complete the Harvest
                 </Button>
@@ -65,7 +65,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   variant="ghost"
                   className="w-full mt-2 text-ranch-lavender hover:text-ranch-cream"
                   onClick={onClose}
-                  style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
+                  style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
                 >
                   Continue Browsing
                 </Button>

@@ -363,17 +363,17 @@ export default function MetamorphosisQueueRoute() {
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
-              <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+              <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
                 {HORROR_COPY.games.metamorphosisQueue.instructions[0]}
               </p>
-              <p className="text-lg text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+              <p className="text-lg text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
                 {HORROR_COPY.games.metamorphosisQueue.instructions[1]}
               </p>
             </div>
             <button
               onClick={handleStartGame}
               className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg font-bold text-lg hover:bg-ranch-cyan transition-colors"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               {HORROR_COPY.games.metamorphosisQueue.startButton}
             </button>

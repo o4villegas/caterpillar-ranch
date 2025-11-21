@@ -240,10 +240,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
         >
-          <p className="drip-text text-4xl text-ranch-cream leading-relaxed" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
-            Play mini-games to earn up to 40% off your order.
+          <p className="text-lg text-ranch-cream leading-relaxed" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+            Play mini-games to earn discounts on your order.
           </p>
-          <p className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+          <p className="text-sm text-ranch-lavender mt-1" style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}>
             Higher scores unlock bigger discounts.
           </p>
         </motion.div>
@@ -300,15 +300,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               </div>
 
               {/* Product Info */}
-              <h2 className="text-xl mb-2 leading-tight text-ranch-cream group-hover:text-ranch-dark transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+              <h2 className="text-xl mb-2 leading-tight text-ranch-cream group-hover:text-ranch-dark transition-colors duration-300" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
                 {product.name}
               </h2>
-              <p className="text-ranch-lavender group-hover:text-ranch-dark/80 text-lg mb-4 line-clamp-2 transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+              <p className="text-ranch-lavender group-hover:text-ranch-dark/80 text-lg mb-4 line-clamp-2 transition-colors duration-300" style={{ fontFamily: 'Inter, sans-serif' }}>
                 {product.description}
               </p>
 
               {/* Price */}
-              <div className="text-4xl text-ranch-lime group-hover:text-ranch-dark transition-colors duration-300" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+              <div className="text-4xl text-ranch-lime group-hover:text-ranch-dark transition-colors duration-300" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
                 ${product.price}
               </div>
 

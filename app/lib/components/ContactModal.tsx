@@ -100,7 +100,7 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
         <DialogHeader>
           <DialogTitle
             className="text-2xl text-[#F5F5DC]"
-            style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
           >
             Contact Us 🐛
           </DialogTitle>
@@ -210,7 +210,7 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
             type="submit"
             disabled={isSubmitting}
             className="w-full bg-[#00CED1] text-[#1a1a1a] hover:bg-[#00CED1]/90 font-semibold"
-            style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
           >
             {isSubmitting ? 'Sending...' : 'Send Message'}
           </Button>

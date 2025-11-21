@@ -24,6 +24,21 @@ const CART_STORAGE_KEY = 'caterpillar-ranch-cart';
 const SESSION_TOKEN_KEY = 'caterpillar-ranch-session';
 
 /**
+ * Generate a UUID with fallback for browsers without crypto.randomUUID
+ */
+function generateUUID(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  // Fallback for browsers without crypto.randomUUID
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+/**
  * Initial empty cart state
  */
 const initialCart: Cart = {
@@ -292,7 +307,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     // Generate session token if not exists
     if (!savedSession) {
-      savedSession = crypto.randomUUID();
+      savedSession = generateUUID();
       localStorage.setItem(SESSION_TOKEN_KEY, savedSession);
     }
     setSessionToken(savedSession);

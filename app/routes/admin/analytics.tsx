@@ -145,13 +145,13 @@ export default function AdminAnalyticsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-ranch-cream">Analytics</h1>
+        <h1 className="text-3xl font-bold text-ranch-cream" style={{ fontFamily: 'Tourney, cursive' }}>Analytics</h1>
         <p className="text-ranch-lavender mt-1">Business insights and performance metrics</p>
       </div>
 
       {/* Revenue Metrics */}
       <div>
-        <h2 className="text-2xl font-semibold text-ranch-cream mb-4">Revenue Overview</h2>
+        <h2 className="text-2xl font-semibold text-ranch-cream mb-4" style={{ fontFamily: 'Tourney, cursive' }}>Revenue Overview</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
             <div className="text-sm text-ranch-lavender mb-1">Total Orders</div>
@@ -179,7 +179,7 @@ export default function AdminAnalyticsPage() {
 
       {/* Orders by Status */}
       <div>
-        <h2 className="text-2xl font-semibold text-ranch-cream mb-4">Orders by Status</h2>
+        <h2 className="text-2xl font-semibold text-ranch-cream mb-4" style={{ fontFamily: 'Tourney, cursive' }}>Orders by Status</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {ordersByStatus.map((status) => (
             <div
@@ -210,7 +210,7 @@ export default function AdminAnalyticsPage() {
 
       {/* Game Statistics */}
       <div>
-        <h2 className="text-2xl font-semibold text-ranch-cream mb-4">Game Performance</h2>
+        <h2 className="text-2xl font-semibold text-ranch-cream mb-4" style={{ fontFamily: 'Tourney, cursive' }}>Game Performance</h2>
         <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
           <div className="mb-4">
             <span className="text-ranch-lavender">Total Games Played:</span>{' '}
@@ -266,7 +266,7 @@ export default function AdminAnalyticsPage() {
 
       {/* Top Products */}
       <div>
-        <h2 className="text-2xl font-semibold text-ranch-cream mb-4">Top Products</h2>
+        <h2 className="text-2xl font-semibold text-ranch-cream mb-4" style={{ fontFamily: 'Tourney, cursive' }}>Top Products</h2>
         <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -322,7 +322,7 @@ export default function AdminAnalyticsPage() {
 
       {/* Recent Activity */}
       <div>
-        <h2 className="text-2xl font-semibold text-ranch-cream mb-4">Recent Orders</h2>
+        <h2 className="text-2xl font-semibold text-ranch-cream mb-4" style={{ fontFamily: 'Tourney, cursive' }}>Recent Orders</h2>
         <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
           <div className="space-y-3">
             {recentOrders.length === 0 ? (

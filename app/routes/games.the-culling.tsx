@@ -184,14 +184,14 @@ export default function TheCullingRoute() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl text-ranch-lime mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
+          <h1 className="text-3xl text-ranch-lime mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}>
             The Culling
           </h1>
-          <p className="text-ranch-lavender text-lg" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+          <p className="text-ranch-lavender text-lg" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
             Tap invasive caterpillars (red eyes) before they burrow!
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-lg mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+            <p className="text-ranch-cyan text-lg mt-1" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
               Best Score: {bestScore}
             </p>
           )}
@@ -201,17 +201,17 @@ export default function TheCullingRoute() {
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
-              <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+              <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
                 {HORROR_COPY.games.theCulling.instructions[0]}
               </p>
-              <p className="text-lg text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+              <p className="text-lg text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
                 {HORROR_COPY.games.theCulling.instructions[1]}
               </p>
             </div>
             <button
               onClick={() => game.startGame()}
               className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               {HORROR_COPY.games.theCulling.startButton}
             </button>

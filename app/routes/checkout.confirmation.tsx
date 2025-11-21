@@ -106,13 +106,13 @@ export default function CheckoutConfirmationPage() {
           transition={{ duration: 0.5 }}
         >
           <div className="mb-4 text-6xl">🐛</div>
-          <h1 className="text-5xl text-ranch-lime drip-text mb-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}>
+          <h1 className="text-5xl text-ranch-lime drip-text mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}>
             {HORROR_COPY.order.confirmed}
           </h1>
-          <p className="text-ranch-lavender mb-4" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+          <p className="text-ranch-lavender mb-4" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
             The Ranch has accepted your tribute
           </p>
-          <Badge variant="success" className="text-lg px-4 py-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+          <Badge variant="success" className="text-lg px-4 py-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
             Order #{order.id}
           </Badge>
         </motion.div>
@@ -126,13 +126,13 @@ export default function CheckoutConfirmationPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <p className="text-ranch-cream" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+            <p className="text-ranch-cream" style={{ fontFamily: 'Inter, sans-serif' }}>
               A confirmation email has been sent to:
             </p>
-            <p className="text-2xl text-ranch-cyan mt-2" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+            <p className="text-2xl text-ranch-cyan mt-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
               {order.shipping.email}
             </p>
-            <p className="text-lg text-ranch-lavender mt-4" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+            <p className="text-lg text-ranch-lavender mt-4" style={{ fontFamily: 'Inter, sans-serif' }}>
               {HORROR_COPY.order.tracking}
             </p>
           </motion.div>
@@ -144,7 +144,7 @@ export default function CheckoutConfirmationPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <h2 className="text-2xl text-ranch-cream mb-4" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+            <h2 className="text-2xl text-ranch-cream mb-4" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
               Order Summary
             </h2>
 
@@ -158,8 +158,8 @@ export default function CheckoutConfirmationPage() {
                     className="w-16 h-16 object-cover rounded bg-ranch-purple/10"
                   />
                   <div className="flex-1">
-                    <h3 className="text-ranch-cream" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>{item.product.name}</h3>
-                    <p className="text-lg text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+                    <h3 className="text-ranch-cream" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>{item.product.name}</h3>
+                    <p className="text-lg text-ranch-lavender" style={{ fontFamily: 'Inter, sans-serif' }}>
                       Size: {item.variant.size} | Qty: {item.quantity}
                     </p>
                     {item.earnedDiscount > 0 && (
@@ -169,11 +169,11 @@ export default function CheckoutConfirmationPage() {
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="text-ranch-cyan" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+                    <p className="text-ranch-cyan" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
                       ${(item.product.price * (1 - item.earnedDiscount / 100) * item.quantity).toFixed(2)}
                     </p>
                     {item.earnedDiscount > 0 && (
-                      <p className="text-lg text-ranch-lavender line-through" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+                      <p className="text-lg text-ranch-lavender line-through" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
                         ${(item.product.price * item.quantity).toFixed(2)}
                       </p>
                     )}
@@ -184,24 +184,24 @@ export default function CheckoutConfirmationPage() {
 
             {/* Totals */}
             <div className="space-y-2 border-t border-ranch-purple pt-4">
-              <div className="flex justify-between text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+              <div className="flex justify-between text-ranch-lavender" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
                 <span>Subtotal</span>
                 <span style={{ fontWeight: 700 }}>${order.totals.subtotal.toFixed(2)}</span>
               </div>
 
               {order.totals.totalDiscount > 0 && (
-                <div className="flex justify-between text-ranch-lime" style={{ fontFamily: 'Handjet, monospace' }}>
+                <div className="flex justify-between text-ranch-lime" style={{ fontFamily: 'Tourney, cursive' }}>
                   <span style={{ fontWeight: 600 }}>{HORROR_COPY.checkout.discount} ({order.totals.effectiveDiscountPercent}%)</span>
                   <span style={{ fontWeight: 700 }}>-${order.totals.totalDiscount.toFixed(2)}</span>
                 </div>
               )}
 
-              <div className="flex justify-between text-ranch-lavender" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+              <div className="flex justify-between text-ranch-lavender" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
                 <span>{HORROR_COPY.checkout.shipping}</span>
                 <span className="text-ranch-lime" style={{ fontWeight: 700 }}>FREE</span>
               </div>
 
-              <div className="flex justify-between text-2xl pt-2 border-t border-ranch-purple" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+              <div className="flex justify-between text-2xl pt-2 border-t border-ranch-purple" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
                 <span className="text-ranch-cream">{HORROR_COPY.checkout.total}</span>
                 <span className="text-ranch-cyan">${order.totals.total.toFixed(2)}</span>
               </div>
@@ -215,11 +215,11 @@ export default function CheckoutConfirmationPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <h2 className="text-2xl text-ranch-cream mb-4" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+            <h2 className="text-2xl text-ranch-cream mb-4" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
               Shipping to
             </h2>
-            <div className="text-ranch-lavender space-y-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
-              <p className="text-ranch-cream" style={{ fontWeight: 700 }}>{order.shipping.name}</p>
+            <div className="text-ranch-lavender space-y-1" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <p className="text-ranch-cream font-semibold">{order.shipping.name}</p>
               <p>{order.shipping.address}</p>
               <p>{order.shipping.city}, {order.shipping.state} {order.shipping.zip}</p>
               <p className="pt-2 text-lg">{order.shipping.email}</p>
@@ -238,7 +238,7 @@ export default function CheckoutConfirmationPage() {
               variant="horror"
               size="lg"
               className="w-full h-14 text-lg"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
             >
               Continue Shopping
             </Button>

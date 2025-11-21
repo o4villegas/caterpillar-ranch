@@ -75,7 +75,7 @@ export function ActivityFeed({ orders, games, isLoading = false }: ActivityFeedP
       <div className="bg-[#2d1f3a]/50 border-2 border-[#4A3258] rounded-lg p-4 md:p-6">
         <h3
           className="text-xl text-[#32CD32] mb-4 font-bold"
-          style={{ fontFamily: 'Handjet, monospace' }}
+          style={{ fontFamily: 'Tourney, cursive' }}
         >
           Recent Orders
         </h3>
@@ -93,7 +93,7 @@ export function ActivityFeed({ orders, games, isLoading = false }: ActivityFeedP
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <span
                     className="text-sm text-[#F5F5DC] font-semibold truncate"
-                    style={{ fontFamily: 'Handjet, monospace' }}
+                    style={{ fontFamily: 'Tourney, cursive' }}
                   >
                     {order.customer_email}
                   </span>
@@ -127,7 +127,7 @@ export function ActivityFeed({ orders, games, isLoading = false }: ActivityFeedP
       <div className="bg-[#2d1f3a]/50 border-2 border-[#4A3258] rounded-lg p-4 md:p-6">
         <h3
           className="text-xl text-[#00CED1] mb-4 font-bold"
-          style={{ fontFamily: 'Handjet, monospace' }}
+          style={{ fontFamily: 'Tourney, cursive' }}
         >
           Recent Games
         </h3>
@@ -145,13 +145,13 @@ export function ActivityFeed({ orders, games, isLoading = false }: ActivityFeedP
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <span
                     className="text-sm text-[#F5F5DC] font-semibold"
-                    style={{ fontFamily: 'Handjet, monospace' }}
+                    style={{ fontFamily: 'Tourney, cursive' }}
                   >
                     {GAME_NAMES[game.game_type] || game.game_type}
                   </span>
                   <span
                     className="text-sm text-[#32CD32] font-bold shrink-0"
-                    style={{ fontFamily: 'Handjet, monospace' }}
+                    style={{ fontFamily: 'Tourney, cursive' }}
                   >
                     {game.score} pts
                   </span>

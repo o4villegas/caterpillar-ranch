@@ -20,7 +20,7 @@ export default function Privacy() {
 
         <h1
           className="text-4xl text-[#F5F5DC] mb-8"
-          style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}
+          style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
         >
           Privacy Policy
         </h1>
@@ -36,7 +36,7 @@ export default function Privacy() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Introduction
             </h2>
@@ -71,7 +71,7 @@ export default function Privacy() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Information We Collect
             </h2>
@@ -95,7 +95,7 @@ export default function Privacy() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               How We Use Your Information
             </h2>
@@ -111,7 +111,7 @@ export default function Privacy() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Data Sharing
             </h2>
@@ -137,7 +137,7 @@ export default function Privacy() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Your Rights
             </h2>
@@ -153,7 +153,7 @@ export default function Privacy() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Contact Us
             </h2>

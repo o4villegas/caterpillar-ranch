@@ -123,7 +123,7 @@ export function GlobalSearch() {
             <section className="p-2">
               <h4
                 className="px-3 py-2 text-sm text-[#9B8FB5] uppercase tracking-wide"
-                style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
               >
                 Products ({results.products.length})
               </h4>
@@ -148,7 +148,7 @@ export function GlobalSearch() {
             <section className="p-2 border-t-2 border-[#4A3258]">
               <h4
                 className="px-3 py-2 text-sm text-[#9B8FB5] uppercase tracking-wide"
-                style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
               >
                 Orders ({results.orders.length})
               </h4>

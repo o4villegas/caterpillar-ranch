@@ -288,7 +288,7 @@ export default function AdminDashboard() {
         <div className="mb-6 md:mb-8">
           <h2
             className="text-2xl text-[#F5F5DC] font-bold mb-4"
-            style={{ fontFamily: 'Handjet, monospace' }}
+            style={{ fontFamily: 'Tourney, cursive' }}
           >
             Recent Activity
           </h2>

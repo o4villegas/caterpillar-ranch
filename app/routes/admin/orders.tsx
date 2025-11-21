@@ -126,7 +126,7 @@ export default function AdminOrdersPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-ranch-cream">Orders</h1>
+        <h1 className="text-3xl font-bold text-ranch-cream" style={{ fontFamily: 'Tourney, cursive' }}>Orders</h1>
         <p className="text-ranch-lavender mt-1">View and manage customer orders</p>
       </div>
 
@@ -314,7 +314,7 @@ export default function AdminOrdersPage() {
           >
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-ranch-cream">
+                <h2 className="text-2xl font-bold text-ranch-cream" style={{ fontFamily: 'Tourney, cursive' }}>
                   Order {selectedOrder.id}
                 </h2>
                 <p className="text-ranch-lavender mt-1">
@@ -332,20 +332,20 @@ export default function AdminOrdersPage() {
 
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold text-ranch-cream mb-2">Customer</h3>
+                <h3 className="text-lg font-semibold text-ranch-cream mb-2" style={{ fontFamily: 'Tourney, cursive' }}>Customer</h3>
                 <p className="text-ranch-lavender">{selectedOrder.customer_name}</p>
                 <p className="text-ranch-lavender">{selectedOrder.customer_email}</p>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-ranch-cream mb-2">Shipping</h3>
+                <h3 className="text-lg font-semibold text-ranch-cream mb-2" style={{ fontFamily: 'Tourney, cursive' }}>Shipping</h3>
                 <p className="text-ranch-lavender">
                   {selectedOrder.shipping_city}, {selectedOrder.shipping_state}
                 </p>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-ranch-cream mb-2">Order Total</h3>
+                <h3 className="text-lg font-semibold text-ranch-cream mb-2" style={{ fontFamily: 'Tourney, cursive' }}>Order Total</h3>
                 <div className="space-y-1">
                   <div className="flex justify-between">
                     <span className="text-ranch-lavender">Subtotal:</span>
@@ -367,7 +367,7 @@ export default function AdminOrdersPage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-ranch-cream mb-2">Status</h3>
+                <h3 className="text-lg font-semibold text-ranch-cream mb-2" style={{ fontFamily: 'Tourney, cursive' }}>Status</h3>
                 {getStatusBadge(selectedOrder.printful_status)}
                 {selectedOrder.printful_order_id && (
                   <p className="text-sm text-ranch-lavender mt-2">

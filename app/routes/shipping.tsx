@@ -20,7 +20,7 @@ export default function Shipping() {
 
         <h1
           className="text-4xl text-[#F5F5DC] mb-8"
-          style={{ fontFamily: 'Handjet, monospace', fontWeight: 800 }}
+          style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
         >
           Shipping & Returns
         </h1>
@@ -36,7 +36,7 @@ export default function Shipping() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Order Processing
             </h2>
@@ -62,7 +62,7 @@ export default function Shipping() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Shipping Times
             </h2>
@@ -86,7 +86,7 @@ export default function Shipping() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Shipping Costs
             </h2>
@@ -103,7 +103,7 @@ export default function Shipping() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Returns & Exchanges
             </h2>
@@ -133,7 +133,7 @@ export default function Shipping() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Lost or Stolen Packages
             </h2>
@@ -151,7 +151,7 @@ export default function Shipping() {
           <section className="mb-8">
             <h2
               className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               Contact Us About Your Order
             </h2>

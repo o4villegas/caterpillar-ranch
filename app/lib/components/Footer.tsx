@@ -109,7 +109,7 @@ export function Footer() {
               </div>
               <p
                 className="text-sm text-[#9B8FB5] mt-2"
-                style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
               >
                 Adorable Horror Tees
               </p>
@@ -119,7 +119,7 @@ export function Footer() {
             <div className="md:col-span-1">
               <h3
                 className="text-lg text-[#32CD32] mb-3"
-                style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
               >
                 Join the Colony
               </h3>
@@ -139,7 +139,7 @@ export function Footer() {
                   type="submit"
                   disabled={isSubmitting}
                   className="bg-[#00CED1] text-[#1a1a1a] hover:bg-[#00CED1]/90 font-semibold"
-                  style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+                  style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
                 >
                   {isSubmitting ? 'Subscribing...' : 'Subscribe'}
                 </Button>
@@ -150,7 +150,7 @@ export function Footer() {
             <div className="flex flex-col gap-2">
               <h3
                 className="text-lg text-[#32CD32] mb-1"
-                style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
               >
                 Support
               </h3>
@@ -188,7 +188,7 @@ export function Footer() {
             <div className="flex flex-col items-center md:items-end gap-4">
               <h3
                 className="text-lg text-[#32CD32]"
-                style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
               >
                 Follow Us
               </h3>

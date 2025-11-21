@@ -62,10 +62,10 @@ export function CartItem({ item }: CartItemProps) {
       <div className="flex-1 flex flex-col justify-between">
         {/* Name and variant */}
         <div>
-          <h3 className="text-ranch-cream text-lg leading-tight" style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}>
+          <h3 className="text-ranch-cream text-lg leading-tight" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
             {product.name}
           </h3>
-          <p className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Handjet, monospace', fontWeight: 600 }}>
+          <p className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>
             Size: {variant.size} • {variant.color || 'Default'}
           </p>
         </div>
@@ -98,7 +98,7 @@ export function CartItem({ item }: CartItemProps) {
           </div>
 
           {/* Price display */}
-          <div className="text-right" style={{ fontFamily: 'Handjet, monospace' }}>
+          <div className="text-right" style={{ fontFamily: 'Tourney, cursive' }}>
             {earnedDiscount > 0 ? (
               <>
                 <div className="text-lg text-ranch-lavender line-through" style={{ fontWeight: 600 }}>

@@ -66,7 +66,7 @@ export function Sidebar({ isOpen = true, onClose, userEmail }: SidebarProps) {
             <div>
               <h1
                 className="text-2xl text-[#FF1493]"
-                style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
               >
                 RANCCH
               </h1>
@@ -115,7 +115,7 @@ export function Sidebar({ isOpen = true, onClose, userEmail }: SidebarProps) {
             onClick={handleLogout}
             className="w-full px-4 py-2 bg-[#FF1493] text-[#F5F5DC] rounded-lg
               hover:bg-[#e0127f] transition-colors"
-            style={{ fontFamily: 'Handjet, monospace', fontWeight: 700 }}
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
           >
             Logout
           </button>
