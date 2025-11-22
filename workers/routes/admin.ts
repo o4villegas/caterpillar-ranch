@@ -14,6 +14,7 @@ import analyticsRoutes from './admin/analytics';
 import productsRoutes from './admin/products';
 import designsRoutes from './admin/designs';
 import syncLogsRoutes from './admin/sync-logs';
+import subscribersRoutes from './admin/subscribers';
 
 type Variables = {
   userId: number;
@@ -33,6 +34,9 @@ admin.route('/designs', designsRoutes);
 
 // Mount sync logs routes
 admin.route('/sync-logs', syncLogsRoutes);
+
+// Mount subscribers routes
+admin.route('/subscribers', subscribersRoutes);
 
 /**
  * GET /api/admin/search

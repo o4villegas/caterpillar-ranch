@@ -18,6 +18,7 @@ const navItems: NavItem[] = [
   { path: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
   { path: '/admin/products', label: 'Products', icon: '📦' },
   { path: '/admin/orders', label: 'Orders', icon: '📋' },
+  { path: '/admin/subscribers', label: 'Subscribers', icon: '📧' },
   { path: '/admin/analytics', label: 'Game Analytics', icon: '🎮' },
   { path: '/admin/sync-logs', label: 'Sync Logs', icon: '🔄' },
 ];

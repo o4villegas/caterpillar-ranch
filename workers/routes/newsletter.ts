@@ -7,6 +7,7 @@
 
 import { Hono } from 'hono';
 import { checkRateLimit } from '../lib/rateLimiter';
+import { sendWelcomeEmail } from '../lib/email';
 
 const newsletter = new Hono<{ Bindings: Cloudflare.Env }>();
 
@@ -89,6 +90,14 @@ newsletter.post('/subscribe', async (c) => {
       .bind(normalizedEmail, source)
       .run();
 
+    // Send welcome email (non-blocking - don't fail subscription if email fails)
+    try {
+      await sendWelcomeEmail(c.env, normalizedEmail);
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+      // Continue - subscription was successful even if email failed
+    }
+
     return c.json({
       success: true,
       message: 'You\'ve joined the colony! 🐛',
@@ -96,6 +105,104 @@ newsletter.post('/subscribe', async (c) => {
   } catch (error) {
     console.error('Newsletter subscription error:', error);
     return c.json({ error: 'Failed to subscribe' }, 500);
+  }
+});
+
+/**
+ * GET /api/newsletter/unsubscribe
+ *
+ * Unsubscribe from newsletter (via email link)
+ *
+ * Query params:
+ *   email: subscriber email (base64 encoded for URL safety)
+ *
+ * Response: HTML page confirming unsubscribe
+ */
+newsletter.get('/unsubscribe', async (c) => {
+  try {
+    const encodedEmail = c.req.query('email');
+
+    if (!encodedEmail) {
+      return c.html(`
+        <html>
+          <head><title>Unsubscribe - Caterpillar Ranch</title></head>
+          <body style="background:#1a1a1a;color:#f4f0e6;font-family:sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;">
+            <div style="text-align:center;max-width:400px;padding:20px;">
+              <h1 style="color:#FF1493;">Invalid Link</h1>
+              <p>This unsubscribe link is invalid or has expired.</p>
+            </div>
+          </body>
+        </html>
+      `);
+    }
+
+    // Decode email from base64
+    let email: string;
+    try {
+      email = atob(encodedEmail).toLowerCase().trim();
+    } catch {
+      return c.html(`
+        <html>
+          <head><title>Unsubscribe - Caterpillar Ranch</title></head>
+          <body style="background:#1a1a1a;color:#f4f0e6;font-family:sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;">
+            <div style="text-align:center;max-width:400px;padding:20px;">
+              <h1 style="color:#FF1493;">Invalid Link</h1>
+              <p>This unsubscribe link is invalid or has expired.</p>
+            </div>
+          </body>
+        </html>
+      `);
+    }
+
+    const db = c.env.DB;
+
+    // Find and deactivate subscriber
+    const result = await db
+      .prepare('UPDATE newsletter_subscribers SET active = 0 WHERE email = ? AND active = 1')
+      .bind(email)
+      .run();
+
+    if (result.meta.changes === 0) {
+      return c.html(`
+        <html>
+          <head><title>Unsubscribe - Caterpillar Ranch</title></head>
+          <body style="background:#1a1a1a;color:#f4f0e6;font-family:sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;">
+            <div style="text-align:center;max-width:400px;padding:20px;">
+              <h1 style="color:#9B8FB5;">Already Unsubscribed</h1>
+              <p>This email is not currently subscribed to our newsletter.</p>
+              <a href="https://caterpillar-ranch.lando555.workers.dev" style="color:#00CED1;">Return to the Ranch</a>
+            </div>
+          </body>
+        </html>
+      `);
+    }
+
+    return c.html(`
+      <html>
+        <head><title>Unsubscribed - Caterpillar Ranch</title></head>
+        <body style="background:#1a1a1a;color:#f4f0e6;font-family:sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;">
+          <div style="text-align:center;max-width:400px;padding:20px;">
+            <h1 style="color:#32CD32;">Successfully Unsubscribed</h1>
+            <p style="color:#9B8FB5;">You've left the colony. We'll miss you! 🐛</p>
+            <p style="margin-top:20px;color:#9B8FB5;">Changed your mind?</p>
+            <a href="https://caterpillar-ranch.lando555.workers.dev" style="color:#00CED1;">Return to the Ranch</a>
+          </div>
+        </body>
+      </html>
+    `);
+  } catch (error) {
+    console.error('Unsubscribe error:', error);
+    return c.html(`
+      <html>
+        <head><title>Error - Caterpillar Ranch</title></head>
+        <body style="background:#1a1a1a;color:#f4f0e6;font-family:sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;">
+          <div style="text-align:center;max-width:400px;padding:20px;">
+            <h1 style="color:#FF1493;">Something went wrong</h1>
+            <p>Please try again later or contact support.</p>
+          </div>
+        </body>
+      </html>
+    `);
   }
 });
 

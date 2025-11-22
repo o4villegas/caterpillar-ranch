@@ -21,6 +21,7 @@ export default [
     route("admin/dashboard", "routes/admin/dashboard.tsx"),
     route("admin/products", "routes/admin/products.tsx"),
     route("admin/orders", "routes/admin/orders.tsx"),
+    route("admin/subscribers", "routes/admin/subscribers.tsx"),
     route("admin/analytics", "routes/admin/analytics.tsx"),
     route("admin/sync-logs", "routes/admin/sync-logs.tsx"),
   ]),

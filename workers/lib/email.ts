@@ -294,3 +294,109 @@ export async function sendShippingNotificationEmail(
     html,
   });
 }
+
+/**
+ * Generate welcome email HTML for newsletter subscribers
+ */
+function generateWelcomeEmailHtml(email: string): string {
+  // Base64 encode email for unsubscribe link
+  const encodedEmail = btoa(email);
+  const unsubscribeUrl = `https://caterpillar-ranch.lando555.workers.dev/api/newsletter/unsubscribe?email=${encodedEmail}`;
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to the Colony - Caterpillar Ranch</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #1a1a1a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #1a1a1a; padding: 20px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #2a2440; border-radius: 12px; overflow: hidden;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #4A3258 0%, #2a2440 100%); padding: 30px; text-align: center;">
+              <h1 style="margin: 0; color: #FF1493; font-size: 28px; letter-spacing: 2px;">
+                CATERPILLAR RANCH
+              </h1>
+              <p style="margin: 10px 0 0; color: #9B8FB5; font-size: 14px;">
+                Welcome to the Colony
+              </p>
+            </td>
+          </tr>
+
+          <!-- Welcome Content -->
+          <tr>
+            <td style="padding: 30px;">
+              <h2 style="color: #32CD32; margin: 0 0 20px; font-size: 24px;">
+                You've Joined the Colony! 🐛
+              </h2>
+
+              <p style="color: #f4f0e6; font-size: 16px; line-height: 1.6; margin: 0 0 20px;">
+                The caterpillars are thrilled to have you. As a member of our colony, you'll be the first to know about:
+              </p>
+
+              <ul style="color: #9B8FB5; font-size: 16px; line-height: 1.8; margin: 0 0 25px; padding-left: 20px;">
+                <li style="margin-bottom: 8px;"><span style="color: #00CED1;">New horrifyingly adorable designs</span></li>
+                <li style="margin-bottom: 8px;"><span style="color: #32CD32;">Exclusive colony-only discounts</span></li>
+                <li style="margin-bottom: 8px;"><span style="color: #FF1493;">Limited edition drops</span></li>
+                <li><span style="color: #9B8FB5;">Behind-the-scenes ranch happenings</span></li>
+              </ul>
+
+              <div style="background-color: #3d3458; border-radius: 8px; padding: 20px; margin-bottom: 25px; text-align: center;">
+                <p style="margin: 0 0 10px; color: #9B8FB5; font-size: 14px;">Your colony membership email</p>
+                <p style="margin: 0; color: #00CED1; font-size: 18px; font-weight: bold;">${email}</p>
+              </div>
+
+              <a href="https://caterpillar-ranch.lando555.workers.dev" style="display: inline-block; background: linear-gradient(135deg, #00CED1 0%, #32CD32 100%); color: #1a1a1a; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                Visit the Ranch
+              </a>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #3d3458; padding: 25px; text-align: center;">
+              <p style="margin: 0 0 10px; color: #9B8FB5; font-size: 14px;">
+                The colony is growing... one caterpillar at a time.
+              </p>
+              <p style="margin: 0 0 10px; color: #9B8FB5; font-size: 12px;">
+                © ${new Date().getFullYear()} Caterpillar Ranch. All rights reserved.
+              </p>
+              <p style="margin: 0; font-size: 11px;">
+                <a href="${unsubscribeUrl}" style="color: #9B8FB5; text-decoration: underline;">Unsubscribe from this list</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+}
+
+/**
+ * Send welcome email to new newsletter subscriber
+ */
+export async function sendWelcomeEmail(
+  env: Cloudflare.Env,
+  email: string
+): Promise<void> {
+  const resend = new Resend(env.RESEND_API_KEY);
+
+  const html = generateWelcomeEmailHtml(email);
+
+  await resend.emails.send({
+    from: 'Caterpillar Ranch <hello@caterpillar.ranch>',
+    to: email,
+    subject: 'Welcome to the Colony! 🐛 - Caterpillar Ranch',
+    html,
+  });
+}
