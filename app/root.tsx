@@ -5,6 +5,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLocation,
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -83,29 +84,40 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  // Enable cursor trail effect (environmental horror layer)
-  useCursorTrail();
+  const location = useLocation();
+
+  // Check if we're on a game or admin route (hide horror effects)
+  const isGameRoute = location.pathname.startsWith('/games');
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const hideHorrorEffects = isGameRoute || isAdminRoute;
+
+  // Enable cursor trail effect (environmental horror layer) - skip on games
+  useCursorTrail({ enabled: !hideHorrorEffects });
 
   // Rare events system (1% chance on navigation) - Phase 1.5
   const rareEvent = useRareEvents();
 
   return (
     <CartProvider>
-      {/* Environmental Horror Layer - Phase 1.3 */}
-      <NightSky />
-      <BarnLight />
-      <GardenShadows />
+      {/* Environmental Horror Layer - Phase 1.3 (hidden on games/admin) */}
+      {!hideHorrorEffects && (
+        <>
+          <NightSky />
+          <BarnLight />
+          <GardenShadows />
 
-      {/* Rare Events - Phase 1.5 */}
-      <EyeInCorner show={rareEvent === 'eye'} />
-      <BackgroundBlur show={rareEvent === 'darken'} />
-      <WhisperDisplay show={rareEvent === 'whisper'} />
+          {/* Rare Events - Phase 1.5 */}
+          <EyeInCorner show={rareEvent === 'eye'} />
+          <BackgroundBlur show={rareEvent === 'darken'} />
+          <WhisperDisplay show={rareEvent === 'whisper'} />
+        </>
+      )}
 
       {/* Main app content */}
       <div style={{ position: 'relative', zIndex: 10 }}>
-        <Header />
+        {!hideHorrorEffects && <Header />}
         <Outlet />
-        <Footer />
+        {!hideHorrorEffects && <Footer />}
       </div>
     </CartProvider>
   );

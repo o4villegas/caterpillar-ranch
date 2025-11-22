@@ -1,5 +1,9 @@
 import { useEffect } from 'react';
 
+interface CursorTrailOptions {
+  enabled?: boolean;
+}
+
 /**
  * Custom hook for cursor trail effect
  *
@@ -8,9 +12,15 @@ import { useEffect } from 'react';
  *
  * Usage: Call in root component (app/root.tsx)
  */
-export function useCursorTrail() {
+export function useCursorTrail(options: CursorTrailOptions = {}) {
+  const { enabled = true } = options;
+
   useEffect(() => {
-    // Check if user prefers reduced motion
+    // Skip if disabled or user prefers reduced motion
+    if (!enabled) {
+      return;
+    }
+
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) {
       return; // Respect accessibility preferences
@@ -54,5 +64,5 @@ export function useCursorTrail() {
       // Remove any remaining trail elements
       trails.forEach((trail) => trail.remove());
     };
-  }, []);
+  }, [enabled]);
 }

@@ -36,20 +36,7 @@
 /* Force dark mode as default (horror aesthetic requirement) */
 html {
   color-scheme: dark;
-
-  /* Global breathing animation - very subtle */
-  animation: screen-breathe 8s ease-in-out infinite;
-}
-
-@keyframes screen-breathe {
-  0%, 100% {
-    filter: brightness(1.0);
-    transform: scale(1.0);
-  }
-  50% {
-    filter: brightness(0.98);
-    transform: scale(1.002);
-  }
+  /* Note: screen-breathe animation removed - caused conflicts with fixed-position backgrounds */
 }
 
 html,
@@ -264,13 +251,14 @@ button, .card, .modal {
   height: 60px;
   background: radial-gradient(
     ellipse at center,
-    rgba(255, 223, 127, 0.9) 0%,
-    rgba(255, 223, 127, 0.6) 40%,
+    rgba(255, 223, 127, 0.7) 0%,
+    rgba(255, 223, 127, 0.4) 40%,
     rgba(255, 223, 127, 0) 100%
   );
   pointer-events: none;
   z-index: 1;
   animation: barn-flicker 15s ease-in-out infinite;
+  opacity: 0.8; /* Reduced intensity */
 }
 
 @keyframes barn-flicker {
@@ -309,42 +297,33 @@ button, .card, .modal {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
   background:
-    /* Top shadow */
+    /* Top shadow - reduced intensity */
     linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.4) 0%,
-      rgba(0, 0, 0, 0) 15%
+      rgba(0, 0, 0, 0.25) 0%,
+      rgba(0, 0, 0, 0) 12%
     ),
-    /* Bottom shadow */
+    /* Bottom shadow - reduced intensity */
     linear-gradient(
       to top,
-      rgba(0, 0, 0, 0.5) 0%,
-      rgba(0, 0, 0, 0) 20%
+      rgba(0, 0, 0, 0.3) 0%,
+      rgba(0, 0, 0, 0) 15%
     ),
-    /* Left shadow */
+    /* Left shadow - reduced intensity */
     linear-gradient(
       to right,
-      rgba(0, 0, 0, 0.3) 0%,
-      rgba(0, 0, 0, 0) 10%
+      rgba(0, 0, 0, 0.15) 0%,
+      rgba(0, 0, 0, 0) 8%
     ),
-    /* Right shadow */
+    /* Right shadow - reduced intensity */
     linear-gradient(
       to left,
-      rgba(0, 0, 0, 0.3) 0%,
-      rgba(0, 0, 0, 0) 10%
+      rgba(0, 0, 0, 0.15) 0%,
+      rgba(0, 0, 0, 0) 8%
     );
-  animation: shadow-breathe 6s ease-in-out infinite;
-}
-
-@keyframes shadow-breathe {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.85;
-  }
+  /* Note: shadow-breathe animation removed - caused visual conflicts */
 }
 
 /* Disable environmental effects for reduced motion preference */

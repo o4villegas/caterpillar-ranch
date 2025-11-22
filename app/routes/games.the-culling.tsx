@@ -11,6 +11,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+import { AnimatePresence } from 'framer-motion';
 import { GameTimer } from '../lib/components/Games/GameTimer';
 import { GameScore } from '../lib/components/Games/GameScore';
 import { GameResults } from '../lib/components/Games/GameResults';
@@ -18,6 +19,7 @@ import { useGameState } from '../lib/components/Games/hooks/useGameState';
 import { getDiscountResult } from '../lib/components/Games/utils/scoreConversion';
 import { useCart } from '../lib/contexts/CartContext';
 import { HORROR_COPY } from '../lib/constants/horror-copy';
+import { InvasiveCaterpillar, GoodCaterpillar, SplatEffect } from '../lib/components/Games/sprites/Caterpillar';
 import type { Route } from './+types/games.the-culling';
 
 // Caterpillar types
@@ -53,8 +55,10 @@ export default function TheCullingRoute() {
   const [caterpillars, setCaterpillars] = useState<Caterpillar[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [bestScore, setBestScore] = useState(0);
+  const [splats, setSplats] = useState<{ id: number; holeIndex: number; color: string }[]>([]);
 
   const nextCaterpillarId = useRef(0);
+  const nextSplatId = useRef(0);
   const spawnTimerRef = useRef<number | undefined>(undefined);
   const caterpillarTimersRef = useRef<Map<number, number>>(new Map());
 
@@ -129,6 +133,16 @@ export default function TheCullingRoute() {
 
   const handleCaterpillarClick = useCallback((caterpillar: Caterpillar) => {
     if (game.status !== 'playing') return;
+
+    // Add splat effect at this hole
+    const splatId = nextSplatId.current++;
+    const splatColor = caterpillar.type === 'invasive' ? '#4a3258' : '#32CD32';
+    setSplats(prev => [...prev, { id: splatId, holeIndex: caterpillar.holeIndex, color: splatColor }]);
+
+    // Remove splat after animation
+    setTimeout(() => {
+      setSplats(prev => prev.filter(s => s.id !== splatId));
+    }, 400);
 
     // Remove caterpillar immediately
     setCaterpillars(prev => prev.filter(c => c.id !== caterpillar.id));
@@ -233,6 +247,7 @@ export default function TheCullingRoute() {
                 const caterpillar = caterpillars.find(
                   c => c.holeIndex === index && c.isVisible
                 );
+                const splat = splats.find(s => s.holeIndex === index);
 
                 return (
                   <div
@@ -241,26 +256,34 @@ export default function TheCullingRoute() {
                   >
                     {/* Hole */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-16 h-8 bg-ranch-purple/30 rounded-full" />
+                      <div className="w-16 h-8 bg-ranch-purple/30 rounded-full shadow-inner" />
                     </div>
 
-                    {/* Caterpillar */}
-                    {caterpillar && (
-                      <button
-                        onClick={() => handleCaterpillarClick(caterpillar)}
-                        className="absolute inset-0 flex items-center justify-center caterpillar-pop-up"
-                      >
-                        <div className="text-5xl relative">
-                          🐛
-                          {/* Eyes overlay */}
-                          <div className={`absolute inset-0 flex items-center justify-center text-xl ${
-                            caterpillar.type === 'invasive' ? 'text-red-500' : 'text-green-500'
-                          }`}>
-                            👀
-                          </div>
+                    {/* Splat Effect */}
+                    <AnimatePresence>
+                      {splat && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                          <SplatEffect color={splat.color} size={80} />
                         </div>
-                      </button>
-                    )}
+                      )}
+                    </AnimatePresence>
+
+                    {/* Caterpillar */}
+                    <AnimatePresence>
+                      {caterpillar && (
+                        <button
+                          onClick={() => handleCaterpillarClick(caterpillar)}
+                          className="absolute inset-0 flex items-center justify-center z-10 hover:scale-110 transition-transform cursor-pointer"
+                          aria-label={caterpillar.type === 'invasive' ? 'Cull invasive caterpillar' : 'Good caterpillar - avoid!'}
+                        >
+                          {caterpillar.type === 'invasive' ? (
+                            <InvasiveCaterpillar size={55} />
+                          ) : (
+                            <GoodCaterpillar size={55} />
+                          )}
+                        </button>
+                      )}
+                    </AnimatePresence>
                   </div>
                 );
               })}
@@ -277,18 +300,7 @@ export default function TheCullingRoute() {
         )}
       </div>
 
-      {/* CSS Animations */}
-      <style>{`
-        @keyframes pop-up {
-          0% { transform: translateY(100%); opacity: 0; }
-          20% { transform: translateY(-10%); opacity: 1; }
-          100% { transform: translateY(0); opacity: 1; }
-        }
-
-        .caterpillar-pop-up {
-          animation: pop-up 0.3s ease-out;
-        }
-      `}</style>
+      {/* Note: Animations now handled by Framer Motion in SVG caterpillar components */}
     </div>
   );
 }

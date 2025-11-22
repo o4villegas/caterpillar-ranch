@@ -40,9 +40,9 @@ export function NightSky() {
 
   return (
     <div
-      className="fixed inset-0 pointer-events-none z-0"
+      className="fixed inset-0 pointer-events-none"
       aria-hidden="true"
-      style={{ opacity: 0.6 }}
+      style={{ opacity: 0.6, zIndex: 0 }}
     >
       {stars.map((star) => (
         <div
