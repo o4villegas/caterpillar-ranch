@@ -65,20 +65,11 @@ export default function CheckoutReviewPage() {
     setIsPlacingOrder(true);
 
     try {
-      // Generate external order ID (our reference)
-      const externalId = `RANCH-${Date.now()}`;
-
-      // Transform cart items to Printful format
-      const printfulItems = cart.items.map((item) => ({
-        variant_id: item.variant.printfulVariantId,
-        quantity: item.quantity,
-        retail_price: (item.product.price * (1 - item.earnedDiscount / 100)).toFixed(2),
-      }));
-
-      // Transform cart items for D1 persistence (order_items table)
-      const cartItems = cart.items.map((item) => ({
+      // Transform cart items for Stripe checkout
+      const checkoutItems = cart.items.map((item) => ({
         productId: item.product.id,
         productName: item.product.name,
+        productImage: item.product.imageUrl,
         variantId: item.variantId,
         variantSize: item.variant.size,
         variantColor: item.variant.color,
@@ -88,79 +79,51 @@ export default function CheckoutReviewPage() {
         discountPercent: item.earnedDiscount,
       }));
 
-      // Transform shipping info to Printful recipient format
-      const recipient = {
-        name: shippingInfo.name,
-        email: shippingInfo.email,
-        phone: shippingInfo.phone || '',
-        address1: shippingInfo.address,
-        address2: shippingInfo.address2 || undefined,
-        city: shippingInfo.city,
-        state_code: shippingInfo.state,
-        country_code: shippingInfo.country,
-        zip: shippingInfo.zip,
-      };
-
-      // Create order with Printful and persist to D1
-      const createResponse = await fetch('/api/orders', {
+      // Create Stripe Checkout session
+      const response = await fetch('/api/checkout/create-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          externalId,
-          recipient,
-          items: printfulItems,
-          cartItems, // Added for D1 persistence
+          items: checkoutItems,
+          shipping: {
+            email: shippingInfo.email,
+            name: shippingInfo.name,
+            address: shippingInfo.address,
+            address2: shippingInfo.address2,
+            city: shippingInfo.city,
+            state: shippingInfo.state,
+            zip: shippingInfo.zip,
+            country: shippingInfo.country,
+            phone: shippingInfo.phone,
+          },
+          shippingCost: 0, // Free shipping for now
           discountPercent: totals.effectiveDiscountPercent,
         }),
       });
 
-      if (!createResponse.ok) {
-        const error = await createResponse.json() as { details?: string };
-        throw new Error(error.details || 'Failed to create order');
+      if (!response.ok) {
+        const error = await response.json() as { details?: string };
+        throw new Error(error.details || 'Failed to create checkout session');
       }
 
-      const createData = await createResponse.json() as { data: { id: number } };
-      const printfulOrderId = createData.data.id;
+      const data = await response.json() as { data: { url: string; orderId: string } };
 
-      // Confirm order (moves to fulfillment)
-      const confirmResponse = await fetch(`/api/orders/${printfulOrderId}/confirm`, {
-        method: 'POST',
-      });
-
-      if (!confirmResponse.ok) {
-        const error = await confirmResponse.json() as { details?: string };
-        throw new Error(error.details || 'Failed to confirm order');
-      }
-
-      const confirmData = await confirmResponse.json() as { data: { status: string } };
-
-      // Store order info in localStorage for order history
-      const order = {
-        externalId,
-        printfulOrderId,
+      // Store pending order info in sessionStorage for success page
+      sessionStorage.setItem('pending_order', JSON.stringify({
+        orderId: data.data.orderId,
         items: cart.items,
         shipping: shippingInfo,
         totals,
-        placedAt: new Date().toISOString(),
-        status: confirmData.data.status,
-      };
+      }));
 
-      const orders = JSON.parse(localStorage.getItem('caterpillar-ranch-orders') || '[]');
-      orders.push(order);
-      localStorage.setItem('caterpillar-ranch-orders', JSON.stringify(orders));
-
-      // Clear cart and shipping info
-      clearCart();
-      sessionStorage.removeItem('checkout_shipping');
-
-      // Navigate to confirmation
-      navigate(`/checkout/confirmation?order=${externalId}`);
+      // Redirect to Stripe Checkout
+      window.location.href = data.data.url;
     } catch (error) {
-      console.error('Order placement error:', error);
+      console.error('Checkout error:', error);
       setIsPlacingOrder(false);
 
-      // Show error to user (TODO: Add toast notification)
-      alert(`Order placement failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
+      // Show error to user
+      alert(`Checkout failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`);
     }
   };
 
@@ -311,7 +274,7 @@ export default function CheckoutReviewPage() {
                 disabled={isPlacingOrder}
                 style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
               >
-                {isPlacingOrder ? HORROR_COPY.checkout.processing : HORROR_COPY.checkout.placeOrder}
+                {isPlacingOrder ? 'Redirecting to Payment...' : 'Pay Now - Secure Checkout'}
               </Button>
 
               <Button

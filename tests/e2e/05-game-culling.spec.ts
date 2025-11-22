@@ -6,32 +6,48 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { waitForAnimations } from '../utils/helpers';
+import { waitForAnimations, getProductId } from '../utils/helpers';
 
 test.describe('The Culling Game', () => {
-  test('should load game page', async ({ page }) => {
-    await page.goto('/games/the-culling?product=cr-100');
-    await waitForAnimations(page);
+  let productId: number;
 
-    // Verify game UI elements
-    const timer = page.locator('div:has-text("Time:")');
-    const score = page.locator('div:has-text("Score:")');
-
-    await expect(timer).toBeVisible();
-    await expect(score).toBeVisible();
+  test.beforeAll(async ({ request }) => {
+    // Fetch a real product ID for game tests
+    productId = await getProductId(request, 0);
+    console.log(`Using product ID for game tests: ${productId}`);
   });
 
-  test('should display 3x3 grid', async ({ page }) => {
-    await page.goto('/games/the-culling?product=cr-100');
+  test('should load game page', async ({ page }) => {
+    await page.goto(`/games/the-culling?product=${productId}`);
     await waitForAnimations(page);
 
-    // Find grid container
+    // Game page starts with instructions and start button
+    const title = page.locator('h1:has-text("The Culling")');
+    const startButton = page.locator('button:has-text("Start The Culling")');
+
+    await expect(title).toBeVisible();
+    await expect(startButton).toBeVisible();
+  });
+
+  test('should display 3x3 grid after starting', async ({ page }) => {
+    await page.goto(`/games/the-culling?product=${productId}`);
+    await waitForAnimations(page);
+
+    // Start the game first
+    await page.click('button:has-text("Start The Culling")');
+    await waitForAnimations(page);
+
+    // Find grid container (after game starts)
     const grid = page.locator('.grid').first();
     await expect(grid).toBeVisible();
   });
 
   test('should allow playing game', async ({ page }) => {
-    await page.goto('/games/the-culling?product=cr-100');
+    await page.goto(`/games/the-culling?product=${productId}`);
+    await waitForAnimations(page);
+
+    // Start the game first
+    await page.click('button:has-text("Start The Culling")');
     await waitForAnimations(page, 1500);
 
     // Wait for caterpillars to appear and click them
@@ -43,13 +59,17 @@ test.describe('The Culling Game', () => {
       await page.waitForTimeout(800);
     }
 
-    // Score should increase
+    // Score should be visible (after game started)
     const scoreText = await page.locator('div:has-text("Score:")').textContent();
     console.log('Current score:', scoreText);
   });
 
   test('should show results after time expires', async ({ page }) => {
-    await page.goto('/games/the-culling?product=cr-100');
+    await page.goto(`/games/the-culling?product=${productId}`);
+    await waitForAnimations(page);
+
+    // Start the game first
+    await page.click('button:has-text("Start The Culling")');
 
     // Wait for game to finish (25 seconds + buffer)
     await page.waitForTimeout(27000);

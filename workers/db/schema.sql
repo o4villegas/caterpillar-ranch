@@ -115,6 +115,10 @@ CREATE TABLE IF NOT EXISTS orders (
   tracking_number TEXT,
   tracking_url TEXT,
 
+  -- Stripe Payment Integration
+  stripe_checkout_session_id TEXT, -- Stripe Checkout session ID
+  stripe_payment_intent_id TEXT, -- Stripe Payment Intent ID
+
   -- Timestamps
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   confirmed_at TEXT, -- When order sent to Printful

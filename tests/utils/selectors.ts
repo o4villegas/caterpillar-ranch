@@ -61,9 +61,10 @@ export const selectors = {
     itemQuantity: 'input[type="number"]',
     itemPrice: 'div:has-text("$")',
     removeButton: 'button[aria-label="Remove item"]',
-    subtotal: 'div:has-text("Subtotal")',
-    discount: 'div:has-text("Discount")',
-    total: 'div:has-text("Total")',
+    // Cart totals - use specific container and value spans
+    subtotal: '.bg-ranch-purple\\/20 >> div.text-ranch-lavender:has-text("Subtotal") >> span:nth-child(2)',
+    discount: '.bg-ranch-purple\\/20 >> div.text-ranch-lime:has-text("Discount") >> span:nth-child(2)',
+    total: '.bg-ranch-purple\\/20 >> div:has(span.text-ranch-cyan) >> span.text-ranch-cyan',
     checkoutButton: 'button:has-text("Complete the Harvest")',
     continueShopping: 'button:has-text("Continue Browsing")',
   },
@@ -121,15 +122,15 @@ export const selectors = {
     analyticsLink: 'a[href="/admin/analytics"]',
     logoutButton: 'button:has-text("Logout")',
 
-    // Stats cards
-    statCard: '.bg-gray-800',
-    ordersToday: 'div:has-text("Orders Today")',
-    revenueToday: 'div:has-text("Revenue Today")',
-    activeProducts: 'div:has-text("Active Products")',
-    gamesToday: 'div:has-text("Games Played Today")',
+    // Stats cards - StatCard components with border-2 and rounded-lg
+    statCard: 'div.rounded-lg.border-2',
+    ordersToday: 'div.rounded-lg.border-2:has(h3:text("Orders Today"))',
+    revenueToday: 'div.rounded-lg.border-2:has(h3:text("Revenue Today"))',
+    activeProducts: 'div.rounded-lg.border-2:has(h3:text("Active Products"))',
+    gamesToday: 'div.rounded-lg.border-2:has(h3:text("Games Today"))',
 
     // Activity feed
-    activityFeed: 'div:has-text("Recent Activity")',
+    activityFeed: 'h2:has-text("Recent Activity")',
     recentOrder: 'div:has-text("Order")',
     recentGame: 'div:has-text("Game:")',
   },
@@ -179,7 +180,7 @@ export const selectors = {
   // Horror UI Elements
   horror: {
     nightSky: '.night-sky', // Container for stars
-    star: '.star', // Individual stars
+    star: '.star-blink', // Individual stars (class is star-blink)
     barnLight: '.barn-light', // Flickering barn window
     gardenShadows: '.garden-shadows', // Vignette shadows
     cursorTrail: '.cursor-trail', // Fading cursor trail dots

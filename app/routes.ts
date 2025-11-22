@@ -5,6 +5,7 @@ export default [
   route("products/:slug", "routes/product.tsx"),
   route("checkout", "routes/checkout.tsx"),
   route("checkout/review", "routes/checkout.review.tsx"),
+  route("checkout/success", "routes/checkout.success.tsx"),
   route("checkout/confirmation", "routes/checkout.confirmation.tsx"),
   route("privacy", "routes/privacy.tsx"),
   route("terms", "routes/terms.tsx"),

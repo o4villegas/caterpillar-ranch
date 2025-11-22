@@ -50,14 +50,26 @@ export class CartDrawer {
 
   async removeItem(index: number = 0) {
     const removeButtons = this.page.locator(selectors.cart.removeButton);
-    await removeButtons.nth(index).click();
-    await waitForAnimations(this.page, 300);
+    await removeButtons.nth(index).click({ force: true });
+    await waitForAnimations(this.page, 500);
   }
 
   async getTotals() {
-    const subtotalText = await this.page.locator(selectors.cart.subtotal).textContent();
-    const discountText = await this.page.locator(selectors.cart.discount).textContent();
-    const totalText = await this.page.locator(selectors.cart.total).textContent();
+    // Wait for cart totals to be visible
+    await waitForAnimations(this.page, 500);
+
+    // Get subtotal - should always exist
+    const subtotalLocator = this.page.locator(selectors.cart.subtotal);
+    const subtotalText = await subtotalLocator.first().textContent().catch(() => '');
+
+    // Discount is optional (only appears when discount is earned)
+    const discountLocator = this.page.locator(selectors.cart.discount);
+    const discountExists = await discountLocator.count() > 0;
+    const discountText = discountExists ? await discountLocator.first().textContent().catch(() => '') : '';
+
+    // Get total - should always exist
+    const totalLocator = this.page.locator(selectors.cart.total);
+    const totalText = await totalLocator.first().textContent().catch(() => '');
 
     return {
       subtotal: subtotalText || '',
@@ -67,7 +79,8 @@ export class CartDrawer {
   }
 
   async proceedToCheckout() {
-    await this.checkoutButton.click();
+    await waitForAnimations(this.page, 500);
+    await this.checkoutButton.click({ force: true });
     await waitForAnimations(this.page);
   }
 

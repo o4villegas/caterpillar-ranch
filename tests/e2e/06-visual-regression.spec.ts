@@ -7,9 +7,21 @@
 
 import { test, expect } from '@playwright/test';
 import { HomePage } from '../pages/HomePage';
-import { waitForAnimations, waitForProductsToLoad } from '../utils/helpers';
+import {
+  waitForAnimations,
+  waitForProductsToLoad,
+  getProductSlug,
+} from '../utils/helpers';
 
 test.describe('Visual Regression', () => {
+  let productSlug: string;
+
+  test.beforeAll(async ({ request }) => {
+    // Fetch a real product slug for screenshot tests
+    productSlug = await getProductSlug(request, 0);
+    console.log(`Using product for visual tests: ${productSlug}`);
+  });
+
   test('homepage screenshot', async ({ page }) => {
     await page.goto('/');
     await waitForProductsToLoad(page);
@@ -21,7 +33,7 @@ test.describe('Visual Regression', () => {
   });
 
   test('product page screenshot', async ({ page }) => {
-    await page.goto('/products/cr-100');
+    await page.goto(`/products/${productSlug}`);
     await waitForAnimations(page);
 
     await page.screenshot({
@@ -32,9 +44,10 @@ test.describe('Visual Regression', () => {
 
   test('cart drawer screenshot', async ({ page }) => {
     // Add product first
-    await page.goto('/products/cr-100');
+    await page.goto(`/products/${productSlug}`);
     await waitForAnimations(page);
-    await page.click('button:has-text("M")');
+    // Use aria-pressed to target size buttons specifically (not "Claim" which contains M)
+    await page.click('button[aria-pressed]:has-text("M")');
     await page.click('button:has-text("Claim Your Harvest")');
     await waitForAnimations(page, 1500);
 
@@ -50,9 +63,10 @@ test.describe('Visual Regression', () => {
 
   test('checkout page screenshot', async ({ page }) => {
     // Add product first
-    await page.goto('/products/cr-100');
+    await page.goto(`/products/${productSlug}`);
     await waitForAnimations(page);
-    await page.click('button:has-text("M")');
+    // Use aria-pressed to target size buttons specifically (not "Claim" which contains M)
+    await page.click('button[aria-pressed]:has-text("M")');
     await page.click('button:has-text("Claim Your Harvest")');
     await waitForAnimations(page, 1500);
 
@@ -71,7 +85,8 @@ test.describe('Visual Regression', () => {
     await page.goto('/admin/login');
     await page.fill('input#email', 'lando@gvoassurancepartners.com');
     await page.fill('input#password', 'duderancch');
-    await page.click('button[type="submit"]');
+    await page.waitForTimeout(500); // Wait for animations to settle
+    await page.click('button[type="submit"]', { force: true });
     await waitForAnimations(page, 1500);
 
     await page.screenshot({

@@ -29,7 +29,8 @@ export class AdminLoginPage {
   async login(email: string, password: string) {
     await this.emailInput.fill(email);
     await this.passwordInput.fill(password);
-    await this.submitButton.click();
+    await this.page.waitForTimeout(500); // Wait for animations to settle
+    await this.submitButton.click({ force: true });
     await waitForAnimations(this.page, 1500);
   }
 

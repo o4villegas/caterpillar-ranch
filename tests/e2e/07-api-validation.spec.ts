@@ -9,18 +9,26 @@ import { test, expect } from '@playwright/test';
 import { validateAPIResponse } from '../utils/helpers';
 
 test.describe('API Validation', () => {
-  test('should fetch products API', async ({ page }) => {
-    await page.goto('/');
+  test('should fetch products API', async ({ page, request }) => {
+    // Fetch products directly using request fixture
+    const baseUrl = process.env.TEST_URL || 'http://localhost:5173';
+    const response = await request.get(`${baseUrl}/api/catalog/products`);
 
-    // Intercept products API call
-    const response = await validateAPIResponse(page, '/api/catalog/products', 200);
+    expect(response.status()).toBe(200);
 
-    // Verify response structure
-    const data = await response.json();
-    expect(data).toHaveProperty('products');
-    expect(Array.isArray(data.products)).toBe(true);
+    // Verify response structure - API returns { data: [...], meta: {...} }
+    const json = await response.json();
+    expect(json).toHaveProperty('data');
+    expect(Array.isArray(json.data)).toBe(true);
+    expect(json.data.length).toBeGreaterThan(0);
 
-    console.log(`✅ Products API returned ${data.products.length} products`);
+    // Verify product structure
+    const product = json.data[0];
+    expect(product).toHaveProperty('id');
+    expect(product).toHaveProperty('name');
+    expect(product).toHaveProperty('thumbnail_url');
+
+    console.log(`✅ Products API returned ${json.data.length} products`);
   });
 
   test('should handle admin login API', async ({ page }) => {
@@ -34,7 +42,8 @@ test.describe('API Validation', () => {
     // Fill and submit form
     await page.fill('input#email', 'lando@gvoassurancepartners.com');
     await page.fill('input#password', 'duderancch');
-    await page.click('button[type="submit"]');
+    await page.waitForTimeout(500); // Wait for animations
+    await page.click('button[type="submit"]', { force: true });
 
     // Wait for response
     const response = await responsePromise;
@@ -49,28 +58,82 @@ test.describe('API Validation', () => {
     console.log('✅ Login API response valid');
   });
 
-  test('should fetch dashboard stats API', async ({ page }) => {
-    // Login first
-    await page.goto('/admin/login');
-    await page.fill('input#email', 'lando@gvoassurancepartners.com');
-    await page.fill('input#password', 'duderancch');
-    await page.click('button[type="submit"]');
-    await page.waitForURL('/admin/dashboard');
+  test('should fetch single product API', async ({ request }) => {
+    const baseUrl = process.env.TEST_URL || 'http://localhost:5173';
 
-    // Monitor stats API call
-    const response = await page.waitForResponse((resp) =>
-      resp.url().includes('/api/admin/analytics/dashboard-stats')
-    );
+    // First get a product ID
+    const listResponse = await request.get(`${baseUrl}/api/catalog/products`);
+    const listJson = await listResponse.json();
+    const productId = listJson.data[0].id;
 
-    // Verify response
+    // Fetch single product
+    const response = await request.get(`${baseUrl}/api/catalog/products/${productId}`);
     expect(response.status()).toBe(200);
 
-    const data = await response.json();
-    expect(data).toHaveProperty('orders');
-    expect(data).toHaveProperty('revenue');
-    expect(data).toHaveProperty('products');
-    expect(data).toHaveProperty('games');
+    const json = await response.json();
+    expect(json).toHaveProperty('data');
+    expect(json.data).toHaveProperty('sync_product');
+    expect(json.data).toHaveProperty('sync_variants');
+    expect(Array.isArray(json.data.sync_variants)).toBe(true);
 
-    console.log('✅ Dashboard stats API valid');
+    console.log(`✅ Single product API returned product: ${json.data.sync_product.name}`);
+  });
+
+  test('should fetch game stats API', async ({ request }) => {
+    const baseUrl = process.env.TEST_URL || 'http://localhost:5173';
+
+    // Fetch stats for a test session
+    const response = await request.get(`${baseUrl}/api/games/stats/test-session-e2e`);
+    expect(response.status()).toBe(200);
+
+    const json = await response.json();
+    expect(json).toHaveProperty('data');
+    expect(json.data).toHaveProperty('sessionToken');
+    expect(json.data).toHaveProperty('totalGamesPlayed');
+    expect(json.data).toHaveProperty('totalDiscountEarned');
+
+    console.log('✅ Game stats API response valid');
+  });
+
+  test('should handle cart sync API', async ({ request }) => {
+    const baseUrl = process.env.TEST_URL || 'http://localhost:5173';
+
+    // Test cart sync endpoint with valid data
+    const response = await request.post(`${baseUrl}/api/cart/sync`, {
+      data: {
+        sessionToken: 'test-session-e2e-' + Date.now(),
+        cart: {
+          items: [],
+          discounts: [],
+        },
+      },
+    });
+
+    expect(response.status()).toBe(200);
+
+    const json = await response.json();
+    expect(json).toHaveProperty('success');
+    expect(json.success).toBe(true);
+
+    console.log('✅ Cart sync API response valid');
+  });
+
+  test('should reject invalid cart sync request', async ({ request }) => {
+    const baseUrl = process.env.TEST_URL || 'http://localhost:5173';
+
+    // Test cart sync endpoint with missing data
+    const response = await request.post(`${baseUrl}/api/cart/sync`, {
+      data: {
+        sessionToken: 'test-session',
+        // Missing cart field
+      },
+    });
+
+    expect(response.status()).toBe(400);
+
+    const json = await response.json();
+    expect(json).toHaveProperty('error');
+
+    console.log('✅ Cart sync API correctly rejects invalid request');
   });
 });

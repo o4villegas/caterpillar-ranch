@@ -14,8 +14,8 @@ test.describe('Horror UI Elements', () => {
     await page.goto('/');
     await waitForAnimations(page);
 
-    // Check for stars (they should be in the DOM)
-    const stars = page.locator('.star');
+    // Check for stars (they should be in the DOM - class is star-blink)
+    const stars = page.locator('.star-blink');
     const count = await stars.count();
 
     console.log(`✅ Found ${count} stars in night sky`);

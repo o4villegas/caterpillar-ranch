@@ -7,12 +7,25 @@
 
 import { test, expect } from '@playwright/test';
 import { CheckoutPage, CheckoutReviewPage, CheckoutConfirmationPage } from '../pages/CheckoutPage';
-import { addProductToCart, clearCart, waitForAnimations } from '../utils/helpers';
+import {
+  addProductToCart,
+  clearCart,
+  waitForAnimations,
+  getProductSlug,
+} from '../utils/helpers';
 
 test.describe('Checkout Flow', () => {
-  test.beforeEach(async ({ page }) => {
+  let productSlug: string;
+
+  test.beforeAll(async ({ request }) => {
+    // Fetch a real product slug once for all tests
+    productSlug = await getProductSlug(request, 0);
+    console.log(`Using product for checkout tests: ${productSlug}`);
+  });
+
+  test.beforeEach(async ({ page, request }) => {
     // Add product to cart before each test
-    await addProductToCart(page, 'cr-100', 'M', 1);
+    await addProductToCart(page, productSlug, 'M', 1);
   });
 
   test.afterEach(async ({ page }) => {

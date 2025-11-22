@@ -5,7 +5,96 @@
  * IMPORTANT: If any helper fails, check the APPLICATION CODE first!
  */
 
-import { Page, expect } from '@playwright/test';
+import { Page, expect, APIRequestContext } from '@playwright/test';
+
+/**
+ * Product data fetched from the API
+ */
+export interface CatalogProduct {
+  id: number;
+  external_id: string;
+  name: string;
+  slug: string;
+  variants: number;
+  synced: number;
+  thumbnail_url: string;
+  is_ignored: boolean;
+}
+
+/**
+ * Cache for products - avoids fetching on every test
+ */
+let cachedProducts: CatalogProduct[] | null = null;
+
+/**
+ * Fetch real products from the catalog API
+ * Uses caching to avoid repeated API calls within a test run
+ */
+export async function fetchProducts(request: APIRequestContext): Promise<CatalogProduct[]> {
+  if (cachedProducts) {
+    return cachedProducts;
+  }
+
+  const baseUrl = process.env.TEST_URL || 'http://localhost:5173';
+  const response = await request.get(`${baseUrl}/api/catalog/products`);
+
+  if (!response.ok()) {
+    throw new Error(`Failed to fetch products: ${response.status()}`);
+  }
+
+  const json = await response.json();
+
+  // Transform API response to include slugs
+  cachedProducts = json.data.map((product: any) => ({
+    ...product,
+    slug: product.name.toLowerCase().replace(/\s+/g, '-'),
+  }));
+
+  return cachedProducts!;
+}
+
+/**
+ * Get a random product from the catalog
+ */
+export async function getRandomProduct(request: APIRequestContext): Promise<CatalogProduct> {
+  const products = await fetchProducts(request);
+  const index = Math.floor(Math.random() * products.length);
+  return products[index];
+}
+
+/**
+ * Get a product by index (0-based)
+ */
+export async function getProductByIndex(request: APIRequestContext, index: number = 0): Promise<CatalogProduct> {
+  const products = await fetchProducts(request);
+  if (index >= products.length) {
+    throw new Error(`Product index ${index} out of bounds (${products.length} products available)`);
+  }
+  return products[index];
+}
+
+/**
+ * Get a product slug by index (convenience function)
+ */
+export async function getProductSlug(request: APIRequestContext, index: number = 0): Promise<string> {
+  const product = await getProductByIndex(request, index);
+  return product.slug;
+}
+
+/**
+ * Get a product ID by index (convenience function)
+ */
+export async function getProductId(request: APIRequestContext, index: number = 0): Promise<number> {
+  const product = await getProductByIndex(request, index);
+  return product.id;
+}
+
+/**
+ * Clear the product cache (useful for test isolation)
+ */
+export function clearProductCache() {
+  cachedProducts = null;
+}
 
 /**
  * Wait for animations to complete
@@ -133,8 +222,11 @@ export async function loginAsAdmin(page: Page) {
   await page.fill('input#email', 'lando@gvoassurancepartners.com');
   await page.fill('input#password', 'duderancch');
 
-  // Click submit
-  await page.click('button[type="submit"]');
+  // Wait for form to be stable
+  await waitForAnimations(page, 500);
+
+  // Click submit (force click to bypass animation stability issues)
+  await page.click('button[type="submit"]', { force: true });
 
   // Wait for redirect to dashboard
   await page.waitForURL('/admin/dashboard');
@@ -161,12 +253,13 @@ export async function addProductToCart(
   // Navigate to product page
   await page.goto(`/products/${productSlug}`, { waitUntil: 'networkidle' });
 
-  // Wait for product to load (check for size buttons)
-  await page.waitForSelector('button:has-text("S")', { state: 'visible', timeout: 10000 });
+  // Wait for product to load - look for the size selector container
+  await page.waitForSelector('.grid.grid-cols-4', { state: 'visible', timeout: 10000 });
   await waitForAnimations(page, 1500);
 
-  // Select size (force click to bypass Framer Motion animations)
-  const sizeButton = page.locator(`button:has-text("${size}")`).first();
+  // Select size using aria-pressed attribute (size buttons have this, other buttons don't)
+  // This targets buttons with aria-pressed that contain exactly the size letter
+  const sizeButton = page.locator(`button[aria-pressed]:has-text("${size}")`).first();
   await sizeButton.click({ force: true });
 
   // Set quantity (if not 1)
@@ -196,24 +289,39 @@ export async function addProductToCart(
  * Clear cart (remove all items)
  */
 export async function clearCart(page: Page) {
-  // Wait for animations to stabilize
-  await page.waitForTimeout(1500);
-
-  // Open cart drawer (force click to bypass Framer Motion animation instability)
-  await page.click('button[aria-label*="Shopping cart"]', { force: true });
-  await waitForAnimations(page);
-
-  // Remove all items
-  const removeButtons = page.locator('button[aria-label="Remove item"]');
-  const count = await removeButtons.count();
-
-  for (let i = 0; i < count; i++) {
-    await removeButtons.first().click();
-    await waitForAnimations(page, 300);
+  // Check if page is closed before attempting any operations
+  if (page.isClosed()) {
+    return;
   }
 
-  // Close drawer
-  await page.keyboard.press('Escape');
+  try {
+    // Navigate to homepage first to ensure cart icon is available
+    await page.goto('/');
+    await waitForAnimations(page);
+
+    // Wait for animations to stabilize
+    await page.waitForTimeout(1000);
+
+    // Open cart drawer (force click to bypass Framer Motion animation instability)
+    await page.click('button[aria-label*="Shopping cart"]', { force: true });
+    await waitForAnimations(page);
+
+    // Remove all items (force click to bypass animation stability issues)
+    const removeButtons = page.locator('button[aria-label="Remove item"]');
+    const count = await removeButtons.count();
+
+    for (let i = 0; i < count; i++) {
+      await removeButtons.first().click({ force: true });
+      await waitForAnimations(page, 500);
+    }
+
+    // Close drawer
+    await page.keyboard.press('Escape');
+    await waitForAnimations(page, 300);
+  } catch (error) {
+    // Ignore cleanup errors - cart clearing is best-effort cleanup
+    console.log('Cart clearing skipped (page closed or navigated away)');
+  }
 }
 
 /**

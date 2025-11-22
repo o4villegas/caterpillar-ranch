@@ -8,6 +8,10 @@ import cartRoutes from "./routes/cart";
 import adminRoutes from "./routes/admin";
 import newsletterRoutes from "./routes/newsletter";
 import contactRoutes from "./routes/contact";
+import checkoutRoutes from "./routes/checkout";
+import shippingRoutes from "./routes/shipping";
+import stripeWebhookRoutes from "./routes/webhooks/stripe";
+import printfulWebhookRoutes from "./routes/webhooks/printful";
 
 const app = new Hono();
 
@@ -20,6 +24,10 @@ app.route("/api/cart", cartRoutes);
 app.route("/api/admin", adminRoutes);
 app.route("/api/newsletter", newsletterRoutes);
 app.route("/api/contact", contactRoutes);
+app.route("/api/checkout", checkoutRoutes);
+app.route("/api/shipping", shippingRoutes);
+app.route("/api/webhooks/stripe", stripeWebhookRoutes);
+app.route("/api/webhooks/printful", printfulWebhookRoutes);
 
 // Add more API routes here
 

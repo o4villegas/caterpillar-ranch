@@ -7,10 +7,24 @@
 
 import { test, expect } from '@playwright/test';
 import { CartDrawer } from '../pages/CartDrawer';
-import { addProductToCart, clearCart, waitForAnimations } from '../utils/helpers';
+import {
+  addProductToCart,
+  clearCart,
+  waitForAnimations,
+  getProductSlug,
+} from '../utils/helpers';
 
 test.describe('Cart Functionality', () => {
   let cart: CartDrawer;
+  let productSlug1: string;
+  let productSlug2: string;
+
+  test.beforeAll(async ({ request }) => {
+    // Fetch real product slugs once for all tests
+    productSlug1 = await getProductSlug(request, 0);
+    productSlug2 = await getProductSlug(request, 1);
+    console.log(`Using products: ${productSlug1}, ${productSlug2}`);
+  });
 
   test.beforeEach(async ({ page }) => {
     cart = new CartDrawer(page);
@@ -24,8 +38,8 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should add product to cart', async ({ page }) => {
-    // Add first product (using real Printful product slug)
-    const count = await addProductToCart(page, 'glitch-tee', 'M', 1);
+    // Add first product using real Printful product slug
+    const count = await addProductToCart(page, productSlug1, 'M', 1);
 
     // Verify cart badge shows 1 item
     expect(count).toBe(1);
@@ -39,9 +53,9 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should show correct item count badge', async ({ page }) => {
-    // Add 3 items (using real Printful product slugs)
-    await addProductToCart(page, 'glitch-tee', 'M', 1);
-    await addProductToCart(page, 'resistance-tee', 'L', 2);
+    // Add items using real product slugs
+    await addProductToCart(page, productSlug1, 'M', 1);
+    await addProductToCart(page, productSlug2, 'L', 2);
 
     // Badge should show 3
     const count = await cart.getItemCount();
@@ -49,9 +63,9 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should remove item from cart', async ({ page }) => {
-    // Add 2 products (using real Printful product slugs)
-    await addProductToCart(page, 'glitch-tee', 'M', 1);
-    await addProductToCart(page, 'resistance-tee', 'L', 1);
+    // Add 2 products using real product slugs
+    await addProductToCart(page, productSlug1, 'M', 1);
+    await addProductToCart(page, productSlug2, 'L', 1);
 
     // Open cart
     await cart.open();
@@ -65,8 +79,8 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should calculate totals correctly', async ({ page }) => {
-    // Add product (using real Printful product slug)
-    await addProductToCart(page, 'glitch-tee', 'M', 2);
+    // Add product using real product slug
+    await addProductToCart(page, productSlug1, 'M', 2);
 
     // Open cart
     await cart.open();
@@ -82,8 +96,8 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should persist cart to localStorage', async ({ page }) => {
-    // Add product (using real Printful product slug)
-    await addProductToCart(page, 'glitch-tee', 'M', 1);
+    // Add product using real product slug
+    await addProductToCart(page, productSlug1, 'M', 1);
 
     // Check localStorage
     const cartData = await page.evaluate(() => {
@@ -93,13 +107,13 @@ test.describe('Cart Functionality', () => {
     expect(cartData).toBeTruthy();
 
     // Parse and verify
-    const cart = JSON.parse(cartData!);
-    expect(cart.items.length).toBe(1);
+    const cartJson = JSON.parse(cartData!);
+    expect(cartJson.items.length).toBe(1);
   });
 
   test('should load cart from localStorage on page refresh', async ({ page }) => {
-    // Add product (using real Printful product slug)
-    await addProductToCart(page, 'glitch-tee', 'M', 1);
+    // Add product using real product slug
+    await addProductToCart(page, productSlug1, 'M', 1);
 
     // Reload page
     await page.reload();
@@ -111,8 +125,8 @@ test.describe('Cart Functionality', () => {
   });
 
   test('should navigate to checkout', async ({ page }) => {
-    // Add product (using real Printful product slug)
-    await addProductToCart(page, 'glitch-tee', 'M', 1);
+    // Add product using real product slug
+    await addProductToCart(page, productSlug1, 'M', 1);
 
     // Open cart
     await cart.open();
@@ -133,8 +147,8 @@ test.describe('Cart Functionality', () => {
     // TODO: Implement game playing to earn discount
     // For now, manually test discount calculation
 
-    // Add product (using real Printful product slug)
-    await addProductToCart(page, 'glitch-tee', 'M', 1);
+    // Add product using real product slug
+    await addProductToCart(page, productSlug1, 'M', 1);
 
     // Open cart
     await cart.open();
