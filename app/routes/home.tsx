@@ -194,13 +194,13 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <motion.img
               src="/cr-logo.png"
               alt="Caterpillar Ranch - Horror Tees"
-              width="500"
-              height="500"
+              width="300"
+              height="300"
               loading="eager"
               fetchPriority="high"
               className="mx-auto"
               style={{
-                maxWidth: "min(500px, 90vw)",
+                maxWidth: "min(300px, 70vw)",
                 height: "auto",
                 width: "100%"
               }}
