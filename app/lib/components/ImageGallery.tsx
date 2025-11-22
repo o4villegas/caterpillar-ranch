@@ -149,7 +149,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
       {/* Thumbnails row */}
       {images.length > 1 && (
         <motion.div
-          className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-ranch-purple scrollbar-track-transparent"
+          className="flex gap-3 overflow-x-auto py-2 px-1 scrollbar-thin scrollbar-thumb-ranch-purple scrollbar-track-transparent"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.4 }}
@@ -159,7 +159,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
             const isDesign = image.type === 'design';
 
             return (
-              <motion.button
+              <button
                 key={`${image.src}-${index}`}
                 onClick={() => handleThumbnailClick(index)}
                 className={`
@@ -167,12 +167,10 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                   transition-all duration-200
                   ${
                     isSelected
-                      ? 'ring-2 ring-offset-2 ring-offset-ranch-dark ring-ranch-lime scale-105'
-                      : 'ring-1 ring-ranch-purple/50 hover:ring-ranch-lavender opacity-70 hover:opacity-100'
+                      ? 'ring-2 ring-ranch-lime shadow-lg shadow-ranch-lime/30'
+                      : 'ring-1 ring-ranch-purple/50 hover:ring-2 hover:ring-ranch-lavender opacity-70 hover:opacity-100'
                   }
                 `}
-                whileHover={{ scale: isSelected ? 1.05 : 1.08 }}
-                whileTap={{ scale: 0.95 }}
                 aria-label={`View ${image.label}`}
                 aria-pressed={isSelected}
               >
@@ -197,7 +195,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                 >
                   {image.label}
                 </div>
-              </motion.button>
+              </button>
             );
           })}
         </motion.div>

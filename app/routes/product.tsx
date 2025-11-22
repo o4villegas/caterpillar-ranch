@@ -55,10 +55,12 @@ export async function loader({ params, context }: Route.LoaderArgs) {
     const transformedProduct = transformStoreProduct(fullProduct);
 
     // Fetch design image from D1 if exists
+    // Note: product_designs.product_id uses "cr-" prefix format (e.g., "cr-403422458")
+    // but Printful transformer returns numeric ID (e.g., "403422458")
     const db = cloudflare.env.DB;
     const designResult = await db
       .prepare('SELECT design_url FROM product_designs WHERE product_id = ?')
-      .bind(product.id)
+      .bind(`cr-${product.id}`)
       .first<{ design_url: string }>();
 
     // Add design URL to product if exists
