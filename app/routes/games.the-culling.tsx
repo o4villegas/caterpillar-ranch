@@ -185,12 +185,15 @@ export default function TheCullingRoute() {
       });
     }
 
-    // Return to product page
-    if (productSlug) {
-      navigate(`/products/${productSlug}`);
-    } else {
-      navigate('/');
-    }
+    // Small delay to ensure cart state is persisted to localStorage before navigation
+    // This prevents race condition where product page loads stale cart data
+    setTimeout(() => {
+      if (productSlug) {
+        navigate(`/products/${productSlug}`);
+      } else {
+        navigate('/');
+      }
+    }, 50);
   }, [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]);
 
   return (

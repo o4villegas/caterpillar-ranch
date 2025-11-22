@@ -240,11 +240,14 @@ export default function MidnightGardenRoute() {
       });
     }
 
-    if (productSlug) {
-      navigate(`/products/${productSlug}`);
-    } else {
-      navigate('/');
-    }
+    // Small delay to ensure cart state is persisted to localStorage before navigation
+    setTimeout(() => {
+      if (productSlug) {
+        navigate(`/products/${productSlug}`);
+      } else {
+        navigate('/');
+      }
+    }, 50);
   }, [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]);
 
   // Determine if confusion mode is active (bad signs disguise as good)
