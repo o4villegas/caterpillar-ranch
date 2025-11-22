@@ -132,6 +132,8 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
               inStockVariants={inStockVariants}
               onPlayGame={handlePlayGame}
               onAddToCart={handleAddToCart}
+              designImageUrl={product.designImageUrl}
+              showColorSelection={!!product.colorVariants && product.colorVariants.length > 1}
             />
           </DialogContent>
         </Dialog>
@@ -170,6 +172,8 @@ export function ProductModal({ product, isOpen, onClose, onAddToCart }: ProductM
               inStockVariants={inStockVariants}
               onPlayGame={handlePlayGame}
               onAddToCart={handleAddToCart}
+              designImageUrl={product.designImageUrl}
+              showColorSelection={!!product.colorVariants && product.colorVariants.length > 1}
             />
           </div>
         </DrawerContent>

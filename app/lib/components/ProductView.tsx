@@ -8,13 +8,14 @@
  * Eliminates 90% code duplication by extracting common UI logic.
  */
 
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useState, useMemo } from 'react';
 import type { Product, ProductVariant, ColorVariant } from '../types/product';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ColorSwatch, ColorSwatchGroup } from './ColorSwatch';
 import { HORROR_COPY } from '../constants/horror-copy';
+import { ImageGallery, type GalleryImage } from './ImageGallery';
 
 interface ProductViewProps {
   product: Product;
@@ -58,15 +59,49 @@ export function ProductView({
     product.colorVariants?.[0] || null
   );
 
-  // Image view state: 'design' or 'mockup'
-  const [imageView, setImageView] = useState<'design' | 'mockup'>(
-    designImageUrl ? 'design' : 'mockup'
-  );
+  // Build gallery images array (design + all mockups)
+  const galleryImages: GalleryImage[] = useMemo(() => {
+    const images: GalleryImage[] = [];
 
-  // Determine current image to display
-  const currentImage = imageView === 'design' && designImageUrl
-    ? designImageUrl
-    : selectedColor?.mockupUrl || product.imageUrl;
+    // Add design image first if available
+    if (designImageUrl) {
+      images.push({
+        src: designImageUrl,
+        alt: `${product.name} - Design`,
+        label: 'Design',
+        type: 'design',
+      });
+    }
+
+    // Add color variant mockups if available
+    if (showColorSelection && product.colorVariants && product.colorVariants.length > 0) {
+      product.colorVariants.forEach((colorVariant) => {
+        if (colorVariant.mockupUrl) {
+          images.push({
+            src: colorVariant.mockupUrl,
+            alt: `${product.name} - ${colorVariant.color}`,
+            label: colorVariant.color,
+            type: 'mockup',
+          });
+        }
+      });
+    }
+
+    // Fallback to single product image if no mockups were added
+    if (images.length === 0 || (images.length === 1 && images[0].type === 'design')) {
+      // Only have design image or no images - add the main product image
+      if (product.imageUrl) {
+        images.push({
+          src: product.imageUrl,
+          alt: `${product.name} - Mockup`,
+          label: 'Mockup',
+          type: 'mockup',
+        });
+      }
+    }
+
+    return images;
+  }, [designImageUrl, product.name, product.imageUrl, product.colorVariants, showColorSelection]);
 
   // Get variants to display based on color selection
   const displayVariants = showColorSelection && selectedColor
@@ -87,67 +122,8 @@ export function ProductView({
 
   return (
     <div className="space-y-6">
-      {/* Image view toggle (only show if design image exists) */}
-      {designImageUrl && (
-        <div className="flex gap-2 justify-center">
-          <button
-            onClick={() => setImageView('design')}
-            className={`px-4 py-2 rounded-lg transition-all ${
-              imageView === 'design'
-                ? 'bg-ranch-lime text-ranch-dark font-bold'
-                : 'bg-ranch-purple/30 text-ranch-lavender hover:bg-ranch-purple/50'
-            }`}
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: imageView === 'design' ? 700 : 600 }}
-          >
-            Design
-          </button>
-          <button
-            onClick={() => setImageView('mockup')}
-            className={`px-4 py-2 rounded-lg transition-all ${
-              imageView === 'mockup'
-                ? 'bg-ranch-lime text-ranch-dark font-bold'
-                : 'bg-ranch-purple/30 text-ranch-lavender hover:bg-ranch-purple/50'
-            }`}
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: imageView === 'mockup' ? 700 : 600 }}
-          >
-            Mockup
-          </button>
-        </div>
-      )}
-
-      {/* Product image with Framer Motion */}
-      <motion.div
-        className="relative bg-ranch-purple/20 p-8 rounded-xl"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <motion.div
-          className="block w-full max-w-sm mx-auto"
-          animate={{
-            scale: [1, 1.02, 1],
-          }}
-          transition={{
-            duration: 3,
-            ease: "easeInOut",
-            repeat: Infinity,
-          }}
-        >
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={currentImage}
-              src={currentImage}
-              alt={product.name}
-              className="w-full"
-              style={{ imageRendering: 'crisp-edges' }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            />
-          </AnimatePresence>
-        </motion.div>
-      </motion.div>
+      {/* Image Gallery with thumbnails and lightbox zoom */}
+      <ImageGallery images={galleryImages} productName={product.name} />
 
       {/* Product details */}
       <div className="space-y-6 px-1">
