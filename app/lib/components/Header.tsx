@@ -8,7 +8,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b-2 border-ranch-purple bg-ranch-dark/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 w-full border-b-2 border-ranch-purple bg-ranch-dark/95 backdrop-blur-sm header-fog">
         <div className="container mx-auto px-4 md:px-8 py-4 flex items-center justify-between max-w-6xl">
           {/* Logo/Brand */}
           <Link
@@ -19,7 +19,7 @@ export function Header() {
               className="text-4xl font-bold text-ranch-pink"
               style={{
                 fontFamily: 'Creepster, cursive',
-                textShadow: '0 0 2px #32CD32, 0 0 3px #32CD32, 0 0 4px #32CD32, -1px -1px 0 #32CD32, 1px -1px 0 #32CD32, -1px 1px 0 #32CD32, 1px 1px 0 #32CD32'
+                textShadow: '0 0 8px rgba(50, 205, 50, 0.4), 0 0 2px rgba(50, 205, 50, 0.6), 0 1px 0 rgba(50, 205, 50, 0.3)'
               }}
             >
               Caterpillar Rancch
