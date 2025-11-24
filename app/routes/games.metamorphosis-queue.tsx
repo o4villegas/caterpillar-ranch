@@ -1,22 +1,32 @@
 /**
- * Metamorphosis Queue - Timing Game
+ * The Emergence — Birth Stage
  *
- * Horror-themed precision timing game where players preserve transforming caterpillars
+ * Theme: "The Chrysalis" — Help them break free at the right moment
+ *
+ * Horror-themed precision timing game where players guide the emergence.
+ * Click too early, they dissolve. Too late, they suffocate.
+ *
+ * Difficulty tuned for:
+ * - 15% discount: ~15-20% of players (6+ perfect, minimal errors)
+ * - Narrower green window (0.25s)
+ * - Harsher miss/failure penalties
+ *
+ * Mechanics:
  * - 25 second duration
- * - 5 cocoons that pulse and change color as transformation approaches
- * - Click during GREEN window (0.4s) for perfect timing
- * - Early/late clicks or missed transformations result in grotesque outcomes
- * - Visual feedback: beautiful moths vs. deformed moths
+ * - 5 cocoons pulsing toward emergence
+ * - Click during GREEN window for perfect timing
+ * - What emerges depends on your timing
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+import { AnimatePresence, motion } from 'framer-motion';
 import { GameTimer } from '../lib/components/Games/GameTimer';
 import { GameScore } from '../lib/components/Games/GameScore';
 import { GameResults } from '../lib/components/Games/GameResults';
 import { useGameState } from '../lib/components/Games/hooks/useGameState';
 import { useCart } from '../lib/contexts/CartContext';
-import { HORROR_COPY } from '../lib/constants/horror-copy';
+import { HORROR_COPY, getDreadMessage } from '../lib/constants/horror-copy';
 import type { Route } from './+types/games.metamorphosis-queue';
 
 type CocoonState = 'dormant' | 'purple' | 'pink' | 'green' | 'red' | 'completed';
@@ -31,28 +41,35 @@ interface Cocoon {
   resultEmoji?: string; // Moth emoji shown after completion
 }
 
+// === DIFFICULTY SETTINGS (TUNED FOR ~15-20% MAX DISCOUNT) ===
 const GAME_DURATION = 25; // seconds
 const NUM_COCOONS = 5;
 
-// State timing (ms)
-const DORMANT_DURATION = 2000; // Rest between cycles
-const PURPLE_DURATION = 2000; // Warning stage
-const PINK_DURATION = 1500; // Approaching transformation
-const GREEN_DURATION = 300; // Perfect timing window (0.3s - 25% harder)
-const GREEN_BUFFER = 150; // +/- 0.15s around green for "good" timing (25% harder)
-const RED_DURATION = 800; // Too late window
-const RESULT_DISPLAY_DURATION = 1500; // How long to show result
+// State timing (ms) - tighter window for harder gameplay
+const DORMANT_DURATION = 1800; // Shorter rest
+const PURPLE_DURATION = 1800; // Warning stage
+const PINK_DURATION = 1200; // Approaching (faster)
+const GREEN_DURATION = 250; // Perfect window (0.25s - very tight)
+const GREEN_BUFFER = 100; // +/- 0.1s for "good" timing (tighter)
+const RED_DURATION = 600; // Too late window (shorter)
+const RESULT_DISPLAY_DURATION = 1200; // Result display
 
-// Emojis
-const COCOON_EMOJI = '🥚'; // Cocoon placeholder
-const PERFECT_MOTH = '🦋'; // Beautiful moth
-const FAILED_MOTH = '🦟'; // Deformed moth (mosquito as grotesque substitute)
-const EXPLOSION_PARTICLES = '💨'; // Explosion effect
+// Points
+const PERFECT_POINTS = 10;
+const GOOD_POINTS = 5;
+const FAILED_PENALTY = 4; // Harsher
+const MISSED_PENALTY = 6; // Harsher
+
+// Emojis - transformation results
+const COCOON_EMOJI = '🥚'; // Chrysalis
+const PERFECT_RESULT = '🦋'; // Beautiful emergence
+const FAILED_RESULT = '💀'; // Failed transformation
+const MISSED_RESULT = '💨'; // Never emerged
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'Metamorphosis Queue - Caterpillar Ranch' },
-    { name: 'description', content: 'Preserve the transformations with perfect timing!' }
+    { title: 'The Emergence — Birth | Caterpillar Ranch' },
+    { name: 'description', content: 'Help them break free at the right moment. Their transformation depends on you.' },
   ];
 }
 
@@ -67,6 +84,7 @@ export default function MetamorphosisQueueRoute() {
   const [cocoons, setCocoons] = useState<Cocoon[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [bestScore, setBestScore] = useState(0);
+  const [mistakeCount, setMistakeCount] = useState(0);
 
   const stateTimersRef = useRef<Map<number, number>>(new Map());
 
@@ -194,13 +212,14 @@ export default function MetamorphosisQueueRoute() {
 
   // Handle missed transformation
   const handleMissedTransformation = useCallback((cocoonId: number) => {
+    game.subtractPoints(MISSED_PENALTY);
+    setMistakeCount((prev) => prev + 1);
     setCocoons(prev => prev.map(c => {
       if (c.id === cocoonId) {
-        game.subtractPoints(5);
         return {
           ...c,
           result: 'missed' as TransformResult,
-          resultEmoji: EXPLOSION_PARTICLES,
+          resultEmoji: MISSED_RESULT,
         };
       }
       return c;
@@ -225,29 +244,30 @@ export default function MetamorphosisQueueRoute() {
       const timeSinceStateStart = now - c.stateStartTime;
       let result: TransformResult;
       let points = 0;
-      let emoji = FAILED_MOTH;
+      let emoji = FAILED_RESULT;
 
       // Determine timing quality
       if (c.state === 'green') {
         // Perfect timing!
         result = 'perfect';
-        points = 10;
-        emoji = PERFECT_MOTH;
+        points = PERFECT_POINTS;
+        emoji = PERFECT_RESULT;
       } else if (c.state === 'pink' && timeSinceStateStart >= PINK_DURATION - GREEN_BUFFER) {
-        // Good timing (within 0.2s before green)
+        // Good timing (within buffer before green)
         result = 'good';
-        points = 5;
-        emoji = PERFECT_MOTH;
+        points = GOOD_POINTS;
+        emoji = PERFECT_RESULT;
       } else if (c.state === 'red' && timeSinceStateStart <= GREEN_BUFFER) {
-        // Good timing (within 0.2s after green)
+        // Good timing (within buffer after green)
         result = 'good';
-        points = 5;
-        emoji = PERFECT_MOTH;
+        points = GOOD_POINTS;
+        emoji = PERFECT_RESULT;
       } else {
-        // Too early or too late
+        // Too early or too late - failed transformation
         result = 'failed';
-        points = -3;
-        emoji = FAILED_MOTH;
+        points = -FAILED_PENALTY;
+        emoji = FAILED_RESULT;
+        setMistakeCount((prev) => prev + 1);
       }
 
       if (points > 0) {
@@ -272,6 +292,8 @@ export default function MetamorphosisQueueRoute() {
 
   const handleStartGame = useCallback(() => {
     setCocoons([]);
+    setMistakeCount(0);
+    setShowResults(false);
     game.startGame();
   }, [game]);
 
@@ -344,20 +366,45 @@ export default function MetamorphosisQueueRoute() {
     }
   };
 
+  // Progressive dread
+  const dreadLevel = Math.min(mistakeCount * 0.06, 0.3);
+  const dreadMessage = getDreadMessage(mistakeCount);
+
   return (
-    <div className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4">
+    <div
+      className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4 transition-all duration-500"
+      style={{
+        backgroundColor: `rgba(26, 26, 26, ${1 + dreadLevel})`,
+        filter: mistakeCount >= 3 ? `saturate(${1 - mistakeCount * 0.04})` : undefined,
+      }}
+    >
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-ranch-lime mb-2">
-            Metamorphosis Queue
+          <p
+            className="text-sm text-amber-500/70 uppercase tracking-widest mb-1"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+          >
+            {HORROR_COPY.games.metamorphosisQueue.careStage}
+          </p>
+          <h1
+            className="text-3xl text-ranch-lime mb-2"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
+          >
+            {HORROR_COPY.games.metamorphosisQueue.title}
           </h1>
-          <p className="text-ranch-lavender text-lg">
-            Click cocoons at the exact moment of emergence
+          <p
+            className="text-ranch-lavender text-lg"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+          >
+            {HORROR_COPY.games.metamorphosisQueue.description}
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-lg mt-1">
-              Best Score: {bestScore}
+            <p
+              className="text-ranch-cyan text-lg mt-1"
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+            >
+              Best: {bestScore}
             </p>
           )}
         </div>
@@ -366,16 +413,28 @@ export default function MetamorphosisQueueRoute() {
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
-              <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+              <p
+                className="text-lg text-ranch-cream leading-relaxed text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              >
                 {HORROR_COPY.games.metamorphosisQueue.instructions[0]}
               </p>
-              <p className="text-lg text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+              <p
+                className="text-lg text-ranch-lavender mt-2 text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              >
                 {HORROR_COPY.games.metamorphosisQueue.instructions[1]}
+              </p>
+              <p
+                className="text-sm text-ranch-pink/70 mt-4 text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+              >
+                Warning: Failed timing costs {FAILED_PENALTY} points. Missed emergence costs {MISSED_PENALTY} points.
               </p>
             </div>
             <button
               onClick={handleStartGame}
-              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg font-bold text-lg hover:bg-ranch-cyan transition-colors"
+              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors"
               style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               {HORROR_COPY.games.metamorphosisQueue.startButton}
@@ -385,12 +444,31 @@ export default function MetamorphosisQueueRoute() {
 
         {/* Game UI - Playing */}
         {game.status === 'playing' && (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {/* HUD */}
             <div className="flex gap-4">
               <GameTimer timeLeft={game.timeLeft} className="flex-1" />
               <GameScore score={game.score} showProgress={true} className="flex-1" />
             </div>
+
+            {/* Progressive Dread Message */}
+            <AnimatePresence>
+              {dreadMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="bg-ranch-pink/20 border border-ranch-pink/40 rounded-lg p-2 text-center"
+                >
+                  <p
+                    className="text-ranch-pink text-sm"
+                    style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+                  >
+                    {dreadMessage}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Color guide */}
             <div className="bg-ranch-purple/10 border border-ranch-purple rounded-lg p-3">
@@ -441,12 +519,12 @@ export default function MetamorphosisQueueRoute() {
                           }`}
                         >
                           {cocoon.result === 'perfect'
-                            ? 'PERFECT! +10'
+                            ? `EMERGED! +${PERFECT_POINTS}`
                             : cocoon.result === 'good'
-                            ? 'GOOD! +5'
+                            ? `GOOD! +${GOOD_POINTS}`
                             : cocoon.result === 'failed'
-                            ? 'FAILED -3'
-                            : 'MISSED -5'}
+                            ? `FAILED -${FAILED_PENALTY}`
+                            : `LOST -${MISSED_PENALTY}`}
                         </div>
                       </div>
                     ) : (
@@ -473,6 +551,7 @@ export default function MetamorphosisQueueRoute() {
           <GameResults
             score={game.score}
             onApplyDiscount={handleApplyDiscount}
+            onRetry={handleStartGame}
           />
         )}
       </div>

@@ -1,177 +1,283 @@
 /**
- * Horror-Themed E-Commerce Copy
+ * Horror-Themed E-Commerce Copy — "The Chrysalis"
  *
- * "That's messed up... but I love it?"
+ * Theme: Painful Beauty / Transformation
  *
- * Replaces standard e-commerce language with horror-themed alternatives
- * while maintaining clarity and usability.
+ * Core philosophy: Transformation is not gentle. The caterpillar must be
+ * unmade entirely — dissolved into primordial soup within the chrysalis —
+ * before it can become. You are the midwife of this violent becoming.
+ * Guide them through the dark. What emerges depends on your care.
+ *
+ * Horror intensity: 8/10 (disturbing/unsettling, not gratuitous)
+ * Tone: Reverent, bittersweet, earned transcendence
+ * Player role: Caretaker/Midwife guiding transformation
  */
 
 export const HORROR_COPY = {
+  // Brand Identity
+  brand: {
+    name: 'Caterpillar Ranch',
+    tagline: 'Guide them through the dark',
+    welcome: 'Welcome to the Chrysalis',
+    mission: 'Every caterpillar dreams of wings. Not all of them make it.',
+    footer: 'Where transformation happens',
+  },
+
   // Cart & Shopping
   cart: {
-    title: 'Your Order is Growing',
-    empty: 'The Ranch Awaits Your Selection',
-    itemCount: (count: number) => `${count} ${count === 1 ? 'Item' : 'Items'} Growing`,
-    addToCart: 'Add to Your Collection',
-    removeFromCart: 'Release from Collection',
-    viewCart: 'View Your Growing Order',
+    title: 'Your Chrysalis Forms',
+    empty: 'Nothing yet prepares to transform',
+    itemCount: (count: number) =>
+      `${count} ${count === 1 ? 'transformation' : 'transformations'} pending`,
+    addToCart: 'Begin This Transformation',
+    removeFromCart: 'Abandon This Chrysalis',
+    viewCart: 'View Pending Transformations',
+    continueShopping: 'Find more to transform',
   },
 
   // Checkout Process
   checkout: {
-    title: 'Complete the Harvest',
-    shippingTitle: 'Where Should the Harvest Arrive?',
-    shippingAddress: 'Delivery Location',
-    billingTitle: 'Payment Details',
-    total: 'Total Tribute',
-    subtotal: 'Growth Subtotal',
-    discount: 'Ranch Blessing',
-    shipping: 'Journey Cost',
-    tax: 'Colony Contribution',
-    placeOrder: 'Complete the Harvest',
-    processing: 'The Ranch is Processing Your Order...',
+    title: 'The Transformation Completes',
+    shippingTitle: 'Where will they emerge?',
+    shippingAddress: 'Emergence Location',
+    billingTitle: 'Cost of Becoming',
+    total: 'Total Transformation',
+    subtotal: 'Chrysalis Forming',
+    discount: 'Earned Trust',
+    shipping: 'Journey to You',
+    tax: 'Transformation Tax',
+    placeOrder: 'Seal the Chrysalis',
+    processing: 'The transformation is happening...',
   },
 
   // Order Status
   order: {
-    confirmed: 'Your Order Has Been Accepted by The Ranch',
-    preparing: 'The Ranch is Preparing Your Items...',
-    shipped: 'Your Package Has Left the Ranch',
-    delivered: 'The Harvest Has Arrived',
-    tracking: 'Watch Your Package\'s Journey',
-    orderNumber: 'Ranch Order',
+    confirmed: 'The chrysalis is sealed. Transformation begins.',
+    preparing: 'They are changing within the dark...',
+    shipped: 'The chrysalis travels to you now',
+    delivered: 'They have emerged. Open carefully.',
+    tracking: 'Follow the chrysalis',
+    orderNumber: 'Chrysalis',
   },
 
   // Loading States
   loading: {
-    default: 'The Ranch is Preparing...',
-    products: 'Caterpillars are Selecting Items...',
-    order: 'The Colony is Processing...',
-    payment: 'Counting Your Tribute...',
+    default: 'The chrysalis stirs...',
+    products: 'Gathering what they need to transform...',
+    order: 'Sealing the chrysalis...',
+    payment: 'The cost of becoming is calculated...',
     messages: [
-      'The ranch is preparing your items...',
-      'Caterpillars are inspecting quality...',
-      'Wrapping your harvest...',
-      'The colony approves...',
+      'The chrysalis stirs...',
+      'Something moves in the dark...',
+      'The transformation requires patience...',
+      'Wings are forming...',
+      'They are almost ready...',
     ],
   },
 
   // Products
   products: {
-    outOfStock: 'Temporarily Out of the Colony',
-    lowStock: 'Few Remaining in the Ranch',
-    newArrival: 'Fresh from the Ranch',
-    addedToCart: 'Added to Your Growing Collection',
+    outOfStock: 'This transformation has ended',
+    lowStock: 'Few chrysalises remain',
+    newArrival: 'Fresh from the cocoon',
+    addedToCart: 'Another transformation begins',
   },
 
-  // Games & Discounts
+  // Games & Discounts — Core Framing
   games: {
-    playToEarn: 'Play Game - Earn a Discount',
-    skipGame: 'Skip and Buy at Full Price',
-    gameInProgress: 'Game in Progress...',
-    discountEarned: 'The Ranch is Pleased!',
-    tryAgain: 'Try Another Game',
-    giveUp: 'Give Up',
-    lastResort: 'Wait! Play one last game for a bonus discount',
-    lastResortNote: '(The ranch offers one final challenge)',
-    maxDiscount: 'Maximum Blessing Reached',
+    // Main CTAs
+    playToEarn: 'Prove Your Care',
+    skipGame: 'Skip — Pay Full Price',
+    gameInProgress: 'The trial continues...',
+    discountEarned: 'They trust you now',
+    tryAgain: 'Try again. They deserve better.',
+    giveUp: 'Abandon them',
+    lastResort: 'One more chance to prove your care',
+    lastResortNote: '(They are watching. They want to trust you.)',
+    maxDiscount: 'Maximum trust earned',
 
-    // Game Modal
+    // Game Selection Modal
     modal: {
-      title: 'Choose Your Challenge',
-      subtitle: 'Complete a game to earn discounts at checkout',
-      skipPrompt: 'Or skip and proceed at full price',
-      skipButton: 'Skip Games - Buy Now',
-      optionalNote: '🐛 Games are optional - The Ranch offers discounts, never demands them',
+      title: 'Prove Your Care',
+      subtitle: 'Guide them through a trial. Earn their trust.',
+      skipPrompt: 'Or abandon them to transform alone',
+      skipButton: 'Skip — They Transform Alone',
+      optionalNote: 'Transformation happens either way. Your care determines what emerges.',
     },
 
-    // Individual game data
+    // Individual Game Data — Reframed as Stages of Care
     theCulling: {
       title: 'The Culling',
-      emoji: '🐛',
+      emoji: '🛡️',
       duration: 25,
-      instructions: ['Tap invasive caterpillars with red eyes', 'Avoid the good ones'],
-      startButton: 'Start The Culling',
+      careStage: 'Protection',
+      description: 'Defend the vulnerable from parasites',
+      instructions: [
+        'Protect the vulnerable caterpillars from parasites',
+        'Red eyes = threat. Remove them before they corrupt the chrysalis.',
+      ],
+      startButton: 'Begin Protection',
+      failureMessage: 'The parasites got through. The chrysalis is corrupted.',
     },
 
     cursedHarvest: {
       title: 'Cursed Harvest',
-      emoji: '🌽',
+      emoji: '🌿',
       duration: 30,
-      instructions: ['Match pairs of mutated crops', 'Find all pairs before time runs out'],
-      startButton: 'Start The Harvest',
+      careStage: 'Nourishment',
+      description: 'Gather the nutrients they need',
+      instructions: [
+        'Match the nutrients they need to fuel transformation',
+        'Wrong combinations poison the chrysalis.',
+      ],
+      startButton: 'Begin Gathering',
+      failureMessage: 'Wrong nutrients. The transformation will be agonizing.',
     },
 
     bugTelegram: {
       title: 'Bug Telegram',
-      emoji: '📟',
+      emoji: '📡',
       duration: 30,
-      instructions: ['Type bug messages before they escape', 'Speed and accuracy earn bonus points'],
-      startButton: 'Start Intercepting',
+      careStage: 'Communication',
+      description: 'Receive their signals',
+      instructions: [
+        'They send signals when ready to transform',
+        'Miss the message, miss the moment.',
+      ],
+      startButton: 'Begin Listening',
+      failureMessage: 'The signals were lost. They do not know when to emerge.',
     },
 
     hungryCaterpillar: {
-      title: 'Hungry Caterpillar',
+      title: 'The Final Feeding',
       emoji: '🐛',
       duration: 45,
-      instructions: ['Eat leaves to grow longer', 'Don\'t crash into walls or yourself'],
-      startButton: 'Start Growing',
+      careStage: 'Preparation',
+      description: 'The last meal before the dark',
+      instructions: [
+        'They must eat enough to survive the transformation',
+        'Guide them to nourishment. Avoid obstacles.',
+      ],
+      startButton: 'Begin Feeding',
+      failureMessage: 'Not enough strength gathered. They will not survive the change.',
     },
 
     midnightGarden: {
       title: 'Midnight Garden',
       emoji: '🌙',
       duration: 25,
-      instructions: ['Click good omens, avoid bad signs', 'Watch out - things get confusing at high scores'],
+      careStage: 'Divination',
+      description: 'Read the signs of what they will become',
+      instructions: [
+        'The garden reveals omens of transformation',
+        'Good signs guide them. Bad signs corrupt them.',
+      ],
       startButton: 'Enter the Garden',
+      failureMessage: 'The omens were misread. They enter the chrysalis blind.',
     },
 
     metamorphosisQueue: {
-      title: 'Metamorphosis Queue',
+      title: 'The Emergence',
       emoji: '🦋',
       duration: 25,
-      instructions: ['Click cocoons at the green flash', 'Perfect timing earns maximum points'],
-      startButton: 'Begin Preservation',
+      careStage: 'Birth',
+      description: 'Help them break free at the right moment',
+      instructions: [
+        'They struggle to emerge. Help at the GREEN moment.',
+        'Too early, they dissolve. Too late, they suffocate.',
+      ],
+      startButton: 'Begin the Watch',
+      failureMessage: 'Wrong timing. They emerged still dissolving, not yet formed.',
     },
 
-    // Tier-specific celebration messages
+    // Tier-Specific Celebration Messages — Earned Transcendence
     celebrations: {
-      tier3: { message: 'The Ranch Notices...', emoji: '👀' },
-      tier6: { message: 'A Small Blessing', emoji: '🐛' },
-      tier9: { message: 'The Ranch Approves!', emoji: '🌿' },
-      tier12: { message: 'The Colony Rejoices!', emoji: '🎉' },
-      tier15: { message: 'MAXIMUM BLESSING!', emoji: '🦋' },
+      tier15: {
+        message: 'Perfect care. They emerged exactly as they dreamed.',
+        subtext: 'You guided them through dissolution, terror, and remaking. They fly now. Because of you.',
+        emoji: '🦋',
+      },
+      tier12: {
+        message: 'Strong guidance. They will fly.',
+        subtext: 'The transformation was nearly perfect. Their wings catch the light.',
+        emoji: '✨',
+      },
+      tier9: {
+        message: 'They emerged. Some scars, but whole.',
+        subtext: 'The chrysalis was dark, but they made it through.',
+        emoji: '🌙',
+      },
+      tier6: {
+        message: 'The transformation was incomplete.',
+        subtext: 'They fly, but they remember the pain more than the beauty.',
+        emoji: '🕯️',
+      },
+      tier3: {
+        message: 'They emerged. Something is wrong with their wings.',
+        subtext: 'They try to fly. They cannot. But they are alive.',
+        emoji: '👁️',
+      },
+    },
+
+    // Failure Messages (0% discount) — Horror of Failed Transformation
+    failures: {
+      generic: 'The chrysalis failed. What emerged... it is better not to describe.',
+      detailed: 'They trusted you to guide them through the dark. You were not ready.',
+      tryAgain: 'Try again. They deserve better care.',
     },
   },
 
   // Errors & Warnings
   errors: {
-    generic: 'The Ranch Encountered an Issue...',
-    network: 'Lost Connection to the Ranch',
-    outOfStock: 'This Item Has Left the Colony',
-    paymentFailed: 'The Tribute Could Not Be Processed',
+    generic: 'Something went wrong in the chrysalis...',
+    network: 'Connection to the chrysalis lost',
+    outOfStock: 'This transformation has already completed',
+    paymentFailed: 'The cost of becoming could not be paid',
     tryAgain: 'Try Again',
-    contactSupport: 'Contact the Ranch',
+    contactSupport: 'Seek help',
   },
 
   // Success Messages
   success: {
-    added: 'Added to your growing collection!',
-    removed: 'Released from your collection',
-    ordered: 'Your order has been accepted by the ranch!',
-    discountApplied: 'Ranch blessing applied!',
+    added: 'Another transformation begins',
+    removed: 'The chrysalis dissolves, unused',
+    ordered: 'The transformation is sealed',
+    discountApplied: 'Their trust is applied',
   },
 
-  // Ambient Whispers (rare events, barely audible)
+  // Ambient Whispers — Unsettling but Thematic
   whispers: [
-    'welcome to the rancch...',
-    'they grow...',
-    'the colony watches...',
-    'molt with us...',
-    'why did you abandon us...',
-    'not yet...',
+    'it hurts to become...',
+    'the dark is where we change...',
+    'do you remember being small?',
+    'wings are earned, not given...',
+    'the chrysalis knows your name...',
+    'they trusted you...',
+    'something stirs within...',
+    'not all of them make it...',
+    'the struggle is the point...',
+    'what will you become?',
   ],
+
+  // Progressive Dread Messages (shown as mistakes accumulate)
+  dread: {
+    level1: 'The chrysalis trembles.',
+    level2: 'Something is going wrong inside.',
+    level3: 'They are struggling. Your care falters.',
+    level4: 'The transformation corrupts. What will emerge?',
+    level5: 'It is too late to save this one. But you can try again.',
+  },
+
+  // Homepage / Site Copy
+  site: {
+    heroTitle: 'Caterpillar Ranch',
+    heroSubtitle: 'Where transformation happens',
+    heroTagline: 'Every caterpillar dreams of wings. Guide them through the dark.',
+    productsTitle: 'Begin a Transformation',
+    productsSubtitle: 'Each piece carries the weight of becoming',
+    aboutTitle: 'About the Chrysalis',
+    aboutText: 'Transformation is not gentle. The caterpillar dissolves entirely within the chrysalis before it can become. We honor that struggle. We wear the reminder that beauty requires sacrifice, that becoming requires unmaking.',
+  },
 } as const;
 
 /**
@@ -188,4 +294,30 @@ export function getRandomLoadingMessage(): string {
 export function getRandomWhisper(): string {
   const whispers = HORROR_COPY.whispers;
   return whispers[Math.floor(Math.random() * whispers.length)];
+}
+
+/**
+ * Get dread message based on mistake count
+ */
+export function getDreadMessage(mistakeCount: number): string | null {
+  if (mistakeCount >= 5) return HORROR_COPY.dread.level5;
+  if (mistakeCount >= 4) return HORROR_COPY.dread.level4;
+  if (mistakeCount >= 3) return HORROR_COPY.dread.level3;
+  if (mistakeCount >= 2) return HORROR_COPY.dread.level2;
+  if (mistakeCount >= 1) return HORROR_COPY.dread.level1;
+  return null;
+}
+
+/**
+ * Get failure message for specific game
+ */
+export function getGameFailureMessage(gameType: string): string {
+  const gameKey = gameType as keyof typeof HORROR_COPY.games;
+  const game = HORROR_COPY.games[gameKey];
+
+  if (game && typeof game === 'object' && 'failureMessage' in game) {
+    return game.failureMessage;
+  }
+
+  return HORROR_COPY.games.failures.generic;
 }

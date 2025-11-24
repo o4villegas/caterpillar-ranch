@@ -1,25 +1,38 @@
 /**
- * The Culling - Whack-A-Mole Game
+ * The Culling — Protection Stage
  *
- * Horror-themed game where players "cull" invasive caterpillars
+ * Theme: "The Chrysalis" — Protect the vulnerable from parasites
+ *
+ * Horror-themed whack-a-mole where players defend pre-chrysalis caterpillars
+ * from invasive parasites that would corrupt their transformation.
+ *
+ * Difficulty tuned for:
+ * - 15% discount: ~15-20% of players (very skilled, max 1-2 parasite misses)
+ * - Harsh penalties for hitting good caterpillars (-8 pts)
+ * - Faster spawn/visibility for pressure
+ *
+ * Mechanics:
  * - 25 second duration
- * - 3x3 grid of holes
- * - Hit invasive caterpillars: +5 points
- * - Hit good caterpillars: -3 points (penalty)
- * - Tuned for high success rate: 40% discount achievable by ~90% of players
+ * - 3x3 grid of emergence holes
+ * - Hit parasites (red eyes): +5 points
+ * - Hit good caterpillars: -8 points (HARSH)
+ * - Progressive dread as mistakes accumulate
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { GameTimer } from '../lib/components/Games/GameTimer';
 import { GameScore } from '../lib/components/Games/GameScore';
 import { GameResults } from '../lib/components/Games/GameResults';
 import { useGameState } from '../lib/components/Games/hooks/useGameState';
-import { getDiscountResult } from '../lib/components/Games/utils/scoreConversion';
 import { useCart } from '../lib/contexts/CartContext';
-import { HORROR_COPY } from '../lib/constants/horror-copy';
-import { InvasiveCaterpillar, GoodCaterpillar, SplatEffect } from '../lib/components/Games/sprites/Caterpillar';
+import { HORROR_COPY, getDreadMessage } from '../lib/constants/horror-copy';
+import {
+  InvasiveCaterpillar,
+  GoodCaterpillar,
+  SplatEffect,
+} from '../lib/components/Games/sprites/Caterpillar';
 import type { Route } from './+types/games.the-culling';
 
 // Caterpillar types
@@ -32,15 +45,23 @@ interface Caterpillar {
   isVisible: boolean;
 }
 
+// === DIFFICULTY SETTINGS (TUNED FOR ~15-20% MAX DISCOUNT) ===
 const GAME_DURATION = 25; // seconds
-const APPEARANCE_INTERVAL = 700; // ms between spawns (12% faster)
-const VISIBILITY_DURATION = 1000; // ms caterpillar stays visible (17% faster)
-const GOOD_CATERPILLAR_CHANCE = 0.25; // 25% chance of good caterpillar (more tricky)
+const APPEARANCE_INTERVAL = 650; // ms between spawns (faster pressure)
+const VISIBILITY_DURATION = 800; // ms caterpillar stays visible (20% faster)
+const GOOD_CATERPILLAR_CHANCE = 0.35; // 35% chance of good caterpillar (more traps)
+
+// Points
+const HIT_PARASITE_POINTS = 5; // Correct hit
+const HIT_GOOD_PENALTY = 8; // HARSH penalty for hitting protected caterpillar
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'The Culling - Caterpillar Ranch' },
-    { name: 'description', content: 'Cull the invasive caterpillars!' }
+    { title: 'The Culling — Protection | Caterpillar Ranch' },
+    {
+      name: 'description',
+      content: 'Protect the vulnerable from parasites. Prove your care.',
+    },
   ];
 }
 
@@ -56,6 +77,7 @@ export default function TheCullingRoute() {
   const [showResults, setShowResults] = useState(false);
   const [bestScore, setBestScore] = useState(0);
   const [splats, setSplats] = useState<{ id: number; holeIndex: number; color: string }[]>([]);
+  const [mistakeCount, setMistakeCount] = useState(0);
 
   const nextCaterpillarId = useRef(0);
   const nextSplatId = useRef(0);
@@ -82,21 +104,22 @@ export default function TheCullingRoute() {
     const holeIndex = Math.floor(Math.random() * 9);
 
     // Determine type
-    const type: CaterpillarType = Math.random() < GOOD_CATERPILLAR_CHANCE ? 'good' : 'invasive';
+    const type: CaterpillarType =
+      Math.random() < GOOD_CATERPILLAR_CHANCE ? 'good' : 'invasive';
 
     const id = nextCaterpillarId.current++;
     const newCaterpillar: Caterpillar = {
       id,
       holeIndex,
       type,
-      isVisible: true
+      isVisible: true,
     };
 
-    setCaterpillars(prev => [...prev, newCaterpillar]);
+    setCaterpillars((prev) => [...prev, newCaterpillar]);
 
     // Auto-hide after visibility duration
     const hideTimer = window.setTimeout(() => {
-      setCaterpillars(prev => prev.filter(c => c.id !== id));
+      setCaterpillars((prev) => prev.filter((c) => c.id !== id));
       caterpillarTimersRef.current.delete(id);
     }, VISIBILITY_DURATION);
 
@@ -108,7 +131,7 @@ export default function TheCullingRoute() {
     if (game.status !== 'playing') {
       // Clear all timers when not playing
       if (spawnTimerRef.current) window.clearInterval(spawnTimerRef.current);
-      caterpillarTimersRef.current.forEach(timer => window.clearTimeout(timer));
+      caterpillarTimersRef.current.forEach((timer) => window.clearTimeout(timer));
       caterpillarTimersRef.current.clear();
       setCaterpillars([]);
       return;
@@ -131,85 +154,124 @@ export default function TheCullingRoute() {
     }
   }, [game.status]);
 
-  const handleCaterpillarClick = useCallback((caterpillar: Caterpillar) => {
-    if (game.status !== 'playing') return;
+  const handleCaterpillarClick = useCallback(
+    (caterpillar: Caterpillar) => {
+      if (game.status !== 'playing') return;
 
-    // Add splat effect at this hole
-    const splatId = nextSplatId.current++;
-    const splatColor = caterpillar.type === 'invasive' ? '#4a3258' : '#32CD32';
-    setSplats(prev => [...prev, { id: splatId, holeIndex: caterpillar.holeIndex, color: splatColor }]);
+      // Add splat effect at this hole
+      const splatId = nextSplatId.current++;
+      const splatColor = caterpillar.type === 'invasive' ? '#4a3258' : '#ff3333';
+      setSplats((prev) => [
+        ...prev,
+        { id: splatId, holeIndex: caterpillar.holeIndex, color: splatColor },
+      ]);
 
-    // Remove splat after animation
-    setTimeout(() => {
-      setSplats(prev => prev.filter(s => s.id !== splatId));
-    }, 400);
+      // Remove splat after animation
+      setTimeout(() => {
+        setSplats((prev) => prev.filter((s) => s.id !== splatId));
+      }, 400);
 
-    // Remove caterpillar immediately
-    setCaterpillars(prev => prev.filter(c => c.id !== caterpillar.id));
+      // Remove caterpillar immediately
+      setCaterpillars((prev) => prev.filter((c) => c.id !== caterpillar.id));
 
-    // Clear its hide timer
-    const timer = caterpillarTimersRef.current.get(caterpillar.id);
-    if (timer) {
-      window.clearTimeout(timer);
-      caterpillarTimersRef.current.delete(caterpillar.id);
-    }
+      // Clear its hide timer
+      const timer = caterpillarTimersRef.current.get(caterpillar.id);
+      if (timer) {
+        window.clearTimeout(timer);
+        caterpillarTimersRef.current.delete(caterpillar.id);
+      }
 
-    // Apply score
-    if (caterpillar.type === 'invasive') {
-      game.addPoints(5); // Correct hit
-    } else {
-      game.subtractPoints(3); // Penalty for hitting good caterpillar
-    }
+      // Apply score
+      if (caterpillar.type === 'invasive') {
+        game.addPoints(HIT_PARASITE_POINTS);
+      } else {
+        game.subtractPoints(HIT_GOOD_PENALTY);
+        setMistakeCount((prev) => prev + 1);
+      }
+    },
+    [game]
+  );
+
+  const handleStartGame = useCallback(() => {
+    setMistakeCount(0);
+    setShowResults(false);
+    setCaterpillars([]);
+    game.startGame();
   }, [game]);
 
-  const handleApplyDiscount = useCallback((discount: number) => {
-    if (discount > 0 && productSlug) {
-      // Remove existing discount for this product (replace, not accumulate)
-      const existingDiscount = cart.discounts.find(
-        (d) => d.productId === productSlug
-      );
+  const handleApplyDiscount = useCallback(
+    (discount: number) => {
+      if (discount > 0 && productSlug) {
+        // Remove existing discount for this product (replace, not accumulate)
+        const existingDiscount = cart.discounts.find((d) => d.productId === productSlug);
 
-      if (existingDiscount) {
-        removeDiscount(existingDiscount.id);
+        if (existingDiscount) {
+          removeDiscount(existingDiscount.id);
+        }
+
+        // Add new discount
+        addDiscount({
+          id: `game-culling-${Date.now()}`,
+          productId: productSlug,
+          discountPercent: discount,
+          gameType: 'culling',
+          earnedAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+          applied: false,
+        });
       }
 
-      // Add new discount
-      addDiscount({
-        id: `game-culling-${Date.now()}`,
-        productId: productSlug,
-        discountPercent: discount,
-        gameType: 'culling',
-        earnedAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-        applied: false
-      });
-    }
+      // Small delay to ensure cart state is persisted
+      setTimeout(() => {
+        if (productSlug) {
+          navigate(`/products/${productSlug}`);
+        } else {
+          navigate('/');
+        }
+      }, 50);
+    },
+    [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]
+  );
 
-    // Small delay to ensure cart state is persisted to localStorage before navigation
-    // This prevents race condition where product page loads stale cart data
-    setTimeout(() => {
-      if (productSlug) {
-        navigate(`/products/${productSlug}`);
-      } else {
-        navigate('/');
-      }
-    }, 50);
-  }, [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]);
+  // Calculate background darkness based on mistakes (progressive dread)
+  const dreadLevel = Math.min(mistakeCount * 0.08, 0.4); // Max 40% darker
+  const dreadMessage = getDreadMessage(mistakeCount);
 
   return (
-    <div className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4">
+    <div
+      className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4 transition-all duration-500"
+      style={{
+        backgroundColor: `rgba(26, 26, 26, ${1 + dreadLevel})`,
+        filter: mistakeCount >= 3 ? `saturate(${1 - mistakeCount * 0.05})` : undefined,
+      }}
+    >
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl text-ranch-lime mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}>
-            The Culling
+          <p
+            className="text-sm text-amber-500/70 uppercase tracking-widest mb-1"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+          >
+            {HORROR_COPY.games.theCulling.careStage}
+          </p>
+          <h1
+            className="text-3xl text-ranch-lime mb-2"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
+          >
+            {HORROR_COPY.games.theCulling.title}
           </h1>
-          <p className="text-ranch-lavender text-lg" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
-            Tap invasive caterpillars (red eyes) before they burrow!
+          <p
+            className="text-ranch-lavender text-lg"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+          >
+            {HORROR_COPY.games.theCulling.description}
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-lg mt-1" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
-              Best Score: {bestScore}
+            <p
+              className="text-ranch-cyan text-lg mt-1"
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+            >
+              Best: {bestScore}
             </p>
           )}
         </div>
@@ -218,15 +280,27 @@ export default function TheCullingRoute() {
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
-              <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+              <p
+                className="text-lg text-ranch-cream leading-relaxed text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              >
                 {HORROR_COPY.games.theCulling.instructions[0]}
               </p>
-              <p className="text-lg text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+              <p
+                className="text-lg text-ranch-lavender mt-2 text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              >
                 {HORROR_COPY.games.theCulling.instructions[1]}
+              </p>
+              <p
+                className="text-sm text-ranch-pink/70 mt-4 text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+              >
+                Warning: Hitting a protected caterpillar costs {HIT_GOOD_PENALTY} points.
               </p>
             </div>
             <button
-              onClick={() => game.startGame()}
+              onClick={handleStartGame}
               className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors"
               style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
@@ -244,13 +318,32 @@ export default function TheCullingRoute() {
               <GameScore score={game.score} showProgress={true} className="flex-1" />
             </div>
 
+            {/* Progressive Dread Message */}
+            <AnimatePresence>
+              {dreadMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="bg-ranch-pink/20 border border-ranch-pink/40 rounded-lg p-2 text-center"
+                >
+                  <p
+                    className="text-ranch-pink text-sm"
+                    style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+                  >
+                    {dreadMessage}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Game Board - 3x3 Grid */}
             <div className="grid grid-cols-3 gap-3 p-4 bg-ranch-purple/10 rounded-lg border-2 border-ranch-purple">
               {Array.from({ length: 9 }).map((_, index) => {
                 const caterpillar = caterpillars.find(
-                  c => c.holeIndex === index && c.isVisible
+                  (c) => c.holeIndex === index && c.isVisible
                 );
-                const splat = splats.find(s => s.holeIndex === index);
+                const splat = splats.find((s) => s.holeIndex === index);
 
                 return (
                   <div
@@ -277,7 +370,11 @@ export default function TheCullingRoute() {
                         <button
                           onClick={() => handleCaterpillarClick(caterpillar)}
                           className="absolute inset-0 flex items-center justify-center z-10 hover:scale-110 transition-transform cursor-pointer"
-                          aria-label={caterpillar.type === 'invasive' ? 'Cull invasive caterpillar' : 'Good caterpillar - avoid!'}
+                          aria-label={
+                            caterpillar.type === 'invasive'
+                              ? 'Remove parasite'
+                              : 'Protected caterpillar - do not touch!'
+                          }
                         >
                           {caterpillar.type === 'invasive' ? (
                             <InvasiveCaterpillar size={55} />
@@ -291,6 +388,28 @@ export default function TheCullingRoute() {
                 );
               })}
             </div>
+
+            {/* Legend */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-ranch-purple/20 border border-ranch-purple/40 rounded p-2">
+                <p
+                  className="text-ranch-pink font-bold mb-1"
+                  style={{ fontFamily: 'Tourney, cursive' }}
+                >
+                  Red Eyes = Parasite
+                </p>
+                <p className="text-ranch-cream/70">Remove them! +{HIT_PARASITE_POINTS} pts</p>
+              </div>
+              <div className="bg-ranch-lime/10 border border-ranch-lime/40 rounded p-2">
+                <p
+                  className="text-ranch-lime font-bold mb-1"
+                  style={{ fontFamily: 'Tourney, cursive' }}
+                >
+                  Cyan Eyes = Protected
+                </p>
+                <p className="text-ranch-cream/70">Don't touch! -{HIT_GOOD_PENALTY} pts</p>
+              </div>
+            </div>
           </div>
         )}
 
@@ -299,11 +418,10 @@ export default function TheCullingRoute() {
           <GameResults
             score={game.score}
             onApplyDiscount={handleApplyDiscount}
+            onRetry={handleStartGame}
           />
         )}
       </div>
-
-      {/* Note: Animations now handled by Framer Motion in SVG caterpillar components */}
     </div>
   );
 }

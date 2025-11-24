@@ -1,80 +1,79 @@
 /**
- * Game Results Component
+ * Game Results Component — "The Chrysalis" Theme
  *
  * Displays game completion screen with:
- * - Final score display
- * - Earned discount percentage
- * - Horror-themed success/failure message
- * - Action buttons (retry or apply discount)
- * - Celebration/disappointment animations
+ * - Final score with earned transcendence framing
+ * - Trust percentage (discount) earned
+ * - Thematic success/failure messaging
+ * - Retry button for failed attempts
+ * - Apply discount and return
+ *
+ * Tone: Reverent, bittersweet for success; encouraging for failure
  */
 
 import { motion } from 'framer-motion';
 import { cn } from '../../utils';
 import { getDiscountResult, formatDiscount } from './utils/scoreConversion';
 import { Button } from '../ui/button';
-import { HORROR_COPY } from '../../constants/horror-copy';
 
 interface GameResultsProps {
   score: number;
   onApplyDiscount: (discount: number) => void;
+  onRetry?: () => void;
   className?: string;
 }
 
-export function GameResults({ score, onApplyDiscount, className }: GameResultsProps) {
+export function GameResults({ score, onApplyDiscount, onRetry, className }: GameResultsProps) {
   const result = getDiscountResult(score);
-  const { discountPercent, message } = result;
+  const { discountPercent, message, subtext, emoji, canRetry } = result;
 
-  // Get tier-specific celebration data
-  const getCelebration = () => {
-    if (discountPercent >= 15) return HORROR_COPY.games.celebrations.tier15;
-    if (discountPercent >= 12) return HORROR_COPY.games.celebrations.tier12;
-    if (discountPercent >= 9) return HORROR_COPY.games.celebrations.tier9;
-    if (discountPercent >= 6) return HORROR_COPY.games.celebrations.tier6;
-    if (discountPercent >= 3) return HORROR_COPY.games.celebrations.tier3;
-    return null;
-  };
-
-  const celebration = getCelebration();
-
-  // Animation variants for celebration/disappointment
+  // Animation variants
   const containerVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
+    hidden: { opacity: 0, scale: 0.9 },
     visible: {
       opacity: 1,
       scale: 1,
       transition: {
-        duration: 0.5,
+        duration: 0.6,
         type: 'spring' as const,
-        stiffness: 200,
+        stiffness: 150,
         damping: 20,
-        staggerChildren: 0.1,
+        staggerChildren: 0.15,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0 },
   };
 
-  // Color scheme based on discount earned
+  // Color scheme based on trust earned
   const getResultColor = () => {
-    if (discountPercent >= 15) return 'text-ranch-lime'; // Max
-    if (discountPercent >= 12) return 'text-ranch-cyan'; // Great
-    if (discountPercent >= 9) return 'text-yellow-400'; // Good
-    if (discountPercent >= 6) return 'text-ranch-lavender'; // Okay
-    if (discountPercent >= 3) return 'text-ranch-cream'; // Minimal
+    if (discountPercent >= 15) return 'text-amber-400'; // Perfect - golden
+    if (discountPercent >= 12) return 'text-ranch-cyan'; // Strong
+    if (discountPercent >= 9) return 'text-ranch-lavender'; // Good
+    if (discountPercent >= 6) return 'text-gray-400'; // Incomplete
+    if (discountPercent >= 3) return 'text-gray-500'; // Barely
     return 'text-ranch-pink'; // Failed
   };
 
   const getBgGlow = () => {
-    if (discountPercent >= 15) return 'shadow-[0_0_40px_rgba(50,205,50,0.3)]';
-    if (discountPercent >= 12) return 'shadow-[0_0_40px_rgba(0,206,209,0.3)]';
-    if (discountPercent >= 9) return 'shadow-[0_0_40px_rgba(250,204,21,0.3)]';
-    if (discountPercent >= 6) return 'shadow-[0_0_40px_rgba(155,143,181,0.3)]';
-    if (discountPercent >= 3) return 'shadow-[0_0_40px_rgba(245,245,220,0.3)]';
-    return 'shadow-[0_0_40px_rgba(255,20,147,0.3)]';
+    if (discountPercent >= 15) return 'shadow-[0_0_60px_rgba(251,191,36,0.3)]'; // Amber glow
+    if (discountPercent >= 12) return 'shadow-[0_0_40px_rgba(0,206,209,0.25)]';
+    if (discountPercent >= 9) return 'shadow-[0_0_30px_rgba(155,143,181,0.2)]';
+    if (discountPercent >= 6) return 'shadow-[0_0_20px_rgba(107,114,128,0.15)]';
+    if (discountPercent >= 3) return 'shadow-[0_0_15px_rgba(107,114,128,0.1)]';
+    return 'shadow-[0_0_40px_rgba(255,20,147,0.2)]'; // Failed - pink glow
+  };
+
+  const getBorderColor = () => {
+    if (discountPercent >= 15) return 'border-amber-500/50';
+    if (discountPercent >= 12) return 'border-ranch-cyan/50';
+    if (discountPercent >= 9) return 'border-ranch-lavender/50';
+    if (discountPercent >= 6) return 'border-gray-500/50';
+    if (discountPercent >= 3) return 'border-gray-600/50';
+    return 'border-ranch-pink/50';
   };
 
   return (
@@ -83,21 +82,64 @@ export function GameResults({ score, onApplyDiscount, className }: GameResultsPr
       initial="hidden"
       animate="visible"
       className={cn(
-        'flex flex-col items-center gap-6 p-8 rounded-2xl',
-        'bg-ranch-purple/30 border-2 border-ranch-purple',
+        'flex flex-col items-center gap-8 p-10 rounded-2xl',
+        'bg-gradient-to-b from-ranch-purple/40 to-ranch-dark/90',
+        'border-2',
+        getBorderColor(),
         getBgGlow(),
         className
       )}
     >
-      {/* Final Score */}
+      {/* Emoji Result Icon */}
+      <motion.div
+        variants={itemVariants}
+        className="text-7xl"
+        animate={
+          discountPercent >= 15
+            ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }
+            : discountPercent === 0
+              ? { scale: [1, 0.95, 1], opacity: [1, 0.7, 1] }
+              : {}
+        }
+        transition={{
+          duration: 2,
+          repeat: Infinity,
+          repeatType: 'reverse',
+        }}
+      >
+        {emoji}
+      </motion.div>
+
+      {/* Main Message */}
+      <motion.div variants={itemVariants} className="text-center space-y-3">
+        <h2
+          className={cn('text-2xl', getResultColor())}
+          style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+        >
+          {message}
+        </h2>
+        <p
+          className="text-ranch-cream/80 text-lg max-w-sm leading-relaxed"
+          style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+        >
+          {subtext}
+        </p>
+      </motion.div>
+
+      {/* Score Display */}
       <motion.div variants={itemVariants} className="text-center">
-        <span className="text-lg text-ranch-lavender uppercase tracking-wide" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>Final Score</span>
+        <span
+          className="text-sm text-ranch-lavender/60 uppercase tracking-widest"
+          style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+        >
+          Final Score
+        </span>
         <motion.div
-          className={cn('text-6xl tabular-nums mt-2', getResultColor())}
+          className={cn('text-5xl tabular-nums mt-1', getResultColor())}
           style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
-          animate={discountPercent >= 15 ? { scale: [1, 1.1, 1] } : {}}
+          animate={discountPercent >= 15 ? { scale: [1, 1.05, 1] } : {}}
           transition={{
-            duration: 0.6,
+            duration: 1.5,
             repeat: discountPercent >= 15 ? Infinity : 0,
             repeatType: 'reverse',
           }}
@@ -106,93 +148,89 @@ export function GameResults({ score, onApplyDiscount, className }: GameResultsPr
         </motion.div>
       </motion.div>
 
-      {/* Discount Badge */}
+      {/* Trust Badge */}
       <motion.div
         variants={itemVariants}
         className={cn(
-          'px-6 py-3 rounded-full border-2',
+          'px-8 py-4 rounded-xl border-2',
           discountPercent > 0
-            ? 'bg-ranch-lime/20 border-ranch-lime'
-            : 'bg-ranch-pink/20 border-ranch-pink'
+            ? 'bg-amber-500/10 border-amber-500/40'
+            : 'bg-ranch-pink/10 border-ranch-pink/40'
         )}
       >
         <div className="text-center">
           <div
             className={cn(
               'text-3xl',
-              discountPercent > 0 ? 'text-ranch-lime' : 'text-ranch-pink'
+              discountPercent > 0 ? 'text-amber-400' : 'text-ranch-pink'
             )}
             style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
           >
             {formatDiscount(discountPercent)}
           </div>
-          <div className="text-lg text-ranch-lavender mt-1" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
-            {discountPercent > 0 ? 'Discount Earned!' : 'No Discount'}
+          <div
+            className="text-sm text-ranch-lavender/70 mt-1"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+          >
+            {discountPercent > 0 ? 'Earned' : 'Try Again'}
           </div>
         </div>
       </motion.div>
 
-      {/* Horror-themed message */}
-      <motion.p
-        variants={itemVariants}
-        className="text-center text-ranch-cream text-lg max-w-md px-4"
-        style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
-      >
-        {message}
-      </motion.p>
-
-      {/* Tier-specific celebration */}
-      {celebration && (
-        <motion.div
-          variants={itemVariants}
-          className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-lg border",
-            discountPercent >= 15 && "bg-ranch-lime/10 border-ranch-lime",
-            discountPercent >= 12 && discountPercent < 15 && "bg-ranch-cyan/10 border-ranch-cyan",
-            discountPercent >= 9 && discountPercent < 12 && "bg-yellow-400/10 border-yellow-400",
-            discountPercent >= 6 && discountPercent < 9 && "bg-ranch-lavender/10 border-ranch-lavender",
-            discountPercent >= 3 && discountPercent < 6 && "bg-ranch-cream/10 border-ranch-cream"
-          )}
-          animate={discountPercent >= 15 ? { rotate: [0, -2, 2, -2, 0] } : {}}
-          transition={{
-            duration: 0.5,
-            repeat: discountPercent >= 15 ? Infinity : 0,
-            repeatDelay: 2,
-          }}
-        >
-          <span className="text-2xl">{celebration.emoji}</span>
-          <span className={getResultColor()} style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}>
-            {celebration.message}
-          </span>
-          <span className="text-2xl">{celebration.emoji}</span>
-        </motion.div>
-      )}
-
       {/* Action Buttons */}
-      <motion.div variants={itemVariants} className="flex flex-col gap-3 w-full max-w-sm mt-4">
-        {/* Primary action: Apply discount (or proceed without discount if failed) */}
+      <motion.div variants={itemVariants} className="flex flex-col gap-4 w-full max-w-xs mt-2">
+        {/* Primary: Apply discount or return */}
         <Button
           onClick={() => onApplyDiscount(discountPercent)}
           variant="horror"
           size="lg"
-          className="w-full text-lg"
+          className={cn(
+            'w-full text-lg',
+            discountPercent >= 15 && 'bg-amber-500 hover:bg-amber-400 text-ranch-dark'
+          )}
           style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
         >
-          {discountPercent > 0 ? 'Claim Discount & Return' : 'Return to Product'}
+          {discountPercent > 0 ? 'Claim Trust & Return' : 'Return Without Trust'}
         </Button>
+
+        {/* Secondary: Retry (only shown if failed and onRetry provided) */}
+        {canRetry && onRetry && (
+          <Button
+            onClick={onRetry}
+            variant="outline"
+            size="lg"
+            className="w-full text-lg border-ranch-lavender/40 text-ranch-lavender hover:bg-ranch-lavender/10"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+          >
+            Try Again — They Deserve Better
+          </Button>
+        )}
       </motion.div>
 
-      {/* Score breakdown hint (for transparency) */}
+      {/* Progress hint for near-misses */}
       <motion.div
         variants={itemVariants}
-        className="text-lg text-ranch-lavender/60 text-center mt-2"
-        style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+        className="text-sm text-ranch-lavender/50 text-center"
+        style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
       >
-        {discountPercent === 0 && score < 20 && 'Need 20+ points for any discount'}
-        {score >= 20 && score < 30 && 'Need 30+ points for 6% off'}
-        {score >= 30 && score < 40 && 'Need 40+ points for 9% off'}
-        {score >= 40 && score < 50 && 'Need 50+ points for 12% off'}
-        {score >= 50 && score < 60 && 'Need 60+ points for maximum 15% off'}
+        {discountPercent === 0 && score >= 15 && score < 20 && (
+          <span>So close. {20 - score} more points would have earned their trust.</span>
+        )}
+        {discountPercent === 3 && score >= 25 && (
+          <span>{30 - score} more points for stronger trust.</span>
+        )}
+        {discountPercent === 6 && score >= 35 && (
+          <span>{40 - score} more points for deeper trust.</span>
+        )}
+        {discountPercent === 9 && score >= 45 && (
+          <span>{50 - score} more points for near-perfect care.</span>
+        )}
+        {discountPercent === 12 && score >= 55 && (
+          <span>{60 - score} more points for perfect emergence.</span>
+        )}
+        {discountPercent === 15 && (
+          <span>Perfect. They will remember your care.</span>
+        )}
       </motion.div>
     </motion.div>
   );

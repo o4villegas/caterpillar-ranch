@@ -1,15 +1,26 @@
 /**
- * Hungry Hungry Caterpillar - Snake Game
+ * The Final Feeding — Preparation Stage
  *
- * Horror-themed snake game where the caterpillar grows increasingly grotesque
+ * Theme: "The Chrysalis" — The last meal before the dark
+ *
+ * Horror-themed snake game where the caterpillar must gather enough
+ * nourishment to survive the transformation inside the chrysalis.
+ *
+ * Difficulty tuned for:
+ * - 15% discount: ~15-20% of players (10+ food, no collision)
+ * - Collision = instant failure (harsh)
+ * - Faster movement speed
+ *
+ * Mechanics:
  * - 45 second duration
- * - Classic snake mechanics with arrow keys + swipe controls
- * - Grow by eating leaves
- * - Transform into moth at the end
+ * - Classic snake with arrow keys + swipe
+ * - Gather nourishment (leaves) to grow
+ * - Transform at the end if survived
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+import { AnimatePresence, motion } from 'framer-motion';
 import { GameTimer } from '../lib/components/Games/GameTimer';
 import { GameScore } from '../lib/components/Games/GameScore';
 import { GameResults } from '../lib/components/Games/GameResults';
@@ -18,11 +29,17 @@ import { useCart } from '../lib/contexts/CartContext';
 import { HORROR_COPY } from '../lib/constants/horror-copy';
 import type { Route } from './+types/games.hungry-caterpillar';
 
+// === DIFFICULTY SETTINGS (TUNED FOR ~15-20% MAX DISCOUNT) ===
 const GRID_SIZE = 15; // 15x15 grid
 const CELL_SIZE = 20; // pixels
 const GAME_DURATION = 45; // seconds
-const MOVE_INTERVAL = 120; // ms between moves (20% faster - harder)
+const MOVE_INTERVAL = 100; // ms between moves (faster - harder)
 const INITIAL_LENGTH = 3;
+
+// Points
+const FOOD_POINTS = 4; // Slightly reduced from 5
+const LENGTH_BONUS = 2; // Per segment at end
+const PERFECT_BONUS = 15; // 10+ food without collision
 
 type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 
@@ -42,8 +59,8 @@ interface GameState {
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'Hungry Caterpillar - Caterpillar Ranch' },
-    { name: 'description', content: 'Grow as large as possible!' }
+    { title: 'The Final Feeding — Preparation | Caterpillar Ranch' },
+    { name: 'description', content: 'The last meal before the dark. Prove your care.' },
   ];
 }
 
@@ -147,7 +164,7 @@ export default function HungryCaterpillarRoute() {
       if (prev.food && head.x === prev.food.x && head.y === prev.food.y) {
         // Ate food! Don't remove tail (snake grows)
         const newFoodCount = prev.foodEaten + 1;
-        game.addPoints(5); // +5 per food
+        game.addPoints(FOOD_POINTS);
 
         return {
           ...prev,
@@ -256,8 +273,8 @@ export default function HungryCaterpillarRoute() {
       setGameState(prev => ({ ...prev, showTransformation: true }));
 
       // Calculate final score bonuses
-      const lengthBonus = gameState.snake.length * 2; // +2 per segment
-      const perfectBonus = gameState.snake.length >= 10 && !gameState.gameOver ? 15 : 0;
+      const lengthBonus = gameState.snake.length * LENGTH_BONUS;
+      const perfectBonus = gameState.foodEaten >= 10 && !gameState.gameOver ? PERFECT_BONUS : 0;
 
       game.addPoints(lengthBonus + perfectBonus);
 
@@ -266,8 +283,8 @@ export default function HungryCaterpillarRoute() {
         setShowResults(true);
       }, 2000);
     } else if (gameState.gameOver) {
-      // Hit wall or self - game over immediately
-      const lengthBonus = gameState.snake.length * 2;
+      // Hit wall or self - game over immediately (harsh)
+      const lengthBonus = gameState.snake.length * LENGTH_BONUS;
       game.addPoints(lengthBonus);
       game.endGame();
       setShowResults(true);
@@ -288,6 +305,7 @@ export default function HungryCaterpillarRoute() {
       showTransformation: false,
     });
     setNextDirection('RIGHT');
+    setShowResults(false);
     game.startGame();
   }, [game]);
 
@@ -329,15 +347,30 @@ export default function HungryCaterpillarRoute() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-ranch-lime mb-2">
-            Hungry Caterpillar
+          <p
+            className="text-sm text-amber-500/70 uppercase tracking-widest mb-1"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+          >
+            {HORROR_COPY.games.hungryCaterpillar.careStage}
+          </p>
+          <h1
+            className="text-3xl text-ranch-lime mb-2"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
+          >
+            {HORROR_COPY.games.hungryCaterpillar.title}
           </h1>
-          <p className="text-ranch-lavender text-lg">
-            Eat leaves and grow as large as possible before the transformation
+          <p
+            className="text-ranch-lavender text-lg"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+          >
+            {HORROR_COPY.games.hungryCaterpillar.description}
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-lg mt-1">
-              Best Score: {bestScore}
+            <p
+              className="text-ranch-cyan text-lg mt-1"
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+            >
+              Best: {bestScore}
             </p>
           )}
         </div>
@@ -346,16 +379,28 @@ export default function HungryCaterpillarRoute() {
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
-              <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+              <p
+                className="text-lg text-ranch-cream leading-relaxed text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              >
                 {HORROR_COPY.games.hungryCaterpillar.instructions[0]}
               </p>
-              <p className="text-lg text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+              <p
+                className="text-lg text-ranch-lavender mt-2 text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              >
                 {HORROR_COPY.games.hungryCaterpillar.instructions[1]}
+              </p>
+              <p
+                className="text-sm text-ranch-pink/70 mt-4 text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+              >
+                Warning: Collision ends the transformation immediately.
               </p>
             </div>
             <button
               onClick={handleStartGame}
-              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg font-bold text-lg hover:bg-ranch-cyan transition-colors"
+              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors"
               style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               {HORROR_COPY.games.hungryCaterpillar.startButton}
@@ -449,10 +494,18 @@ export default function HungryCaterpillarRoute() {
               {gameState.gameOver && (
                 <div className="absolute inset-0 bg-ranch-dark/90 flex items-center justify-center">
                   <div className="text-center">
-                    <div className="text-6xl mb-2">😱</div>
-                    <p className="text-ranch-pink text-xl font-bold">COLLISION!</p>
-                    <p className="text-ranch-lavender text-lg mt-1">
-                      Length: {gameState.snake.length} segments
+                    <div className="text-6xl mb-2">💀</div>
+                    <p
+                      className="text-ranch-pink text-xl"
+                      style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+                    >
+                      THE GATHERING FAILED
+                    </p>
+                    <p
+                      className="text-ranch-lavender text-lg mt-1"
+                      style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+                    >
+                      Gathered: {gameState.foodEaten} nourishment
                     </p>
                   </div>
                 </div>
@@ -469,18 +522,27 @@ export default function HungryCaterpillarRoute() {
         {/* Transformation Cutscene */}
         {gameState.showTransformation && (
           <div className="space-y-4">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-lime rounded-lg p-8 text-center">
+            <div className="bg-ranch-purple/20 border-2 border-amber-500/50 rounded-lg p-8 text-center shadow-[0_0_40px_rgba(251,191,36,0.2)]">
               <div className="text-8xl mb-4 transformation-animation">
                 🐛 → 🦋
               </div>
-              <p className="text-ranch-lime text-2xl font-bold mb-2">
-                METAMORPHOSIS COMPLETE!
+              <p
+                className="text-amber-400 text-2xl mb-2"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+              >
+                THEY ARE READY TO TRANSFORM
               </p>
-              <p className="text-ranch-lavender">
-                Final Length: {gameState.snake.length} segments
+              <p
+                className="text-ranch-lavender"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+              >
+                Gathered: {gameState.foodEaten} nourishment
               </p>
-              <p className="text-ranch-cyan text-lg mt-2">
-                {gameState.snake.length >= 10 ? '✨ Perfect Run Bonus! +15' : ''}
+              <p
+                className="text-ranch-cyan text-lg mt-2"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              >
+                {gameState.foodEaten >= 10 ? '✨ Perfect Preparation! +15' : ''}
               </p>
             </div>
           </div>
@@ -491,6 +553,7 @@ export default function HungryCaterpillarRoute() {
           <GameResults
             score={game.score}
             onApplyDiscount={handleApplyDiscount}
+            onRetry={handleStartGame}
           />
         )}
       </div>

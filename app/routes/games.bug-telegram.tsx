@@ -1,29 +1,41 @@
 /**
- * Bug Telegram - Speed Typing Game
+ * Bug Telegram — Communication Stage
  *
- * Horror-themed typing game where players intercept coded bug messages
+ * Theme: "The Chrysalis" — Receive their signals
+ *
+ * Horror-themed typing game where players intercept transformation signals
+ * sent by caterpillars preparing for metamorphosis.
+ *
+ * Difficulty tuned for:
+ * - 15% discount: ~15-20% of players (fast typing, few escapes)
+ * - Harsh penalty for missed signals (-4 pts)
+ * - Faster word scrolling for pressure
+ *
+ * Mechanics:
  * - 30 second duration
- * - Type words before they escape off the bottom of the screen
- * - Bug-themed vocabulary with horror aesthetic
+ * - Type words before they escape off the bottom
+ * - Transformation-themed vocabulary
  * - Speed and accuracy bonuses
+ * - Escaped words = lost connection penalty
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+import { AnimatePresence, motion } from 'framer-motion';
 import { GameTimer } from '../lib/components/Games/GameTimer';
 import { GameScore } from '../lib/components/Games/GameScore';
 import { GameResults } from '../lib/components/Games/GameResults';
 import { useGameState } from '../lib/components/Games/hooks/useGameState';
 import { useCart } from '../lib/contexts/CartContext';
-import { HORROR_COPY } from '../lib/constants/horror-copy';
+import { HORROR_COPY, getDreadMessage } from '../lib/constants/horror-copy';
 import type { Route } from './+types/games.bug-telegram';
 
-// Bug-themed words (4-6 letters)
-const BUG_WORDS = [
-  'MOLT', 'SWARM', 'PUPATE', 'HATCH', 'INFEST',
-  'LARVA', 'COLONY', 'THORAX', 'ANTENN', 'CHITIN',
-  'COCOON', 'EMERGE', 'BURROW', 'CRAWL', 'GNAW',
-  'PLAGUE', 'DEVOUR', 'HORDE', 'SCUTTLE', 'BREED'
+// Transformation-themed signal words (4-6 letters)
+const SIGNAL_WORDS = [
+  'MOLT', 'DARK', 'CHANGE', 'EMERGE', 'WINGS',
+  'DREAM', 'SLEEP', 'WAKE', 'PAIN', 'HOPE',
+  'TRUST', 'GUIDE', 'WAIT', 'HELP', 'LIGHT',
+  'FEAR', 'GROW', 'BECOME', 'SILK', 'REST'
 ];
 
 interface Word {
@@ -36,16 +48,23 @@ interface Word {
   spawnTime: number; // timestamp when word spawned
 }
 
+// === DIFFICULTY SETTINGS (TUNED FOR ~15-20% MAX DISCOUNT) ===
 const GAME_DURATION = 30; // seconds
-const WORD_SPAWN_INTERVAL = 1800; // ms between word spawns (10% faster - more words)
-const WORD_SCROLL_DURATION = 5000; // ms for word to scroll from top to bottom (17% faster)
-const SPEED_BONUS_WINDOW = 2500; // ms - 2.5 seconds for speed bonus (17% harder)
+const WORD_SPAWN_INTERVAL = 1500; // ms between spawns (faster pressure)
+const WORD_SCROLL_DURATION = 4500; // ms to scroll (faster fall)
+const SPEED_BONUS_WINDOW = 2000; // ms - 2s for speed bonus (harder)
 const ESCAPE_THRESHOLD = 95; // percentage - word escapes at this position
+
+// Points
+const BASE_POINTS = 3;
+const ACCURACY_BONUS = 2;
+const SPEED_BONUS = 2;
+const ESCAPE_PENALTY = 4; // NEW - harsh penalty for missed signals
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'Bug Telegram - Caterpillar Ranch' },
-    { name: 'description', content: 'Intercept coded bug messages!' }
+    { title: 'Bug Telegram — Communication | Caterpillar Ranch' },
+    { name: 'description', content: 'Receive their signals. Prove your care.' },
   ];
 }
 
@@ -62,6 +81,7 @@ export default function BugTelegramRoute() {
   const [typoMade, setTypoMade] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [bestScore, setBestScore] = useState(0);
+  const [mistakeCount, setMistakeCount] = useState(0);
 
   const nextWordId = useRef(0);
   const wordQueueIndex = useRef(0);
@@ -92,11 +112,11 @@ export default function BugTelegramRoute() {
 
   // Spawn word function
   const spawnWord = useCallback(() => {
-    if (wordQueueIndex.current >= BUG_WORDS.length) {
+    if (wordQueueIndex.current >= SIGNAL_WORDS.length) {
       wordQueueIndex.current = 0; // Loop back to start if we run out
     }
 
-    const text = BUG_WORDS[wordQueueIndex.current];
+    const text = SIGNAL_WORDS[wordQueueIndex.current];
     wordQueueIndex.current++;
 
     const id = nextWordId.current++;
@@ -157,8 +177,11 @@ export default function BugTelegramRoute() {
 
           const newPosition = word.position + word.speed * deltaTime;
 
-          // Check if word has escaped
+          // Check if word has escaped - apply penalty
           if (newPosition >= ESCAPE_THRESHOLD) {
+            // Apply escape penalty (done via ref to avoid stale closure)
+            game.subtractPoints(ESCAPE_PENALTY);
+            setMistakeCount(m => m + 1);
             return { ...word, position: ESCAPE_THRESHOLD, escaped: true };
           }
 
@@ -201,10 +224,10 @@ export default function BugTelegramRoute() {
     if (matchingWord) {
       // INTERCEPTED!
       const interceptTime = Date.now() - matchingWord.spawnTime;
-      const speedBonus = interceptTime <= SPEED_BONUS_WINDOW ? 2 : 0;
-      const accuracyBonus = typoMade ? 0 : 2; // +2 if no typos (total +5 vs +3)
+      const speedBonus = interceptTime <= SPEED_BONUS_WINDOW ? SPEED_BONUS : 0;
+      const accuracyBonus = typoMade ? 0 : ACCURACY_BONUS;
 
-      game.addPoints(3 + accuracyBonus + speedBonus);
+      game.addPoints(BASE_POINTS + accuracyBonus + speedBonus);
 
       // Mark word as intercepted
       setWords(prev => prev.map(w =>
@@ -227,6 +250,8 @@ export default function BugTelegramRoute() {
     setWords([]);
     setCurrentInput('');
     setTypoMade(false);
+    setMistakeCount(0);
+    setShowResults(false);
     wordQueueIndex.current = 0;
     game.startGame();
   }, [game]);
@@ -264,20 +289,45 @@ export default function BugTelegramRoute() {
     }, 50);
   }, [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]);
 
+  // Progressive dread
+  const dreadLevel = Math.min(mistakeCount * 0.07, 0.35);
+  const dreadMessage = getDreadMessage(mistakeCount);
+
   return (
-    <div className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4">
+    <div
+      className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4 transition-all duration-500"
+      style={{
+        backgroundColor: `rgba(26, 26, 26, ${1 + dreadLevel})`,
+        filter: mistakeCount >= 3 ? `saturate(${1 - mistakeCount * 0.05})` : undefined,
+      }}
+    >
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-ranch-lime mb-2">
-            Bug Telegram
+          <p
+            className="text-sm text-amber-500/70 uppercase tracking-widest mb-1"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+          >
+            {HORROR_COPY.games.bugTelegram.careStage}
+          </p>
+          <h1
+            className="text-3xl text-ranch-lime mb-2"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
+          >
+            {HORROR_COPY.games.bugTelegram.title}
           </h1>
-          <p className="text-ranch-lavender text-lg">
-            Type words to intercept coded bug messages before they escape
+          <p
+            className="text-ranch-lavender text-lg"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+          >
+            {HORROR_COPY.games.bugTelegram.description}
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-lg mt-1">
-              Best Score: {bestScore}
+            <p
+              className="text-ranch-cyan text-lg mt-1"
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+            >
+              Best: {bestScore}
             </p>
           )}
         </div>
@@ -286,16 +336,28 @@ export default function BugTelegramRoute() {
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
-              <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+              <p
+                className="text-lg text-ranch-cream leading-relaxed text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              >
                 {HORROR_COPY.games.bugTelegram.instructions[0]}
               </p>
-              <p className="text-lg text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+              <p
+                className="text-lg text-ranch-lavender mt-2 text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              >
                 {HORROR_COPY.games.bugTelegram.instructions[1]}
+              </p>
+              <p
+                className="text-sm text-ranch-pink/70 mt-4 text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+              >
+                Warning: Each missed signal costs {ESCAPE_PENALTY} points.
               </p>
             </div>
             <button
               onClick={handleStartGame}
-              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg font-bold text-lg hover:bg-ranch-cyan transition-colors"
+              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors"
               style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               {HORROR_COPY.games.bugTelegram.startButton}
@@ -311,6 +373,25 @@ export default function BugTelegramRoute() {
               <GameTimer timeLeft={game.timeLeft} className="flex-1" />
               <GameScore score={game.score} showProgress={true} className="flex-1" />
             </div>
+
+            {/* Progressive Dread Message */}
+            <AnimatePresence>
+              {dreadMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="bg-ranch-pink/20 border border-ranch-pink/40 rounded-lg p-2 text-center"
+                >
+                  <p
+                    className="text-ranch-pink text-sm"
+                    style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+                  >
+                    {dreadMessage}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Game Area - Scrolling words */}
             <div className="relative h-96 bg-ranch-purple/10 rounded-lg border-2 border-ranch-purple overflow-hidden">
@@ -341,10 +422,10 @@ export default function BugTelegramRoute() {
                   >
                     {word.text}
                     {word.intercepted && (
-                      <span className="ml-2 text-lg">✓ INTERCEPTED</span>
+                      <span className="ml-2 text-lg">✓ RECEIVED</span>
                     )}
                     {word.escaped && (
-                      <span className="ml-2 text-lg">✗ ESCAPED</span>
+                      <span className="ml-2 text-lg">✗ LOST</span>
                     )}
                   </div>
                   {/* Drip trail effect for escaped words */}
@@ -389,6 +470,7 @@ export default function BugTelegramRoute() {
           <GameResults
             score={game.score}
             onApplyDiscount={handleApplyDiscount}
+            onRetry={handleStartGame}
           />
         )}
       </div>

@@ -1,50 +1,71 @@
 /**
- * Cursed Harvest - Memory Match Game
+ * Cursed Harvest — Nourishment Stage
  *
- * Horror-themed memory card game with mutated crops from The Ranch
+ * Theme: "The Chrysalis" — Gather the nutrients they need
+ *
+ * Horror-themed memory match game where players gather the right nutrients
+ * for caterpillars to fuel their transformation.
+ *
+ * Difficulty tuned for:
+ * - 15% discount: ~15-20% of players (allows 2 mismatches OR 6 missed speed bonuses)
+ * - Mismatch penalty (-4 pts)
+ * - Faster flip-back on mismatch (harder to memorize)
+ *
+ * Mechanics:
  * - 30 second duration
  * - 12 cards (6 pairs) in 4x3 grid
- * - Match pairs to earn points
- * - Speed bonus for quick matches
+ * - Match pair: +10 points (max 60 base)
+ * - Speed bonus: +2 if matched within 2s (max 12 bonus)
+ * - Mismatch: -4 points
+ * - Total max: 72 points (headroom for errors)
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
+import { AnimatePresence, motion } from 'framer-motion';
 import { GameTimer } from '../lib/components/Games/GameTimer';
 import { GameScore } from '../lib/components/Games/GameScore';
 import { GameResults } from '../lib/components/Games/GameResults';
 import { useGameState } from '../lib/components/Games/hooks/useGameState';
 import { useCart } from '../lib/contexts/CartContext';
 import { cn } from '../lib/utils';
-import { HORROR_COPY } from '../lib/constants/horror-copy';
+import { HORROR_COPY, getDreadMessage } from '../lib/constants/horror-copy';
 import type { Route } from './+types/games.cursed-harvest';
 
-// Card types - mutated crops
-const CROPS = [
-  { id: 'eyeball-tomato', emoji: '🍅', name: 'Eyeball Tomato' },
-  { id: 'screaming-corn', emoji: '🌽', name: 'Screaming Corn' },
-  { id: 'tendril-carrot', emoji: '🥕', name: 'Tendril Carrot' },
-  { id: 'tooth-potato', emoji: '🥔', name: 'Tooth Potato' },
-  { id: 'crying-onion', emoji: '🧅', name: 'Crying Onion' },
-  { id: 'spine-cucumber', emoji: '🥒', name: 'Spine Cucumber' },
+// Nutrient types - what caterpillars need to transform
+const NUTRIENTS = [
+  { id: 'moonleaf', emoji: '🌿', name: 'Moonleaf' },
+  { id: 'duskberry', emoji: '🫐', name: 'Duskberry' },
+  { id: 'silkroot', emoji: '🥕', name: 'Silkroot' },
+  { id: 'nightpetal', emoji: '🌸', name: 'Nightpetal' },
+  { id: 'dewdrop', emoji: '💧', name: 'Dewdrop' },
+  { id: 'stardust', emoji: '✨', name: 'Stardust' },
 ];
 
 interface Card {
   uniqueId: number;
-  cropId: string;
+  nutrientId: string;
   emoji: string;
   isFlipped: boolean;
   isMatched: boolean;
 }
 
+// === DIFFICULTY SETTINGS (TUNED FOR ~15-20% MAX DISCOUNT) ===
 const GAME_DURATION = 30; // seconds
-const MISMATCH_FLIP_DELAY = 600; // ms (25% faster - harder to remember)
-const SPEED_BONUS_WINDOW = 2500; // ms - 2.5 seconds for speed bonus (17% harder)
+const MISMATCH_FLIP_DELAY = 400; // ms (faster - harder to remember)
+const SPEED_BONUS_WINDOW = 2000; // ms - 2 seconds for speed bonus (harder)
+
+// Points (tuned for 15-20% achieving max discount)
+// Max: 6 pairs × 10 = 60 base + 6 × 2 speed = 72 total
+// Allows 2 mismatches (-8) or 6 missed speed bonuses for 15%
+const MATCH_POINTS = 10;
+const SPEED_BONUS_POINTS = 2;
+const MISMATCH_PENALTY = 4;
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'Cursed Harvest - Caterpillar Ranch' },
-    { name: 'description', content: 'Match pairs of mutated crops!' }
+    { title: 'Cursed Harvest — Nourishment | Caterpillar Ranch' },
+    { name: 'description', content: 'Gather the nutrients they need. Prove your care.' },
   ];
 }
 
@@ -60,6 +81,7 @@ export default function CursedHarvestRoute() {
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [bestScore, setBestScore] = useState(0);
+  const [mistakeCount, setMistakeCount] = useState(0);
 
   const firstFlipTimeRef = useRef<number | null>(null);
   const processingRef = useRef(false);
@@ -93,18 +115,18 @@ export default function CursedHarvestRoute() {
 
   // Create and shuffle cards
   const shuffleCards = useCallback(() => {
-    const pairs = CROPS.flatMap((crop, index) => [
+    const pairs = NUTRIENTS.flatMap((nutrient, index) => [
       {
         uniqueId: index * 2,
-        cropId: crop.id,
-        emoji: crop.emoji,
+        nutrientId: nutrient.id,
+        emoji: nutrient.emoji,
         isFlipped: false,
         isMatched: false,
       },
       {
         uniqueId: index * 2 + 1,
-        cropId: crop.id,
-        emoji: crop.emoji,
+        nutrientId: nutrient.id,
+        emoji: nutrient.emoji,
         isFlipped: false,
         isMatched: false,
       },
@@ -120,128 +142,153 @@ export default function CursedHarvestRoute() {
   }, []);
 
   // Handle card click
-  const handleCardClick = useCallback((card: Card) => {
-    if (game.status !== 'playing') return;
-    if (processingRef.current) return;
-    if (card.isFlipped || card.isMatched) return;
-    if (flippedCards.length >= 2) return;
+  const handleCardClick = useCallback(
+    (card: Card) => {
+      if (game.status !== 'playing') return;
+      if (processingRef.current) return;
+      if (card.isFlipped || card.isMatched) return;
+      if (flippedCards.length >= 2) return;
 
-    // Flip the card
-    setCards(prev =>
-      prev.map(c =>
-        c.uniqueId === card.uniqueId ? { ...c, isFlipped: true } : c
-      )
-    );
+      // Flip the card
+      setCards((prev) =>
+        prev.map((c) => (c.uniqueId === card.uniqueId ? { ...c, isFlipped: true } : c))
+      );
 
-    const newFlippedCards = [...flippedCards, card.uniqueId];
-    setFlippedCards(newFlippedCards);
+      const newFlippedCards = [...flippedCards, card.uniqueId];
+      setFlippedCards(newFlippedCards);
 
-    // Track first flip time for speed bonus
-    if (newFlippedCards.length === 1) {
-      firstFlipTimeRef.current = Date.now();
-    }
+      // Track first flip time for speed bonus
+      if (newFlippedCards.length === 1) {
+        firstFlipTimeRef.current = Date.now();
+      }
 
-    // Check for match when 2 cards are flipped
-    if (newFlippedCards.length === 2) {
-      processingRef.current = true;
+      // Check for match when 2 cards are flipped
+      if (newFlippedCards.length === 2) {
+        processingRef.current = true;
 
-      const [firstId, secondId] = newFlippedCards;
-      const firstCard = cards.find(c => c.uniqueId === firstId);
-      const secondCard = cards.find(c => c.uniqueId === secondId);
+        const [firstId, secondId] = newFlippedCards;
+        const firstCard = cards.find((c) => c.uniqueId === firstId);
+        const secondCard = cards.find((c) => c.uniqueId === secondId);
 
-      if (firstCard && secondCard && firstCard.cropId === secondCard.cropId) {
-        // MATCH!
-        const matchTime = Date.now() - (firstFlipTimeRef.current || 0);
-        const speedBonus = matchTime <= SPEED_BONUS_WINDOW ? 2 : 0;
+        if (firstCard && secondCard && firstCard.nutrientId === secondCard.nutrientId) {
+          // MATCH!
+          const matchTime = Date.now() - (firstFlipTimeRef.current || 0);
+          const speedBonus = matchTime <= SPEED_BONUS_WINDOW ? SPEED_BONUS_POINTS : 0;
 
-        game.addPoints(8 + speedBonus);
+          game.addPoints(MATCH_POINTS + speedBonus);
 
-        // Mark as matched
-        setCards(prev =>
-          prev.map(c =>
-            c.uniqueId === firstId || c.uniqueId === secondId
-              ? { ...c, isMatched: true }
-              : c
-          )
-        );
-
-        setFlippedCards([]);
-        firstFlipTimeRef.current = null;
-        processingRef.current = false;
-      } else {
-        // MISMATCH - flip back after delay
-        setTimeout(() => {
-          setCards(prev =>
-            prev.map(c =>
-              c.uniqueId === firstId || c.uniqueId === secondId
-                ? { ...c, isFlipped: false }
-                : c
+          // Mark as matched
+          setCards((prev) =>
+            prev.map((c) =>
+              c.uniqueId === firstId || c.uniqueId === secondId ? { ...c, isMatched: true } : c
             )
           );
+
           setFlippedCards([]);
           firstFlipTimeRef.current = null;
           processingRef.current = false;
-        }, MISMATCH_FLIP_DELAY);
+        } else {
+          // MISMATCH - apply penalty and flip back
+          game.subtractPoints(MISMATCH_PENALTY);
+          setMistakeCount((prev) => prev + 1);
+
+          setTimeout(() => {
+            setCards((prev) =>
+              prev.map((c) =>
+                c.uniqueId === firstId || c.uniqueId === secondId ? { ...c, isFlipped: false } : c
+              )
+            );
+            setFlippedCards([]);
+            firstFlipTimeRef.current = null;
+            processingRef.current = false;
+          }, MISMATCH_FLIP_DELAY);
+        }
       }
-    }
-  }, [game, cards, flippedCards]);
+    },
+    [game, cards, flippedCards]
+  );
 
   const handleStartGame = useCallback(() => {
     const shuffled = shuffleCards();
     setCards(shuffled);
     setFlippedCards([]);
+    setMistakeCount(0);
+    setShowResults(false);
     firstFlipTimeRef.current = null;
     processingRef.current = false;
     game.startGame();
   }, [game, shuffleCards]);
 
-  const handleApplyDiscount = useCallback((discount: number) => {
-    if (discount > 0 && productSlug) {
-      // Remove existing discount for this product (replace, not accumulate)
-      const existingDiscount = cart.discounts.find(
-        (d) => d.productId === productSlug
-      );
+  const handleApplyDiscount = useCallback(
+    (discount: number) => {
+      if (discount > 0 && productSlug) {
+        const existingDiscount = cart.discounts.find((d) => d.productId === productSlug);
 
-      if (existingDiscount) {
-        removeDiscount(existingDiscount.id);
+        if (existingDiscount) {
+          removeDiscount(existingDiscount.id);
+        }
+
+        addDiscount({
+          id: `game-harvest-${Date.now()}`,
+          productId: productSlug,
+          discountPercent: discount,
+          gameType: 'harvest',
+          earnedAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+          applied: false,
+        });
       }
 
-      // Add new discount
-      addDiscount({
-        id: `game-harvest-${Date.now()}`,
-        productId: productSlug,
-        discountPercent: discount,
-        gameType: 'harvest',
-        earnedAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-        applied: false
-      });
-    }
+      setTimeout(() => {
+        if (productSlug) {
+          navigate(`/products/${productSlug}`);
+        } else {
+          navigate('/');
+        }
+      }, 50);
+    },
+    [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]
+  );
 
-    // Small delay to ensure cart state is persisted to localStorage before navigation
-    setTimeout(() => {
-      if (productSlug) {
-        navigate(`/products/${productSlug}`);
-      } else {
-        navigate('/');
-      }
-    }, 50);
-  }, [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]);
+  // Progressive dread
+  const dreadLevel = Math.min(mistakeCount * 0.06, 0.3);
+  const dreadMessage = getDreadMessage(mistakeCount);
 
   return (
-    <div className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4">
+    <div
+      className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4 transition-all duration-500"
+      style={{
+        backgroundColor: `rgba(26, 26, 26, ${1 + dreadLevel})`,
+        filter: mistakeCount >= 3 ? `saturate(${1 - mistakeCount * 0.04})` : undefined,
+      }}
+    >
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-ranch-lime mb-2">
-            Cursed Harvest
+          <p
+            className="text-sm text-amber-500/70 uppercase tracking-widest mb-1"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+          >
+            {HORROR_COPY.games.cursedHarvest.careStage}
+          </p>
+          <h1
+            className="text-3xl text-ranch-lime mb-2"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
+          >
+            {HORROR_COPY.games.cursedHarvest.title}
           </h1>
-          <p className="text-ranch-lavender text-lg">
-            Match pairs of mutated crops from The Ranch's cursed garden
+          <p
+            className="text-ranch-lavender text-lg"
+            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+          >
+            {HORROR_COPY.games.cursedHarvest.description}
           </p>
           {bestScore > 0 && (
-            <p className="text-ranch-cyan text-lg mt-1">
-              Best Score: {bestScore}
+            <p
+              className="text-ranch-cyan text-lg mt-1"
+              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+            >
+              Best: {bestScore}
             </p>
           )}
         </div>
@@ -250,16 +297,28 @@ export default function CursedHarvestRoute() {
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
-              <p className="text-lg text-ranch-cream leading-relaxed text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+              <p
+                className="text-lg text-ranch-cream leading-relaxed text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              >
                 {HORROR_COPY.games.cursedHarvest.instructions[0]}
               </p>
-              <p className="text-lg text-ranch-lavender mt-1 text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+              <p
+                className="text-lg text-ranch-lavender mt-2 text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              >
                 {HORROR_COPY.games.cursedHarvest.instructions[1]}
+              </p>
+              <p
+                className="text-sm text-ranch-pink/70 mt-4 text-center"
+                style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+              >
+                Warning: Each mismatch costs {MISMATCH_PENALTY} points.
               </p>
             </div>
             <button
               onClick={handleStartGame}
-              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg font-bold text-lg hover:bg-ranch-cyan transition-colors"
+              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors"
               style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
             >
               {HORROR_COPY.games.cursedHarvest.startButton}
@@ -276,6 +335,25 @@ export default function CursedHarvestRoute() {
               <GameScore score={game.score} showProgress={true} className="flex-1" />
             </div>
 
+            {/* Progressive Dread Message */}
+            <AnimatePresence>
+              {dreadMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="bg-ranch-pink/20 border border-ranch-pink/40 rounded-lg p-2 text-center"
+                >
+                  <p
+                    className="text-ranch-pink text-sm"
+                    style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+                  >
+                    {dreadMessage}
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Game Board - 4x3 Grid */}
             <div className="grid grid-cols-3 gap-3 p-4 bg-ranch-purple/10 rounded-lg border-2 border-ranch-purple">
               {cards.map((card) => (
@@ -286,7 +364,8 @@ export default function CursedHarvestRoute() {
                   className={cn(
                     'aspect-[3/4] rounded-lg transition-all duration-300',
                     'relative overflow-hidden',
-                    card.isMatched && 'ring-2 ring-ranch-lime shadow-[0_0_20px_rgba(50,205,50,0.4)]',
+                    card.isMatched &&
+                      'ring-2 ring-amber-500 shadow-[0_0_20px_rgba(251,191,36,0.4)]',
                     !card.isFlipped && !card.isMatched && 'card-back',
                     card.isFlipped && 'card-front'
                   )}
@@ -294,22 +373,31 @@ export default function CursedHarvestRoute() {
                   {/* Card Back */}
                   {!card.isFlipped && !card.isMatched && (
                     <div className="absolute inset-0 bg-ranch-purple border-2 border-ranch-lavender flex items-center justify-center card-pulse">
-                      <div className="text-4xl opacity-30">👁️</div>
+                      <div className="text-3xl opacity-40">🌙</div>
                     </div>
                   )}
 
                   {/* Card Front */}
                   {(card.isFlipped || card.isMatched) && (
-                    <div className={cn(
-                      'absolute inset-0 bg-gradient-to-br from-ranch-dark to-ranch-purple/80',
-                      'border-2 flex items-center justify-center',
-                      card.isMatched ? 'border-ranch-lime' : 'border-ranch-cyan'
-                    )}>
-                      <div className="text-5xl">{card.emoji}</div>
+                    <div
+                      className={cn(
+                        'absolute inset-0 bg-gradient-to-br from-ranch-dark to-ranch-purple/80',
+                        'border-2 flex items-center justify-center',
+                        card.isMatched ? 'border-amber-500' : 'border-ranch-cyan'
+                      )}
+                    >
+                      <div className="text-4xl">{card.emoji}</div>
                     </div>
                   )}
                 </button>
               ))}
+            </div>
+
+            {/* Point Info */}
+            <div className="text-center text-xs text-ranch-lavender/60">
+              <span>Match: +{MATCH_POINTS} | </span>
+              <span>Speed (&lt;2s): +{SPEED_BONUS_POINTS} | </span>
+              <span className="text-ranch-pink/70">Mismatch: -{MISMATCH_PENALTY}</span>
             </div>
           </div>
         )}
@@ -319,6 +407,7 @@ export default function CursedHarvestRoute() {
           <GameResults
             score={game.score}
             onApplyDiscount={handleApplyDiscount}
+            onRetry={handleStartGame}
           />
         )}
       </div>
@@ -327,7 +416,7 @@ export default function CursedHarvestRoute() {
       <style>{`
         @keyframes pulse-organic {
           0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.02); opacity: 0.9; }
+          50% { transform: scale(1.02); opacity: 0.85; }
         }
 
         @keyframes card-flip-in {
