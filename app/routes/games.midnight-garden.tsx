@@ -40,8 +40,8 @@ const GOOD_OMENS = [
 // Bad signs (avoid these!) - signs of failed transformation
 const BAD_SIGNS = [
   { id: 'decay', emoji: '🕷️', name: 'Decay', color: 'text-ranch-pink' },
-  { id: 'rot', emoji: '🥀', name: 'Rot', color: 'text-gray-600' },
-  { id: 'failed', emoji: '💀', name: 'Failed', color: 'text-red-600' },
+  { id: 'rot', emoji: '🥀', name: 'Rot', color: 'text-ranch-purple' },
+  { id: 'failed', emoji: '💀', name: 'Failed', color: 'text-ranch-pink' },
 ];
 
 interface Item {

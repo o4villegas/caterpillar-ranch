@@ -53,8 +53,8 @@ export function GameResults({ score, onApplyDiscount, onRetry, className }: Game
     if (discountPercent >= 15) return 'text-amber-400'; // Perfect - golden
     if (discountPercent >= 12) return 'text-ranch-cyan'; // Strong
     if (discountPercent >= 9) return 'text-ranch-lavender'; // Good
-    if (discountPercent >= 6) return 'text-gray-400'; // Incomplete
-    if (discountPercent >= 3) return 'text-gray-500'; // Barely
+    if (discountPercent >= 6) return 'text-ranch-lavender/80'; // Incomplete
+    if (discountPercent >= 3) return 'text-ranch-lavender/60'; // Barely
     return 'text-ranch-pink'; // Failed
   };
 
@@ -62,8 +62,8 @@ export function GameResults({ score, onApplyDiscount, onRetry, className }: Game
     if (discountPercent >= 15) return 'shadow-[0_0_60px_rgba(251,191,36,0.3)]'; // Amber glow
     if (discountPercent >= 12) return 'shadow-[0_0_40px_rgba(0,206,209,0.25)]';
     if (discountPercent >= 9) return 'shadow-[0_0_30px_rgba(155,143,181,0.2)]';
-    if (discountPercent >= 6) return 'shadow-[0_0_20px_rgba(107,114,128,0.15)]';
-    if (discountPercent >= 3) return 'shadow-[0_0_15px_rgba(107,114,128,0.1)]';
+    if (discountPercent >= 6) return 'shadow-[0_0_20px_rgba(155,143,181,0.15)]';
+    if (discountPercent >= 3) return 'shadow-[0_0_15px_rgba(155,143,181,0.1)]';
     return 'shadow-[0_0_40px_rgba(255,20,147,0.2)]'; // Failed - pink glow
   };
 
@@ -71,8 +71,8 @@ export function GameResults({ score, onApplyDiscount, onRetry, className }: Game
     if (discountPercent >= 15) return 'border-amber-500/50';
     if (discountPercent >= 12) return 'border-ranch-cyan/50';
     if (discountPercent >= 9) return 'border-ranch-lavender/50';
-    if (discountPercent >= 6) return 'border-gray-500/50';
-    if (discountPercent >= 3) return 'border-gray-600/50';
+    if (discountPercent >= 6) return 'border-ranch-lavender/50';
+    if (discountPercent >= 3) return 'border-ranch-purple/50';
     return 'border-ranch-pink/50';
   };
 

@@ -515,7 +515,7 @@ export default function MetamorphosisQueueRoute() {
                               ? 'text-ranch-cyan'
                               : cocoon.result === 'failed'
                               ? 'text-ranch-pink'
-                              : 'text-gray-500'
+                              : 'text-ranch-lavender/70'
                           }`}
                         >
                           {cocoon.result === 'perfect'

@@ -3,7 +3,7 @@
  *
  * Displays countdown timer with horror theming
  * - Shows time remaining in seconds
- * - Color changes as time runs low (green → yellow → red)
+ * - Color changes as time runs low (green → amber → pink)
  * - Pulse animation when time is critical (<5s)
  * - Respects prefers-reduced-motion
  */
@@ -20,7 +20,7 @@ export function GameTimer({ timeLeft, className }: GameTimerProps) {
   // Color logic based on time remaining
   const getTimeColor = () => {
     if (timeLeft <= 5) return 'text-ranch-pink'; // Critical (red/pink)
-    if (timeLeft <= 10) return 'text-yellow-400'; // Warning (yellow)
+    if (timeLeft <= 10) return 'text-amber-500'; // Warning (amber)
     return 'text-ranch-lime'; // Good (green)
   };
 

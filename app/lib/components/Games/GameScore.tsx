@@ -26,7 +26,7 @@ export function GameScore({ score, showProgress = true, className }: GameScorePr
   const getScoreColor = () => {
     if (currentDiscount >= 15) return 'text-ranch-lime'; // Max discount
     if (currentDiscount >= 12) return 'text-ranch-cyan'; // Great
-    if (currentDiscount >= 9) return 'text-yellow-400'; // Good
+    if (currentDiscount >= 9) return 'text-amber-500'; // Good
     if (currentDiscount >= 6) return 'text-ranch-lavender'; // Okay
     if (currentDiscount >= 3) return 'text-ranch-cream'; // Minimal
     return 'text-ranch-cream'; // No discount yet
