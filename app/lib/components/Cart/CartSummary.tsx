@@ -10,14 +10,14 @@ export function CartSummary() {
   return (
     <div className="space-y-3 bg-ranch-purple/20 rounded-lg p-4 border-2 border-ranch-purple">
       {/* Subtotal */}
-      <div className="flex justify-between items-center text-ranch-lavender" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+      <div className="flex justify-between items-center text-ranch-lavender font-display-600">
         <span>Subtotal</span>
-        <span style={{ fontWeight: 700 }}>${totals.subtotal.toFixed(2)}</span>
+        <span className="font-display-700">${totals.subtotal.toFixed(2)}</span>
       </div>
 
       {/* Discount (if any) */}
       {hasDiscount && (
-        <div className="flex justify-between items-center text-ranch-lime" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+        <div className="flex justify-between items-center text-ranch-lime font-display-600">
           <div className="flex items-center gap-2">
             <span>Earned Discount</span>
             {isAtDiscountCap && (
@@ -26,7 +26,7 @@ export function CartSummary() {
               </Badge>
             )}
           </div>
-          <span style={{ fontWeight: 700 }}>
+          <span className="font-display-700">
             -{totals.effectiveDiscountPercent}% (${totals.totalDiscount.toFixed(2)})
           </span>
         </div>
@@ -34,14 +34,14 @@ export function CartSummary() {
 
       {/* Discount cap warning */}
       {isAtDiscountCap && (
-        <div className="text-lg text-ranch-lavender/70 bg-ranch-purple/30 p-2 rounded border border-ranch-purple" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+        <div className="text-lg text-ranch-lavender/70 bg-ranch-purple/30 p-2 rounded border border-ranch-purple font-display-600">
           🎮 Maximum discount reached! The Ranch rewards your skill.
         </div>
       )}
 
       {/* Savings display */}
       {totals.savings > 0 && (
-        <div className="text-lg text-ranch-cyan italic" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+        <div className="text-lg text-ranch-cyan italic font-display-600">
           You're saving ${totals.savings.toFixed(2)} from playing games! 🐛💚
         </div>
       )}
@@ -50,16 +50,16 @@ export function CartSummary() {
       <div className="h-px bg-ranch-purple" />
 
       {/* Total */}
-      <div className="flex justify-between items-center" style={{ fontFamily: 'Tourney, cursive' }}>
-        <span className="text-2xl text-ranch-cream" style={{ fontWeight: 700 }}>Total</span>
-        <span className="text-2xl text-ranch-cyan" style={{ fontWeight: 700 }}>
+      <div className="flex justify-between items-center font-display">
+        <span className="text-2xl text-ranch-cream font-display-700">Total</span>
+        <span className="text-2xl text-ranch-cyan font-display-700">
           ${totals.total.toFixed(2)}
         </span>
       </div>
 
       {/* Free shipping message (if applicable) */}
       {totals.total >= 50 && (
-        <div className="text-lg text-ranch-lime bg-ranch-lime/10 p-2 rounded border border-ranch-lime/30" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+        <div className="text-lg text-ranch-lime bg-ranch-lime/10 p-2 rounded border border-ranch-lime/30 font-display-600">
           🦋 Free shipping unlocked!
         </div>
       )}

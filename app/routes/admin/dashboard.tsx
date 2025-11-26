@@ -222,15 +222,13 @@ export default function AdminDashboard() {
         <div className="mb-6 md:mb-8 flex items-center justify-between">
           <div>
             <h1
-              className="text-3xl md:text-4xl text-[#F5F5DC] font-bold mb-2"
-              style={{ fontFamily: 'Creepster, cursive' }}
+              className="text-3xl md:text-4xl text-[#F5F5DC] font-bold mb-2 font-display-800"
             >
               Dashboard
             </h1>
             {loadedAt && (
               <p
-                className="text-sm text-[#9B8FB5]"
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                className="text-sm text-[#9B8FB5] font-body"
               >
                 Updated {formatDistanceToNow(new Date(loadedAt), { addSuffix: true })}
               </p>
@@ -287,8 +285,7 @@ export default function AdminDashboard() {
         {/* Activity Feed */}
         <div className="mb-6 md:mb-8">
           <h2
-            className="text-2xl text-[#F5F5DC] font-bold mb-4"
-            style={{ fontFamily: 'Tourney, cursive' }}
+            className="text-2xl text-[#F5F5DC] font-bold mb-4 font-display"
           >
             Recent Activity
           </h2>

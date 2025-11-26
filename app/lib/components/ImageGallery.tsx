@@ -92,10 +92,8 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
         {/* Image type badge */}
         {currentImage && (
           <div
-            className="absolute top-2 left-2 z-20 px-3 py-1 rounded-lg text-sm"
+            className="absolute top-2 left-2 z-20 px-3 py-1 rounded-lg text-sm font-display-600"
             style={{
-              fontFamily: 'Tourney, cursive',
-              fontWeight: 600,
               backgroundColor:
                 currentImage.type === 'design'
                   ? 'rgba(50, 205, 50, 0.3)'
@@ -139,8 +137,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
         {/* Click to zoom hint */}
         <div
-          className="absolute bottom-2 right-2 z-20 px-2 py-1 rounded text-xs text-ranch-lavender/60 bg-ranch-dark/50"
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          className="absolute bottom-2 right-2 z-20 px-2 py-1 rounded text-xs text-ranch-lavender/60 bg-ranch-dark/50 font-body"
         >
           Click to zoom
         </div>
@@ -183,10 +180,8 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
 
                 {/* Thumbnail label overlay */}
                 <div
-                  className="absolute bottom-0 left-0 right-0 px-1 py-0.5 text-[10px] text-center truncate"
+                  className="absolute bottom-0 left-0 right-0 px-1 py-0.5 text-[10px] text-center truncate font-display-600"
                   style={{
-                    fontFamily: 'Tourney, cursive',
-                    fontWeight: 600,
                     backgroundColor: isDesign
                       ? 'rgba(50, 205, 50, 0.9)'
                       : 'rgba(0, 206, 209, 0.9)',

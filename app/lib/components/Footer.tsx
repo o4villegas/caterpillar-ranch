@@ -101,26 +101,19 @@ export function Footer() {
                 style={{ animation: 'breathe-footer 5s ease-in-out infinite' }}
               >
                 <span
-                  className="text-2xl text-[#FF1493] block"
-                  style={{ fontFamily: 'Creepster, cursive' }}
+                  className="text-2xl text-[#FF1493] block font-logo"
                 >
                   Caterpillar Rancch
                 </span>
               </div>
-              <p
-                className="text-sm text-[#9B8FB5] mt-2"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
-              >
+              <p className="text-sm text-[#9B8FB5] mt-2 font-display-600">
                 Adorable Horror Tees
               </p>
             </div>
 
             {/* Section 2: Newsletter (30%) */}
             <div className="md:col-span-1">
-              <h3
-                className="text-lg text-[#32CD32] mb-3"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
-              >
+              <h3 className="text-lg text-[#32CD32] mb-3 font-display-700">
                 Join the Colony
               </h3>
               <form onSubmit={handleNewsletterSubmit} className="flex flex-col gap-2">
@@ -132,14 +125,12 @@ export function Footer() {
                   required
                   disabled={isSubmitting}
                   className="bg-[#1a1a1a] border-[#4A3258] text-[#F5F5DC] placeholder:text-[#9B8FB5]
-                    focus:border-[#00CED1]"
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                    focus:border-[#00CED1] font-body"
                 />
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-[#00CED1] text-[#1a1a1a] hover:bg-[#00CED1]/90 font-semibold"
-                  style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+                  className="bg-[#00CED1] text-[#1a1a1a] hover:bg-[#00CED1]/90 font-semibold font-display-700"
                 >
                   {isSubmitting ? 'Subscribing...' : 'Subscribe'}
                 </Button>
@@ -148,37 +139,30 @@ export function Footer() {
 
             {/* Section 3: Links (25%) */}
             <div className="flex flex-col gap-2">
-              <h3
-                className="text-lg text-[#32CD32] mb-1"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
-              >
+              <h3 className="text-lg text-[#32CD32] mb-1 font-display-700">
                 Support
               </h3>
               <button
                 onClick={() => setIsContactModalOpen(true)}
-                className="text-[#9B8FB5] hover:text-[#32CD32] transition-colors text-left text-sm"
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                className="text-[#9B8FB5] hover:text-[#32CD32] transition-colors text-left text-sm font-body"
               >
                 Contact Us
               </button>
               <Link
                 to="/privacy"
-                className="text-[#9B8FB5] hover:text-[#32CD32] transition-colors text-sm"
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                className="text-[#9B8FB5] hover:text-[#32CD32] transition-colors text-sm font-body"
               >
                 Privacy Policy
               </Link>
               <Link
                 to="/terms"
-                className="text-[#9B8FB5] hover:text-[#32CD32] transition-colors text-sm"
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                className="text-[#9B8FB5] hover:text-[#32CD32] transition-colors text-sm font-body"
               >
                 Terms of Service
               </Link>
               <Link
                 to="/shipping"
-                className="text-[#9B8FB5] hover:text-[#32CD32] transition-colors text-sm"
-                style={{ fontFamily: 'Inter, sans-serif' }}
+                className="text-[#9B8FB5] hover:text-[#32CD32] transition-colors text-sm font-body"
               >
                 Shipping & Returns
               </Link>
@@ -186,10 +170,7 @@ export function Footer() {
 
             {/* Section 4: Social + Admin (20%) */}
             <div className="flex flex-col items-center md:items-end gap-4">
-              <h3
-                className="text-lg text-[#32CD32]"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
-              >
+              <h3 className="text-lg text-[#32CD32] font-display-700">
                 Follow Us
               </h3>
               <div className="flex items-center gap-4">
@@ -231,8 +212,7 @@ export function Footer() {
           {/* Copyright */}
           <div className="mt-8 pt-6 border-t border-[#4A3258] text-center">
             <p
-              className="text-xs text-[#9B8FB5]"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              className="text-xs text-[#9B8FB5] font-body"
             >
               © {new Date().getFullYear()} Caterpillar Ranch. All rights reserved.
             </p>

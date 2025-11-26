@@ -20,10 +20,10 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     <Drawer open={isOpen} onOpenChange={onClose}>
       <DrawerContent className="bg-ranch-dark border-4 border-ranch-purple max-h-[90vh]">
         <DrawerHeader className="border-b-2 border-ranch-purple/50">
-          <DrawerTitle className="text-2xl text-ranch-pink drip-text" style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}>
+          <DrawerTitle className="text-2xl text-ranch-pink drip-text font-display-800">
             {hasItems ? 'Your Order is Growing' : 'The Ranch Awaits'}
           </DrawerTitle>
-          <DrawerDescription className="text-ranch-lavender" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+          <DrawerDescription className="text-ranch-lavender font-display-600">
             {hasItems
               ? `${totals.itemCount} ${totals.itemCount === 1 ? 'item' : 'items'} growing in your cart`
               : 'Select your harvest to begin'
@@ -49,13 +49,12 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                 {/* Checkout Button */}
                 <Button
-                  className="w-full mt-4 bg-ranch-cyan hover:bg-ranch-lime text-ranch-dark text-lg"
+                  className="w-full mt-4 bg-ranch-cyan hover:bg-ranch-lime text-ranch-dark text-lg font-display-700"
                   size="lg"
                   onClick={() => {
                     onClose(); // Close drawer
                     navigate('/checkout'); // Navigate to checkout
                   }}
-                  style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
                 >
                   Complete the Harvest
                 </Button>
@@ -63,9 +62,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 {/* Continue Shopping */}
                 <Button
                   variant="ghost"
-                  className="w-full mt-2 text-ranch-lavender hover:text-ranch-cream"
+                  className="w-full mt-2 text-ranch-lavender hover:text-ranch-cream font-display-600"
                   onClick={onClose}
-                  style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
                 >
                   Continue Browsing
                 </Button>

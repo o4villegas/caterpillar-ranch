@@ -16,9 +16,8 @@ export function Header() {
             className="group transition-all hover:scale-105"
           >
             <span
-              className="text-4xl font-bold text-ranch-pink"
+              className="text-4xl font-bold text-ranch-pink font-logo"
               style={{
-                fontFamily: 'Creepster, cursive',
                 textShadow: '0 0 8px rgba(50, 205, 50, 0.4), 0 0 2px rgba(50, 205, 50, 0.6), 0 1px 0 rgba(50, 205, 50, 0.3)'
               }}
             >

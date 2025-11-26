@@ -178,7 +178,7 @@ export default function AdminProductsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-ranch-cream" style={{ fontFamily: 'Tourney, cursive' }}>Products</h1>
+          <h1 className="text-3xl font-bold text-ranch-cream font-display">Products</h1>
           <p className="text-ranch-lavender mt-1">
             Auto-synced daily at 2 AM UTC via scheduled handler
           </p>

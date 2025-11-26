@@ -159,7 +159,7 @@ export default function AdminSyncLogsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-ranch-cream" style={{ fontFamily: 'Tourney, cursive' }}>Sync Logs</h1>
+          <h1 className="text-3xl font-bold text-ranch-cream font-display">Sync Logs</h1>
           <p className="text-ranch-lavender mt-1">
             Audit trail of product sync operations from Printful
           </p>
@@ -176,7 +176,7 @@ export default function AdminSyncLogsPage() {
       {/* Hidden Products Section */}
       {hiddenProducts.length > 0 && (
         <div className="border-2 border-ranch-pink/50 rounded-lg p-6 bg-ranch-purple/10">
-          <h2 className="text-xl font-bold text-ranch-pink mb-4" style={{ fontFamily: 'Tourney, cursive' }}>
+          <h2 className="text-xl font-bold text-ranch-pink mb-4 font-display">
             ⚠️ Hidden Products ({hiddenProducts.length})
           </h2>
           <p className="text-ranch-lavender mb-4 text-sm">

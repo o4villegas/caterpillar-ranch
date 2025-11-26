@@ -65,10 +65,7 @@ export function Sidebar({ isOpen = true, onClose, userEmail }: SidebarProps) {
           <div className="flex items-center gap-3">
             <span className="text-4xl">🐛</span>
             <div>
-              <h1
-                className="text-2xl text-[#FF1493]"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
-              >
+              <h1 className="text-2xl text-[#FF1493] font-display-700">
                 RANCCH
               </h1>
               <p className="text-sm text-[#9B8FB5]">Admin Portal</p>
@@ -91,11 +88,11 @@ export function Sidebar({ isOpen = true, onClose, userEmail }: SidebarProps) {
                   'flex items-center gap-3 px-4 py-3 rounded-lg mb-2',
                   'transition-colors duration-200',
                   'text-[#F5F5DC]',
+                  'font-body',
                   isActive
-                    ? 'bg-[#4A3258] border-l-4 border-[#32CD32] text-[#32CD32]'
+                    ? 'bg-[#4A3258] border-l-4 border-[#32CD32] text-[#32CD32] font-semibold'
                     : 'hover:bg-[#4A3258]'
                 )}
-                style={{ fontFamily: 'Inter, sans-serif', fontWeight: isActive ? 600 : 400 }}
               >
                 <span className="text-2xl">{item.icon}</span>
                 <span>{item.label}</span>
@@ -115,8 +112,7 @@ export function Sidebar({ isOpen = true, onClose, userEmail }: SidebarProps) {
           <button
             onClick={handleLogout}
             className="w-full px-4 py-2 bg-[#FF1493] text-[#F5F5DC] rounded-lg
-              hover:bg-[#e0127f] transition-colors"
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+              hover:bg-[#e0127f] transition-colors font-display-700"
           >
             Logout
           </button>

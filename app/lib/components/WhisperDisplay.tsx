@@ -40,13 +40,7 @@ export function WhisperDisplay({ show }: WhisperDisplayProps) {
             textShadow: '0 0 8px rgba(155, 143, 181, 0.6)',
           }}
         >
-          <p
-            className="text-ranch-lavender text-lg italic tracking-wide"
-            style={{
-              fontFamily: 'Tourney, cursive',
-              fontWeight: 400,
-            }}
-          >
+          <p className="text-ranch-lavender text-lg italic tracking-wide font-display">
             {whisper}
           </p>
         </motion.div>

@@ -348,27 +348,23 @@ export default function HungryCaterpillarRoute() {
         {/* Header */}
         <div className="text-center mb-6">
           <p
-            className="text-sm text-amber-500/70 uppercase tracking-widest mb-1"
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+            className="text-sm text-amber-500/70 uppercase tracking-widest mb-1 font-display-600"
           >
             {HORROR_COPY.games.hungryCaterpillar.careStage}
           </p>
           <h1
-            className="text-3xl text-ranch-lime mb-2"
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
+            className="text-3xl text-ranch-lime mb-2 font-display-800"
           >
             {HORROR_COPY.games.hungryCaterpillar.title}
           </h1>
           <p
-            className="text-ranch-lavender text-lg"
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+            className="text-ranch-lavender text-lg font-display-600"
           >
             {HORROR_COPY.games.hungryCaterpillar.description}
           </p>
           {bestScore > 0 && (
             <p
-              className="text-ranch-cyan text-lg mt-1"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              className="text-ranch-cyan text-lg mt-1 font-display-600"
             >
               Best: {bestScore}
             </p>
@@ -380,28 +376,24 @@ export default function HungryCaterpillarRoute() {
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
               <p
-                className="text-lg text-ranch-cream leading-relaxed text-center"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+                className="text-lg text-ranch-cream leading-relaxed text-center font-display-600"
               >
                 {HORROR_COPY.games.hungryCaterpillar.instructions[0]}
               </p>
               <p
-                className="text-lg text-ranch-lavender mt-2 text-center"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+                className="text-lg text-ranch-lavender mt-2 text-center font-display-600"
               >
                 {HORROR_COPY.games.hungryCaterpillar.instructions[1]}
               </p>
               <p
-                className="text-sm text-ranch-pink/70 mt-4 text-center"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+                className="text-sm text-ranch-pink/70 mt-4 text-center font-display-500"
               >
                 Warning: Collision ends the transformation immediately.
               </p>
             </div>
             <button
               onClick={handleStartGame}
-              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors font-display-700"
             >
               {HORROR_COPY.games.hungryCaterpillar.startButton}
             </button>
@@ -425,6 +417,8 @@ export default function HungryCaterpillarRoute() {
 
             {/* Game Board */}
             <div
+              role="application"
+              aria-label="Snake game - swipe or use arrow keys"
               className="relative bg-ranch-purple/10 rounded-lg border-2 border-ranch-purple overflow-hidden"
               style={{
                 width: GRID_SIZE * CELL_SIZE,
@@ -496,14 +490,12 @@ export default function HungryCaterpillarRoute() {
                   <div className="text-center">
                     <div className="text-6xl mb-2">💀</div>
                     <p
-                      className="text-ranch-pink text-xl"
-                      style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+                      className="text-ranch-pink text-xl font-display-700"
                     >
                       THE GATHERING FAILED
                     </p>
                     <p
-                      className="text-ranch-lavender text-lg mt-1"
-                      style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+                      className="text-ranch-lavender text-lg mt-1 font-display-500"
                     >
                       Gathered: {gameState.foodEaten} nourishment
                     </p>
@@ -527,20 +519,17 @@ export default function HungryCaterpillarRoute() {
                 🐛 → 🦋
               </div>
               <p
-                className="text-amber-400 text-2xl mb-2"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+                className="text-amber-400 text-2xl mb-2 font-display-700"
               >
                 THEY ARE READY TO TRANSFORM
               </p>
               <p
-                className="text-ranch-lavender"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+                className="text-ranch-lavender font-display-500"
               >
                 Gathered: {gameState.foodEaten} nourishment
               </p>
               <p
-                className="text-ranch-cyan text-lg mt-2"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+                className="text-ranch-cyan text-lg mt-2 font-display-600"
               >
                 {gameState.foodEaten >= 10 ? '✨ Perfect Preparation! +15' : ''}
               </p>

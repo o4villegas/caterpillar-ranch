@@ -150,7 +150,7 @@ export default function CheckoutSuccessPage() {
           animate={{ opacity: 1 }}
         >
           <div className="animate-pulse text-6xl mb-4">🐛</div>
-          <p className="text-ranch-lavender text-xl" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+          <p className="text-ranch-lavender text-xl font-display-600">
             Verifying your payment...
           </p>
         </motion.div>
@@ -167,16 +167,16 @@ export default function CheckoutSuccessPage() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <h1 className="text-4xl text-ranch-pink mb-4" style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}>
+            <h1 className="text-4xl text-ranch-pink mb-4 font-display-800">
               Something Went Wrong
             </h1>
-            <p className="text-ranch-lavender mb-8" style={{ fontFamily: 'Inter, sans-serif' }}>
+            <p className="text-ranch-lavender mb-8 font-body">
               {verificationError}
             </p>
             <Button
               variant="horror"
               onClick={() => navigate('/checkout/review')}
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              className="font-display-600"
             >
               Return to Checkout
             </Button>
@@ -204,10 +204,10 @@ export default function CheckoutSuccessPage() {
           >
             🎉
           </motion.div>
-          <h1 className="text-5xl text-ranch-lime mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}>
+          <h1 className="text-5xl text-ranch-lime mb-2 font-display-800">
             Order Confirmed!
           </h1>
-          <p className="text-ranch-lavender text-lg" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+          <p className="text-ranch-lavender text-lg font-display-600">
             The Ranch has accepted your harvest
           </p>
         </motion.div>
@@ -223,8 +223,8 @@ export default function CheckoutSuccessPage() {
             <>
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <p className="text-ranch-lavender text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>Order Number</p>
-                  <p className="text-ranch-cyan text-2xl" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+                  <p className="text-ranch-lavender text-sm font-body">Order Number</p>
+                  <p className="text-ranch-cyan text-2xl font-display-700">
                     {orderDetails.orderId}
                   </p>
                 </div>
@@ -235,20 +235,20 @@ export default function CheckoutSuccessPage() {
 
               {/* Items Summary */}
               <div className="border-t border-ranch-purple/50 pt-4 mb-4">
-                <h3 className="text-ranch-cream mb-3" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+                <h3 className="text-ranch-cream mb-3 font-display-700">
                   Order Summary
                 </h3>
                 {orderDetails.items.map((item) => (
                   <div key={item.id} className="flex justify-between items-center py-2">
                     <div>
-                      <span className="text-ranch-cream" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+                      <span className="text-ranch-cream font-display-600">
                         {item.product.name}
                       </span>
-                      <span className="text-ranch-lavender text-sm ml-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+                      <span className="text-ranch-lavender text-sm ml-2 font-body">
                         × {item.quantity}
                       </span>
                     </div>
-                    <span className="text-ranch-cyan" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+                    <span className="text-ranch-cyan font-display-600">
                       ${(item.product.price * (1 - item.earnedDiscount / 100) * item.quantity).toFixed(2)}
                     </span>
                   </div>
@@ -258,8 +258,8 @@ export default function CheckoutSuccessPage() {
               {/* Totals */}
               <div className="border-t border-ranch-purple/50 pt-4">
                 <div className="flex justify-between text-lg">
-                  <span className="text-ranch-cream" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>Total Paid</span>
-                  <span className="text-ranch-cyan" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+                  <span className="text-ranch-cream font-display-700">Total Paid</span>
+                  <span className="text-ranch-cyan font-display-700">
                     ${orderDetails.totals.total.toFixed(2)}
                   </span>
                 </div>
@@ -267,10 +267,10 @@ export default function CheckoutSuccessPage() {
 
               {/* Shipping Info */}
               <div className="border-t border-ranch-purple/50 pt-4 mt-4">
-                <h3 className="text-ranch-cream mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+                <h3 className="text-ranch-cream mb-2 font-display-700">
                   Shipping To
                 </h3>
-                <div className="text-ranch-lavender" style={{ fontFamily: 'Inter, sans-serif' }}>
+                <div className="text-ranch-lavender font-body">
                   <p className="font-semibold text-ranch-cream">{orderDetails.shipping.name}</p>
                   <p>{orderDetails.shipping.address}</p>
                   {orderDetails.shipping.address2 && <p>{orderDetails.shipping.address2}</p>}
@@ -282,10 +282,10 @@ export default function CheckoutSuccessPage() {
 
           {!orderDetails && (
             <div className="text-center py-8">
-              <p className="text-ranch-lime text-xl mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+              <p className="text-ranch-lime text-xl mb-2 font-display-700">
                 Payment Successful!
               </p>
-              <p className="text-ranch-lavender" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <p className="text-ranch-lavender font-body">
                 You will receive a confirmation email shortly with your order details.
               </p>
             </div>
@@ -299,10 +299,10 @@ export default function CheckoutSuccessPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <h3 className="text-ranch-cream mb-3" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+          <h3 className="text-ranch-cream mb-3 font-display-700">
             What Happens Next?
           </h3>
-          <ul className="space-y-2 text-ranch-lavender" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <ul className="space-y-2 text-ranch-lavender font-body">
             <li className="flex items-start gap-2">
               <span className="text-ranch-lime">✓</span>
               <span>You'll receive a confirmation email shortly</span>
@@ -329,8 +329,7 @@ export default function CheckoutSuccessPage() {
             <Button
               variant="horror"
               size="lg"
-              className="w-full"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              className="w-full font-display-600"
             >
               Continue Shopping
             </Button>

@@ -247,8 +247,7 @@ export default function AdminSubscribersPage() {
       <div className="flex justify-between items-start">
         <div>
           <h1
-            className="text-3xl font-bold text-ranch-cream"
-            style={{ fontFamily: 'Tourney, cursive' }}
+            className="text-3xl font-bold text-ranch-cream font-display"
           >
             Subscribers
           </h1>

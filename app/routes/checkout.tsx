@@ -98,10 +98,10 @@ export default function CheckoutPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-5xl text-ranch-pink drip-text mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}>
+          <h1 className="text-5xl text-ranch-pink drip-text mb-2 font-display-800">
             {HORROR_COPY.checkout.title}
           </h1>
-          <p className="text-ranch-lavender" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+          <p className="text-ranch-lavender font-display-600">
             {HORROR_COPY.checkout.shippingTitle}
           </p>
         </motion.div>
@@ -113,18 +113,18 @@ export default function CheckoutPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <div className="flex justify-between items-center" style={{ fontFamily: 'Tourney, cursive' }}>
+          <div className="flex justify-between items-center font-display">
             <div>
-              <span className="text-ranch-cream" style={{ fontWeight: 700 }}>
+              <span className="text-ranch-cream font-display-700">
                 {totals.itemCount} {totals.itemCount === 1 ? 'item' : 'items'}
               </span>
               {totals.effectiveDiscountPercent > 0 && (
-                <span className="ml-2 text-ranch-lime text-lg" style={{ fontWeight: 600 }}>
+                <span className="ml-2 text-ranch-lime text-lg font-display-600">
                   ({totals.effectiveDiscountPercent}% off applied)
                 </span>
               )}
             </div>
-            <div className="text-2xl text-ranch-cyan" style={{ fontWeight: 700 }}>
+            <div className="text-2xl text-ranch-cyan font-display-700">
               ${totals.total.toFixed(2)}
             </div>
           </div>
@@ -139,13 +139,13 @@ export default function CheckoutPage() {
           transition={{ delay: 0.2 }}
         >
           <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
-            <h2 className="text-2xl text-ranch-cream mb-4" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+            <h2 className="text-2xl text-ranch-cream mb-4 font-display-700">
               Contact Information
             </h2>
 
             {/* Email */}
             <div className="mb-4">
-              <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+              <label className="block text-ranch-cream text-lg mb-2 font-display-700">
                 Email <span className="text-ranch-pink">*</span>
               </label>
               <Input
@@ -162,7 +162,7 @@ export default function CheckoutPage() {
 
             {/* Name */}
             <div>
-              <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+              <label className="block text-ranch-cream text-lg mb-2 font-display-700">
                 Full Name <span className="text-ranch-pink">*</span>
               </label>
               <Input
@@ -179,13 +179,13 @@ export default function CheckoutPage() {
           </div>
 
           <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
-            <h2 className="text-2xl text-ranch-cream mb-4" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+            <h2 className="text-2xl text-ranch-cream mb-4 font-display-700">
               {HORROR_COPY.checkout.shippingAddress}
             </h2>
 
             {/* Address */}
             <div className="mb-4">
-              <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+              <label className="block text-ranch-cream text-lg mb-2 font-display-700">
                 Street Address <span className="text-ranch-pink">*</span>
               </label>
               <Input
@@ -202,7 +202,7 @@ export default function CheckoutPage() {
 
             {/* Address Line 2 (Optional) */}
             <div className="mb-4">
-              <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+              <label className="block text-ranch-cream text-lg mb-2 font-display-700">
                 Apartment, Suite, etc. (optional)
               </label>
               <Input
@@ -216,7 +216,7 @@ export default function CheckoutPage() {
             {/* City, State, ZIP */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+                <label className="block text-ranch-cream text-lg mb-2 font-display-700">
                   City <span className="text-ranch-pink">*</span>
                 </label>
                 <Input
@@ -232,7 +232,7 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+                <label className="block text-ranch-cream text-lg mb-2 font-display-700">
                   State <span className="text-ranch-pink">*</span>
                 </label>
                 <Input
@@ -249,7 +249,7 @@ export default function CheckoutPage() {
               </div>
 
               <div>
-                <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+                <label className="block text-ranch-cream text-lg mb-2 font-display-700">
                   ZIP Code <span className="text-ranch-pink">*</span>
                 </label>
                 <Input
@@ -268,7 +268,7 @@ export default function CheckoutPage() {
 
             {/* Phone (Optional) */}
             <div>
-              <label className="block text-ranch-cream text-lg mb-2" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>
+              <label className="block text-ranch-cream text-lg mb-2 font-display-700">
                 Phone (optional)
               </label>
               <Input
@@ -285,9 +285,8 @@ export default function CheckoutPage() {
             type="submit"
             variant="horror"
             size="lg"
-            className="w-full h-14 text-lg"
+            className="w-full h-14 text-lg font-display-600"
             disabled={isSubmitting}
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
           >
             {isSubmitting ? 'Preparing...' : 'Continue to Review'}
           </Button>
@@ -296,9 +295,8 @@ export default function CheckoutPage() {
           <Button
             type="button"
             variant="ghost"
-            className="w-full text-ranch-lavender"
+            className="w-full text-ranch-lavender font-display-600"
             onClick={() => navigate('/')}
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
           >
             ← Back to Shopping
           </Button>

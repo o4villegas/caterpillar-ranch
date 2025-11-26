@@ -105,8 +105,7 @@ export function GlobalSearch() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pl-10 bg-[#2d1f3a] border-[#4A3258] text-[#F5F5DC] placeholder:text-[#9B8FB5]
-            focus:border-[#00CED1] focus:ring-[#00CED1]"
-          style={{ fontFamily: 'Inter, sans-serif' }}
+            focus:border-[#00CED1] focus:ring-[#00CED1] font-body"
         />
         {isLoading && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9B8FB5] text-sm">
@@ -121,10 +120,7 @@ export function GlobalSearch() {
           rounded-lg shadow-lg max-h-96 overflow-y-auto z-50">
           {results.products.length > 0 && (
             <section className="p-2">
-              <h4
-                className="px-3 py-2 text-sm text-[#9B8FB5] uppercase tracking-wide"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
-              >
+              <h4 className="px-3 py-2 text-sm text-[#9B8FB5] uppercase tracking-wide font-display-700">
                 Products ({results.products.length})
               </h4>
               {results.products.map((product) => (
@@ -132,8 +128,7 @@ export function GlobalSearch() {
                   key={product.id}
                   onClick={() => handleSelect(product)}
                   className="w-full text-left px-3 py-2 rounded hover:bg-[#4A3258] transition-colors
-                    text-[#F5F5DC]"
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                    text-[#F5F5DC] font-body"
                 >
                   <div className="font-medium">{product.label}</div>
                   {product.sublabel && (
@@ -146,10 +141,7 @@ export function GlobalSearch() {
 
           {results.orders.length > 0 && (
             <section className="p-2 border-t-2 border-[#4A3258]">
-              <h4
-                className="px-3 py-2 text-sm text-[#9B8FB5] uppercase tracking-wide"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
-              >
+              <h4 className="px-3 py-2 text-sm text-[#9B8FB5] uppercase tracking-wide font-display-700">
                 Orders ({results.orders.length})
               </h4>
               {results.orders.map((order) => (
@@ -157,8 +149,7 @@ export function GlobalSearch() {
                   key={order.id}
                   onClick={() => handleSelect(order)}
                   className="w-full text-left px-3 py-2 rounded hover:bg-[#4A3258] transition-colors
-                    text-[#F5F5DC]"
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                    text-[#F5F5DC] font-body"
                 >
                   <div className="font-medium font-mono">{order.label}</div>
                   {order.sublabel && (

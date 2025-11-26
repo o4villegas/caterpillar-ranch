@@ -27,6 +27,7 @@ import { GameScore } from '../lib/components/Games/GameScore';
 import { GameResults } from '../lib/components/Games/GameResults';
 import { useGameState } from '../lib/components/Games/hooks/useGameState';
 import { useCart } from '../lib/contexts/CartContext';
+import { useReducedMotion } from '../lib/hooks/useReducedMotion';
 import { HORROR_COPY, getDreadMessage } from '../lib/constants/horror-copy';
 import type { Route } from './+types/games.midnight-garden';
 
@@ -83,6 +84,7 @@ export default function MidnightGardenRoute() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const productSlug = searchParams.get('product');
+  const shouldReduceMotion = useReducedMotion();
 
   const { addDiscount, removeDiscount, cart } = useCart();
   const game = useGameState(GAME_DURATION);
@@ -283,7 +285,7 @@ export default function MidnightGardenRoute() {
   return (
     <div
       className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4 transition-all duration-500"
-      style={{
+      style={shouldReduceMotion ? {} : {
         backgroundColor: `rgba(26, 26, 26, ${1 + dreadLevel})`,
         filter: mistakeCount >= 3 ? `saturate(${1 - mistakeCount * 0.04})` : undefined,
       }}
@@ -292,27 +294,23 @@ export default function MidnightGardenRoute() {
         {/* Header */}
         <div className="text-center mb-6">
           <p
-            className="text-sm text-amber-500/70 uppercase tracking-widest mb-1"
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+            className="text-sm text-amber-500/70 uppercase tracking-widest mb-1 font-display-600"
           >
             {HORROR_COPY.games.midnightGarden.careStage}
           </p>
           <h1
-            className="text-3xl text-ranch-lime mb-2"
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
+            className="text-3xl text-ranch-lime mb-2 font-display-800"
           >
             {HORROR_COPY.games.midnightGarden.title}
           </h1>
           <p
-            className="text-ranch-lavender text-lg"
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+            className="text-ranch-lavender text-lg font-display-600"
           >
             {HORROR_COPY.games.midnightGarden.description}
           </p>
           {bestScore > 0 && (
             <p
-              className="text-ranch-cyan text-lg mt-1"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+              className="text-ranch-cyan text-lg mt-1 font-display-600"
             >
               Best: {bestScore}
             </p>
@@ -324,28 +322,24 @@ export default function MidnightGardenRoute() {
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
               <p
-                className="text-lg text-ranch-cream leading-relaxed text-center"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+                className="text-lg text-ranch-cream leading-relaxed text-center font-display-600"
               >
                 {HORROR_COPY.games.midnightGarden.instructions[0]}
               </p>
               <p
-                className="text-lg text-ranch-lavender mt-2 text-center"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+                className="text-lg text-ranch-lavender mt-2 text-center font-display-600"
               >
                 {HORROR_COPY.games.midnightGarden.instructions[1]}
               </p>
               <p
-                className="text-sm text-ranch-pink/70 mt-4 text-center"
-                style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+                className="text-sm text-ranch-pink/70 mt-4 text-center font-display-500"
               >
                 Warning: Clicking bad signs costs {BAD_SIGN_PENALTY} points.
               </p>
             </div>
             <button
               onClick={handleStartGame}
-              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors font-display-700"
             >
               {HORROR_COPY.games.midnightGarden.startButton}
             </button>
@@ -371,8 +365,7 @@ export default function MidnightGardenRoute() {
                   className="bg-ranch-pink/20 border border-ranch-pink/40 rounded-lg p-2 text-center"
                 >
                   <p
-                    className="text-ranch-pink text-sm"
-                    style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+                    className="text-ranch-pink text-sm font-display-600"
                   >
                     {dreadMessage}
                   </p>
@@ -384,8 +377,7 @@ export default function MidnightGardenRoute() {
             {confusionActive && (
               <div className="bg-amber-500/20 border border-amber-500/40 rounded-lg p-2 text-center">
                 <p
-                  className="text-amber-400 text-sm"
-                  style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+                  className="text-amber-400 text-sm font-display-600"
                 >
                   ⚠️ The garden deceives. Bad signs wear good masks.
                 </p>
@@ -457,8 +449,7 @@ export default function MidnightGardenRoute() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="bg-ranch-lime/10 border border-ranch-lime/40 rounded p-2">
                 <p
-                  className="text-ranch-lime font-bold mb-1"
-                  style={{ fontFamily: 'Tourney, cursive' }}
+                  className="text-ranch-lime font-bold mb-1 font-display"
                 >
                   Good Signs
                 </p>
@@ -466,8 +457,7 @@ export default function MidnightGardenRoute() {
               </div>
               <div className="bg-ranch-pink/10 border border-ranch-pink/40 rounded p-2">
                 <p
-                  className="text-ranch-pink font-bold mb-1"
-                  style={{ fontFamily: 'Tourney, cursive' }}
+                  className="text-ranch-pink font-bold mb-1 font-display"
                 >
                   Bad Signs
                 </p>

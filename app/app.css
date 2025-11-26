@@ -69,9 +69,35 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--color-neutral-cream);
 }
 
-/* Display font utility class */
+/* Display font utility classes */
 .font-display {
   font-family: var(--font-display);
+}
+.font-display-500 {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+.font-display-600 {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.font-display-700 {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+.font-display-800 {
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+
+/* Body font utility class (Inter) */
+.font-body {
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Logo/brand font utility class (Creepster) */
+.font-logo {
+  font-family: "Creepster", cursive;
 }
 
 /* Drip effect - color inherits from parent for flexibility */

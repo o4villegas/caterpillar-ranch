@@ -79,20 +79,14 @@ export function StatCard({
     >
       {/* Title + Icon */}
       <div className="flex items-center justify-between mb-2">
-        <h3
-          className="text-sm md:text-base text-[#9B8FB5] font-semibold"
-          style={{ fontFamily: 'Tourney, cursive' }}
-        >
+        <h3 className="text-sm md:text-base text-[#9B8FB5] font-semibold font-display">
           {title}
         </h3>
         {icon && <div className={textColorClasses[colorScheme]}>{icon}</div>}
       </div>
 
       {/* Value */}
-      <div
-        className={`text-3xl md:text-4xl font-bold ${textColorClasses[colorScheme]} mb-1`}
-        style={{ fontFamily: 'Tourney, cursive' }}
-      >
+      <div className={`text-3xl md:text-4xl font-bold ${textColorClasses[colorScheme]} mb-1 font-display`}>
         {value}
       </div>
 
@@ -100,16 +94,14 @@ export function StatCard({
       <div className="flex items-center gap-2 flex-wrap">
         {subtitle && (
           <span
-            className="text-xs md:text-sm text-[#9B8FB5]"
-            style={{ fontFamily: 'Inter, sans-serif' }}
+            className="text-xs md:text-sm text-[#9B8FB5] font-body"
           >
             {subtitle}
           </span>
         )}
         {trend && trendValue && (
           <span
-            className={`text-xs md:text-sm font-semibold ${trendColors[trend]}`}
-            style={{ fontFamily: 'Inter, sans-serif' }}
+            className={`text-xs md:text-sm font-semibold ${trendColors[trend]} font-body`}
           >
             {trend === 'up' && '↑ '}
             {trend === 'down' && '↓ '}

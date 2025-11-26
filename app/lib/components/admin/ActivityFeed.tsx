@@ -73,15 +73,12 @@ export function ActivityFeed({ orders, games, isLoading = false }: ActivityFeedP
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
       {/* Recent Orders */}
       <div className="bg-[#2d1f3a]/50 border-2 border-[#4A3258] rounded-lg p-4 md:p-6">
-        <h3
-          className="text-xl text-[#32CD32] mb-4 font-bold"
-          style={{ fontFamily: 'Tourney, cursive' }}
-        >
+        <h3 className="text-xl text-[#32CD32] mb-4 font-bold font-display">
           Recent Orders
         </h3>
         <div className="space-y-3">
           {orders.length === 0 ? (
-            <p className="text-[#9B8FB5] text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+            <p className="text-[#9B8FB5] text-sm font-body">
               No orders yet
             </p>
           ) : (
@@ -91,21 +88,17 @@ export function ActivityFeed({ orders, games, isLoading = false }: ActivityFeedP
                 className="bg-[#1a1a1a] border border-[#4A3258] rounded-lg p-3 hover:border-[#00CED1] transition-colors"
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <span
-                    className="text-sm text-[#F5F5DC] font-semibold truncate"
-                    style={{ fontFamily: 'Tourney, cursive' }}
-                  >
+                  <span className="text-sm text-[#F5F5DC] font-semibold truncate font-display">
                     {order.customer_email}
                   </span>
                   <Badge
-                    className={`text-xs shrink-0 ${STATUS_COLORS[order.printful_status || 'draft']}`}
-                    style={{ fontFamily: 'Inter, sans-serif' }}
+                    className={`text-xs shrink-0 font-body ${STATUS_COLORS[order.printful_status || 'draft']}`}
                   >
                     {order.printful_status || 'draft'}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between text-xs text-[#9B8FB5]">
-                  <span style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <span className="font-body">
                     ${parseFloat(order.total).toFixed(2)}
                     {parseFloat(order.discount_amount) > 0 && (
                       <span className="text-[#FF1493] ml-1">
@@ -113,7 +106,7 @@ export function ActivityFeed({ orders, games, isLoading = false }: ActivityFeedP
                       </span>
                     )}
                   </span>
-                  <span style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <span className="font-body">
                     {formatDistanceToNow(new Date(order.created_at), { addSuffix: true })}
                   </span>
                 </div>
@@ -125,15 +118,12 @@ export function ActivityFeed({ orders, games, isLoading = false }: ActivityFeedP
 
       {/* Recent Games */}
       <div className="bg-[#2d1f3a]/50 border-2 border-[#4A3258] rounded-lg p-4 md:p-6">
-        <h3
-          className="text-xl text-[#00CED1] mb-4 font-bold"
-          style={{ fontFamily: 'Tourney, cursive' }}
-        >
+        <h3 className="text-xl text-[#00CED1] mb-4 font-bold font-display">
           Recent Games
         </h3>
         <div className="space-y-3">
           {games.length === 0 ? (
-            <p className="text-[#9B8FB5] text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+            <p className="text-[#9B8FB5] text-sm font-body">
               No games played yet
             </p>
           ) : (
@@ -143,28 +133,22 @@ export function ActivityFeed({ orders, games, isLoading = false }: ActivityFeedP
                 className="bg-[#1a1a1a] border border-[#4A3258] rounded-lg p-3 hover:border-[#32CD32] transition-colors"
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <span
-                    className="text-sm text-[#F5F5DC] font-semibold"
-                    style={{ fontFamily: 'Tourney, cursive' }}
-                  >
+                  <span className="text-sm text-[#F5F5DC] font-semibold font-display">
                     {GAME_NAMES[game.game_type] || game.game_type}
                   </span>
-                  <span
-                    className="text-sm text-[#32CD32] font-bold shrink-0"
-                    style={{ fontFamily: 'Tourney, cursive' }}
-                  >
+                  <span className="text-sm text-[#32CD32] font-bold shrink-0 font-display">
                     {game.score} pts
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-[#9B8FB5]">
-                  <span style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <span className="font-body">
                     {game.discount_earned > 0 ? (
                       <span className="text-[#FF1493]">{game.discount_earned}% off</span>
                     ) : (
                       'No discount'
                     )}
                   </span>
-                  <span style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <span className="font-body">
                     {formatDistanceToNow(new Date(game.completed_at), { addSuffix: true })}
                   </span>
                 </div>

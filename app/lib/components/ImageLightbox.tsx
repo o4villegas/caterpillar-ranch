@@ -109,10 +109,7 @@ export function ImageLightbox({
 
           {/* Image label */}
           {currentImage.label && (
-            <div
-              className="absolute top-4 left-4 z-10 px-4 py-2 rounded-lg bg-ranch-purple/50 text-ranch-cream"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
-            >
+            <div className="absolute top-4 left-4 z-10 px-4 py-2 rounded-lg bg-ranch-purple/50 text-ranch-cream font-display-600">
               {currentImage.label}
             </div>
           )}
@@ -145,10 +142,7 @@ export function ImageLightbox({
 
           {/* Image counter */}
           {hasMultipleImages && (
-            <div
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-lg bg-ranch-purple/50 text-ranch-cream"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
-            >
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 px-4 py-2 rounded-lg bg-ranch-purple/50 text-ranch-cream font-display-600">
               {currentIndex + 1} / {images.length}
             </div>
           )}

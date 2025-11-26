@@ -18,9 +18,8 @@ export function ErrorHeader() {
           aria-label="Return to Caterpillar Ranch homepage"
         >
           <span
-            className="text-4xl font-bold text-ranch-pink"
+            className="text-4xl font-bold text-ranch-pink font-logo"
             style={{
-              fontFamily: 'Creepster, cursive',
               textShadow: '0 0 2px #32CD32, 0 0 3px #32CD32, 0 0 4px #32CD32, -1px -1px 0 #32CD32, 1px -1px 0 #32CD32, -1px 1px 0 #32CD32, 1px 1px 0 #32CD32'
             }}
           >

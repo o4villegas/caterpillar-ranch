@@ -208,11 +208,10 @@ export default function ProductPage() {
         {/* Back button */}
         <motion.button
           onClick={() => navigate('/')}
-          className="mb-6 flex items-center gap-2 text-ranch-lavender hover:text-ranch-lime transition-colors"
+          className="mb-6 flex items-center gap-2 text-ranch-lavender hover:text-ranch-lime transition-colors font-display-600"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           whileHover={{ x: -4 }}
-          style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
         >
           <span className="text-xl">←</span>
           <span>Back to Products</span>

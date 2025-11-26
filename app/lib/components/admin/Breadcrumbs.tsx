@@ -20,8 +20,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
     <nav className="flex items-center gap-2 text-sm mb-6" aria-label="Breadcrumb">
       <Link
         to="/admin/dashboard"
-        className="text-[#00CED1] hover:underline"
-        style={{ fontFamily: 'Inter, sans-serif' }}
+        className="text-[#00CED1] hover:underline font-body"
       >
         Home
       </Link>
@@ -32,15 +31,13 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
           {item.path ? (
             <Link
               to={item.path}
-              className="text-[#00CED1] hover:underline"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              className="text-[#00CED1] hover:underline font-body"
             >
               {item.label}
             </Link>
           ) : (
             <span
-              className="text-[#F5F5DC] font-semibold"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              className="text-[#F5F5DC] font-semibold font-body"
             >
               {item.label}
             </span>

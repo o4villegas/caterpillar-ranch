@@ -98,10 +98,7 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-[#2d1f3a] border-2 border-[#4A3258] max-w-md">
         <DialogHeader>
-          <DialogTitle
-            className="text-2xl text-[#F5F5DC]"
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
-          >
+          <DialogTitle className="text-2xl text-[#F5F5DC] font-display-700">
             Contact Us 🐛
           </DialogTitle>
         </DialogHeader>
@@ -111,8 +108,7 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
           <div>
             <label
               htmlFor="name"
-              className="block text-sm text-[#9B8FB5] mb-1"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              className="block text-sm text-[#9B8FB5] mb-1 font-body"
             >
               Name
             </label>
@@ -133,8 +129,7 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm text-[#9B8FB5] mb-1"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              className="block text-sm text-[#9B8FB5] mb-1 font-body"
             >
               Email
             </label>
@@ -154,8 +149,7 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
           <div>
             <label
               htmlFor="subject"
-              className="block text-sm text-[#9B8FB5] mb-1"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              className="block text-sm text-[#9B8FB5] mb-1 font-body"
             >
               Subject
             </label>
@@ -166,8 +160,7 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
               onChange={handleChange}
               required
               className="w-full px-3 py-2 bg-[#1a1a1a] border-2 border-[#4A3258] rounded-lg
-                text-[#F5F5DC] focus:border-[#00CED1] focus:outline-none"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+                text-[#F5F5DC] focus:border-[#00CED1] focus:outline-none font-body"
             >
               {SUBJECTS.map((subject) => (
                 <option key={subject.value} value={subject.value}>
@@ -181,8 +174,7 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
           <div>
             <label
               htmlFor="message"
-              className="block text-sm text-[#9B8FB5] mb-1"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+              className="block text-sm text-[#9B8FB5] mb-1 font-body"
             >
               Message
             </label>
@@ -196,8 +188,7 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
               rows={6}
               className="w-full px-3 py-2 bg-[#1a1a1a] border-2 border-[#4A3258] rounded-lg
                 text-[#F5F5DC] placeholder:text-[#9B8FB5] focus:border-[#00CED1] focus:outline-none
-                resize-none"
-              style={{ fontFamily: 'Inter, sans-serif' }}
+                resize-none font-body"
               placeholder="How can we help you?"
             />
             <p className="text-xs text-[#9B8FB5] mt-1">
@@ -209,8 +200,7 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-[#00CED1] text-[#1a1a1a] hover:bg-[#00CED1]/90 font-semibold"
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+            className="w-full bg-[#00CED1] text-[#1a1a1a] hover:bg-[#00CED1]/90 font-semibold font-display-700"
           >
             {isSubmitting ? 'Sending...' : 'Send Message'}
           </Button>

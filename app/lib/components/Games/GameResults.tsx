@@ -113,14 +113,12 @@ export function GameResults({ score, onApplyDiscount, onRetry, className }: Game
       {/* Main Message */}
       <motion.div variants={itemVariants} className="text-center space-y-3">
         <h2
-          className={cn('text-2xl', getResultColor())}
-          style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+          className={cn('text-2xl font-display-700', getResultColor())}
         >
           {message}
         </h2>
         <p
-          className="text-ranch-cream/80 text-lg max-w-sm leading-relaxed"
-          style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+          className="text-ranch-cream/80 text-lg max-w-sm leading-relaxed font-display-500"
         >
           {subtext}
         </p>
@@ -129,14 +127,12 @@ export function GameResults({ score, onApplyDiscount, onRetry, className }: Game
       {/* Score Display */}
       <motion.div variants={itemVariants} className="text-center">
         <span
-          className="text-sm text-ranch-lavender/60 uppercase tracking-widest"
-          style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+          className="text-sm text-ranch-lavender/60 uppercase tracking-widest font-display-600"
         >
           Final Score
         </span>
         <motion.div
-          className={cn('text-5xl tabular-nums mt-1', getResultColor())}
-          style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
+          className={cn('text-5xl tabular-nums mt-1 font-display-800', getResultColor())}
           animate={discountPercent >= 15 ? { scale: [1, 1.05, 1] } : {}}
           transition={{
             duration: 1.5,
@@ -161,16 +157,14 @@ export function GameResults({ score, onApplyDiscount, onRetry, className }: Game
         <div className="text-center">
           <div
             className={cn(
-              'text-3xl',
+              'text-3xl font-display-800',
               discountPercent > 0 ? 'text-amber-400' : 'text-ranch-pink'
             )}
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
           >
             {formatDiscount(discountPercent)}
           </div>
           <div
-            className="text-sm text-ranch-lavender/70 mt-1"
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+            className="text-sm text-ranch-lavender/70 mt-1 font-display-500"
           >
             {discountPercent > 0 ? 'Earned' : 'Try Again'}
           </div>
@@ -185,10 +179,9 @@ export function GameResults({ score, onApplyDiscount, onRetry, className }: Game
           variant="horror"
           size="lg"
           className={cn(
-            'w-full text-lg',
+            'w-full text-lg font-display-600',
             discountPercent >= 15 && 'bg-amber-500 hover:bg-amber-400 text-ranch-dark'
           )}
-          style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
         >
           {discountPercent > 0 ? 'Claim Trust & Return' : 'Return Without Trust'}
         </Button>
@@ -199,8 +192,7 @@ export function GameResults({ score, onApplyDiscount, onRetry, className }: Game
             onClick={onRetry}
             variant="outline"
             size="lg"
-            className="w-full text-lg border-ranch-lavender/40 text-ranch-lavender hover:bg-ranch-lavender/10"
-            style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}
+            className="w-full text-lg border-ranch-lavender/40 text-ranch-lavender hover:bg-ranch-lavender/10 font-display-600"
           >
             Try Again — They Deserve Better
           </Button>
@@ -210,8 +202,7 @@ export function GameResults({ score, onApplyDiscount, onRetry, className }: Game
       {/* Progress hint for near-misses */}
       <motion.div
         variants={itemVariants}
-        className="text-sm text-ranch-lavender/50 text-center"
-        style={{ fontFamily: 'Tourney, cursive', fontWeight: 500 }}
+        className="text-sm text-ranch-lavender/50 text-center font-display-500"
       >
         {discountPercent === 0 && score >= 15 && score < 20 && (
           <span>So close. {20 - score} more points would have earned their trust.</span>

@@ -40,10 +40,10 @@ export function GameModal({ isOpen, onClose, productId, productSlug, onGameCompl
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-ranch-dark border-4 border-ranch-purple">
         <DialogHeader>
-          <DialogTitle className="text-3xl text-ranch-pink text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}>
+          <DialogTitle className="text-3xl text-ranch-pink text-center font-display-800">
             {HORROR_COPY.games.modal.title}
           </DialogTitle>
-          <DialogDescription className="text-ranch-lavender text-center" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+          <DialogDescription className="text-ranch-lavender text-center font-display-600">
             {HORROR_COPY.games.modal.subtitle}
           </DialogDescription>
         </DialogHeader>
@@ -59,17 +59,17 @@ export function GameModal({ isOpen, onClose, productId, productSlug, onGameCompl
                 className="p-6 bg-ranch-purple/30 rounded-lg border-2 border-ranch-purple hover:border-ranch-cyan transition-all"
               >
                 <div className="text-5xl mb-3">{game.emoji}</div>
-                <div className="text-ranch-cream mb-1" style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}>{game.title}</div>
-                <div className="text-lg text-ranch-lavender" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>{game.duration}s</div>
+                <div className="text-ranch-cream mb-1 font-display-700">{game.title}</div>
+                <div className="text-lg text-ranch-lavender font-display-600">{game.duration}s</div>
               </motion.button>
             ))}
           </div>
 
           <div className="mt-8 flex flex-col items-center gap-3">
-            <p className="text-lg text-ranch-lavender" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+            <p className="text-lg text-ranch-lavender font-display-600">
               {HORROR_COPY.games.modal.skipPrompt}
             </p>
-            <Button onClick={handleSkip} variant="ghost" size="sm" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+            <Button onClick={handleSkip} variant="ghost" size="sm" className="font-display-600">
               {HORROR_COPY.games.modal.skipButton}
             </Button>
           </div>
@@ -80,7 +80,7 @@ export function GameModal({ isOpen, onClose, productId, productSlug, onGameCompl
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <p className="text-lg text-ranch-lavender" style={{ fontFamily: 'Tourney, cursive', fontWeight: 600 }}>
+            <p className="text-lg text-ranch-lavender font-display-600">
               {HORROR_COPY.games.modal.optionalNote}
             </p>
           </motion.div>

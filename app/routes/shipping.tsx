@@ -12,22 +12,19 @@ export default function Shipping() {
       <div className="max-w-4xl mx-auto">
         <Link
           to="/"
-          className="inline-block text-[#00CED1] hover:text-[#32CD32] mb-6 transition-colors"
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          className="inline-block text-[#00CED1] hover:text-[#32CD32] mb-6 transition-colors font-body"
         >
           ← Back to Store
         </Link>
 
         <h1
-          className="text-4xl text-[#F5F5DC] mb-8"
-          style={{ fontFamily: 'Tourney, cursive', fontWeight: 800 }}
+          className="text-4xl text-[#F5F5DC] mb-8 font-display-800"
         >
           Shipping & Returns
         </h1>
 
         <div
-          className="prose prose-invert max-w-none text-[#F5F5DC]"
-          style={{ fontFamily: 'Inter, sans-serif' }}
+          className="prose prose-invert max-w-none text-[#F5F5DC] font-body"
         >
           <p className="text-[#9B8FB5] mb-6">
             <strong>Last Updated:</strong> {new Date().toLocaleDateString()}
@@ -35,8 +32,7 @@ export default function Shipping() {
 
           <section className="mb-8">
             <h2
-              className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+              className="text-2xl text-[#32CD32] mb-4 font-display-700"
             >
               Order Processing
             </h2>
@@ -61,8 +57,7 @@ export default function Shipping() {
 
           <section className="mb-8">
             <h2
-              className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+              className="text-2xl text-[#32CD32] mb-4 font-display-700"
             >
               Shipping Times
             </h2>
@@ -85,8 +80,7 @@ export default function Shipping() {
 
           <section className="mb-8">
             <h2
-              className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+              className="text-2xl text-[#32CD32] mb-4 font-display-700"
             >
               Shipping Costs
             </h2>
@@ -102,8 +96,7 @@ export default function Shipping() {
 
           <section className="mb-8">
             <h2
-              className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+              className="text-2xl text-[#32CD32] mb-4 font-display-700"
             >
               Returns & Exchanges
             </h2>
@@ -132,8 +125,7 @@ export default function Shipping() {
 
           <section className="mb-8">
             <h2
-              className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+              className="text-2xl text-[#32CD32] mb-4 font-display-700"
             >
               Lost or Stolen Packages
             </h2>
@@ -150,8 +142,7 @@ export default function Shipping() {
 
           <section className="mb-8">
             <h2
-              className="text-2xl text-[#32CD32] mb-4"
-              style={{ fontFamily: 'Tourney, cursive', fontWeight: 700 }}
+              className="text-2xl text-[#32CD32] mb-4 font-display-700"
             >
               Contact Us About Your Order
             </h2>
