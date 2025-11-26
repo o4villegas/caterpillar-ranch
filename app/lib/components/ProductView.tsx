@@ -16,6 +16,7 @@ import { Badge } from './ui/badge';
 import { ColorSwatch, ColorSwatchGroup } from './ColorSwatch';
 import { HORROR_COPY } from '../constants/horror-copy';
 import { ImageGallery, type GalleryImage } from './ImageGallery';
+import { ShareButtons } from './ShareButtons';
 
 interface ProductViewProps {
   product: Product;
@@ -347,6 +348,13 @@ export function ProductView({
             </Badge>
           ))}
         </motion.div>
+
+        {/* Social sharing */}
+        <ShareButtons
+          productName={product.name}
+          productSlug={product.slug}
+          productImage={product.imageUrl}
+        />
       </div>
     </div>
   );
