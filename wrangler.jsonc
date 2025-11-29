@@ -87,5 +87,13 @@
    * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
    */
   // "services": [{ "binding": "MY_SERVICE", "service": "my-service" }]
-  "upload_source_maps": true
+  "upload_source_maps": true,
+  /**
+   * Custom Domain Routes
+   * Links therancch.com to this Worker
+   */
+  "routes": [
+    { "pattern": "therancch.com/*", "zone_id": "ae67c61148c1116ede162ab417ab7f67" },
+    { "pattern": "www.therancch.com/*", "zone_id": "ae67c61148c1116ede162ab417ab7f67" }
+  ]
 }
