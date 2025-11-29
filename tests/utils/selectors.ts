@@ -177,6 +177,50 @@ export const selectors = {
     backToProductButton: 'button:has-text("Back to Product")',
   },
 
+  // Games - Larva Launch (slingshot)
+  gameLarvaLaunch: {
+    title: 'h1:has-text("Larva Launch")',
+    startButton: 'button:has-text("Begin Defense")',
+    gameArea: '.border-ranch-purple',
+    launcher: '.absolute.cursor-pointer', // Launcher elements with drag
+    score: '.bg-ranch-purple\\/20.border-ranch-purple >> text=Score',
+    timer: 'text=/Time:/',
+    results: 'text=Final Score', // GameResults component shows "Final Score"
+    retryButton: 'button:has-text("Try Again")',
+    applyButton: 'button:has-text("Claim Trust")',
+    skipButton: 'button:has-text("Return Without")',
+  },
+
+  // Games - Path of the Pupa (draw paths)
+  gamePathOfPupa: {
+    title: 'h1:has-text("Path of the Pupa")',
+    startButton: 'button:has-text("Begin Guidance")',
+    gameArea: '.touch-none.cursor-crosshair',
+    caterpillar: 'text=🐛',
+    food: 'text=🍃',
+    obstacle: 'text=🌵',
+    svgPath: 'svg path',
+    score: '.bg-ranch-purple\\/20.border-ranch-purple >> text=Score',
+    timer: 'text=/Time:/',
+    results: 'text=Final Score', // GameResults component shows "Final Score"
+    retryButton: 'button:has-text("Try Again")',
+    applyButton: 'button:has-text("Claim Trust")',
+  },
+
+  // Games - Cursed Harvest (memory match)
+  gameCursedHarvest: {
+    title: 'h1:has-text("Cursed Harvest")',
+    startButton: 'button:has-text("Begin Gathering")',
+    speedBonusText: 'text=/Speed.*<3s/',
+    cardGrid: '.grid.grid-cols-3', // 3 columns x 4 rows = 12 cards
+    card: '.grid.grid-cols-3 button', // Card buttons inside the grid
+    score: '.bg-ranch-purple\\/20.border-ranch-purple >> text=Score',
+    timer: 'text=/Time:/',
+    results: 'text=Final Score', // GameResults component shows "Final Score"
+    retryButton: 'button:has-text("Try Again")',
+    applyButton: 'button:has-text("Claim Trust")',
+  },
+
   // Horror UI Elements
   horror: {
     nightSky: '.night-sky', // Container for stars

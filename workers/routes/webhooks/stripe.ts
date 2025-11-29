@@ -234,6 +234,17 @@ async function handleSuccessfulPayment(
     ? session.payment_intent
     : session.payment_intent?.id || '';
 
+  // Idempotency check: Skip if order already exists (prevents duplicates from webhook retries)
+  const existingOrder = await db
+    .prepare('SELECT id FROM orders WHERE id = ?')
+    .bind(orderId)
+    .first();
+
+  if (existingOrder) {
+    console.log(`[Stripe Webhook] Order ${orderId} already exists, skipping duplicate webhook`);
+    return;
+  }
+
   // Insert into orders table (with Stripe payment info)
   await db
     .prepare(

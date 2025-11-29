@@ -15,7 +15,7 @@
  * - 30 second duration
  * - 12 cards (6 pairs) in 4x3 grid
  * - Match pair: +10 points (max 60 base)
- * - Speed bonus: +2 if matched within 2s (max 12 bonus)
+ * - Speed bonus: +2 if matched within 3s (max 12 bonus)
  * - Mismatch: -4 points
  * - Total max: 72 points (headroom for errors)
  */
@@ -51,17 +51,16 @@ interface Card {
   isMatched: boolean;
 }
 
-// === DIFFICULTY SETTINGS (TUNED FOR ~15-20% MAX DISCOUNT) ===
-const GAME_DURATION = 30; // seconds
-const MISMATCH_FLIP_DELAY = 400; // ms (faster - harder to remember)
-const SPEED_BONUS_WINDOW = 2000; // ms - 2 seconds for speed bonus (harder)
+// === DIFFICULTY SETTINGS (REBALANCED FOR MOBILE + FORGIVENESS) ===
+const GAME_DURATION = 20; // seconds (shorter for mobile attention spans)
+const MISMATCH_FLIP_DELAY = 600; // ms (more time to memorize)
+const SPEED_BONUS_WINDOW = 3000; // ms - 3 seconds for speed bonus (easier)
 
-// Points (tuned for 15-20% achieving max discount)
+// Points (more forgiving)
 // Max: 6 pairs × 10 = 60 base + 6 × 2 speed = 72 total
-// Allows 2 mismatches (-8) or 6 missed speed bonuses for 15%
 const MATCH_POINTS = 10;
 const SPEED_BONUS_POINTS = 2;
-const MISMATCH_PENALTY = 4;
+const MISMATCH_PENALTY = 2; // Reduced (was 4) - more forgiving
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -390,7 +389,7 @@ export default function CursedHarvestRoute() {
             {/* Point Info */}
             <div className="text-center text-xs text-ranch-lavender/60">
               <span>Match: +{MATCH_POINTS} | </span>
-              <span>Speed (&lt;2s): +{SPEED_BONUS_POINTS} | </span>
+              <span>Speed (&lt;3s): +{SPEED_BONUS_POINTS} | </span>
               <span className="text-ranch-pink/70">Mismatch: -{MISMATCH_PENALTY}</span>
             </div>
           </div>

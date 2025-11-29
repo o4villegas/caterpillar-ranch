@@ -8,7 +8,7 @@
  *
  * Difficulty tuned for:
  * - 15% discount: ~15-20% of players (very skilled, max 1-2 parasite misses)
- * - Harsh penalties for hitting good caterpillars (-8 pts)
+ * - Moderate penalties for hitting good caterpillars (-4 pts)
  * - Faster spawn/visibility for pressure
  *
  * Mechanics:
@@ -46,15 +46,15 @@ interface Caterpillar {
   isVisible: boolean;
 }
 
-// === DIFFICULTY SETTINGS (TUNED FOR ~15-20% MAX DISCOUNT) ===
-const GAME_DURATION = 25; // seconds
-const APPEARANCE_INTERVAL = 650; // ms between spawns (faster pressure)
-const VISIBILITY_DURATION = 800; // ms caterpillar stays visible (20% faster)
-const GOOD_CATERPILLAR_CHANCE = 0.35; // 35% chance of good caterpillar (more traps)
+// === DIFFICULTY SETTINGS (REBALANCED FOR MOBILE + FORGIVENESS) ===
+const GAME_DURATION = 20; // seconds (shorter for mobile attention spans)
+const APPEARANCE_INTERVAL = 750; // ms between spawns (slightly slower)
+const VISIBILITY_DURATION = 1000; // ms caterpillar stays visible (more time to react)
+const GOOD_CATERPILLAR_CHANCE = 0.3; // 30% chance of good caterpillar (fewer traps)
 
-// Points
+// Points (more forgiving)
 const HIT_PARASITE_POINTS = 5; // Correct hit
-const HIT_GOOD_PENALTY = 8; // HARSH penalty for hitting protected caterpillar
+const HIT_GOOD_PENALTY = 4; // Reduced penalty (was 8) - more forgiving
 
 export function meta({}: Route.MetaArgs) {
   return [

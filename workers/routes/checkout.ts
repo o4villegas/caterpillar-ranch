@@ -125,7 +125,7 @@ checkout.post('/create-session', async (c) => {
     await c.env.CATALOG_CACHE.put(
       `checkout:${orderId}`,
       JSON.stringify(cartData),
-      { expirationTtl: 60 * 60 } // 1 hour TTL
+      { expirationTtl: 60 * 60 * 72 } // 72 hours TTL (matches Stripe webhook retry window)
     );
 
     // Create Stripe Checkout session
@@ -200,6 +200,51 @@ checkout.get('/session/:sessionId', async (c) => {
     return c.json(
       {
         error: 'Failed to retrieve checkout session',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
+      500
+    );
+  }
+});
+
+/**
+ * GET /api/checkout/order-status/:orderId
+ * Check if order has been created in D1 (for polling after payment)
+ */
+checkout.get('/order-status/:orderId', async (c) => {
+  try {
+    const orderId = c.req.param('orderId');
+
+    if (!orderId) {
+      return c.json({ error: 'Order ID is required' }, 400);
+    }
+
+    const order = await c.env.DB
+      .prepare('SELECT id, printful_status, confirmed_at FROM orders WHERE id = ?')
+      .bind(orderId)
+      .first<{ id: string; printful_status: string; confirmed_at: string | null }>();
+
+    if (!order) {
+      // Order not yet created - webhook may still be processing
+      return c.json({
+        data: { status: 'pending' },
+        meta: { source: 'd1' },
+      });
+    }
+
+    return c.json({
+      data: {
+        status: 'created',
+        printfulStatus: order.printful_status,
+        confirmedAt: order.confirmed_at,
+      },
+      meta: { source: 'd1' },
+    });
+  } catch (error) {
+    console.error('Error checking order status:', error);
+    return c.json(
+      {
+        error: 'Failed to check order status',
         details: error instanceof Error ? error.message : 'Unknown error',
       },
       500

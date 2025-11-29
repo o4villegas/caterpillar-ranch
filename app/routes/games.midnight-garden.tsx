@@ -59,19 +59,19 @@ interface Item {
   result?: 'success' | 'penalty'; // For visual feedback
 }
 
-// === DIFFICULTY SETTINGS (TUNED FOR ~15-20% MAX DISCOUNT) ===
-const GAME_DURATION = 25; // seconds
-const ITEM_LIFETIME = 1000; // ms - items visible for 1s (faster)
-const SPAWN_INTERVAL = 450; // ms - spawn every 0.45s (faster pressure)
+// === DIFFICULTY SETTINGS (REBALANCED FOR MOBILE + FORGIVENESS) ===
+const GAME_DURATION = 20; // seconds (shorter for mobile attention spans)
+const ITEM_LIFETIME = 1500; // ms - items visible for 1.5s (more time to react)
+const SPAWN_INTERVAL = 600; // ms - spawn every 0.6s (less pressure)
 const MIN_ITEMS = 2; // minimum items on screen
-const MAX_ITEMS = 5; // maximum items on screen (more chaos)
-const CONFUSION_THRESHOLD = 12; // points - disguising starts earlier
-const BAD_SIGN_CHANCE = 0.45; // 45% chance of bad sign (harder)
+const MAX_ITEMS = 4; // maximum items on screen (less chaos)
+const CONFUSION_THRESHOLD = 20; // points - disguising starts later (more forgiving)
+const BAD_SIGN_CHANCE = 0.35; // 35% chance of bad sign (easier)
 
-// Points
+// Points (more forgiving)
 const GOOD_OMEN_POINTS = 4;
-const BAD_SIGN_PENALTY = 6; // Harsh penalty
-const MISSED_OMEN_PENALTY = 2; // Harsher missed penalty
+const BAD_SIGN_PENALTY = 3; // Reduced (was 6) - more forgiving
+const MISSED_OMEN_PENALTY = 1; // Reduced (was 2) - more forgiving
 
 export function meta({}: Route.MetaArgs) {
   return [

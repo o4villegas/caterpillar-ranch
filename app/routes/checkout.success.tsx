@@ -63,6 +63,7 @@ export default function CheckoutSuccessPage() {
   const [orderDetails, setOrderDetails] = useState<PendingOrder | null>(null);
   const [isVerifying, setIsVerifying] = useState(true);
   const [verificationError, setVerificationError] = useState<string | null>(null);
+  const [orderConfirmed, setOrderConfirmed] = useState(false);
 
   const sessionId = searchParams.get('session_id');
 
@@ -70,25 +71,13 @@ export default function CheckoutSuccessPage() {
     async function verifyPayment() {
       // Try to get pending order from sessionStorage
       const pendingOrderJson = sessionStorage.getItem('pending_order');
+      let currentOrderId: string | null = null;
 
       if (pendingOrderJson) {
         try {
           const pendingOrder = JSON.parse(pendingOrderJson) as PendingOrder;
           setOrderDetails(pendingOrder);
-
-          // Clear cart and session data after successful payment
-          clearCart();
-          sessionStorage.removeItem('checkout_shipping');
-          sessionStorage.removeItem('pending_order');
-
-          // Store in order history
-          const orders = JSON.parse(localStorage.getItem('caterpillar-ranch-orders') || '[]');
-          orders.push({
-            ...pendingOrder,
-            placedAt: new Date().toISOString(),
-            status: 'confirmed',
-          });
-          localStorage.setItem('caterpillar-ranch-orders', JSON.stringify(orders));
+          currentOrderId = pendingOrder.orderId;
         } catch {
           console.error('Failed to parse pending order');
         }
@@ -111,7 +100,61 @@ export default function CheckoutSuccessPage() {
             };
 
             if (data.data.paymentStatus === 'paid') {
-              // Payment verified - order is being processed by webhook
+              // Payment verified - now poll for order creation in D1
+              currentOrderId = currentOrderId || data.data.orderId;
+
+              if (currentOrderId) {
+                // Poll for order to be created by webhook (max 30 seconds)
+                const pollForOrder = async (attempts = 0): Promise<boolean> => {
+                  if (attempts >= 15) return false; // 15 attempts * 2s = 30s max
+
+                  try {
+                    const orderResponse = await fetch(`/api/checkout/order-status/${currentOrderId}`);
+                    if (orderResponse.ok) {
+                      const orderData = await orderResponse.json() as {
+                        data: { status: string; printfulStatus?: string };
+                      };
+
+                      if (orderData.data.status === 'created') {
+                        return true;
+                      }
+                    }
+                  } catch {
+                    console.log('Order status check failed, retrying...');
+                  }
+
+                  // Wait 2 seconds before next poll
+                  await new Promise(resolve => setTimeout(resolve, 2000));
+                  return pollForOrder(attempts + 1);
+                };
+
+                const orderCreated = await pollForOrder();
+
+                if (orderCreated) {
+                  // Order confirmed in D1 - NOW safe to clear cart
+                  setOrderConfirmed(true);
+                  clearCart();
+                  sessionStorage.removeItem('checkout_shipping');
+                  sessionStorage.removeItem('pending_order');
+
+                  // Store in order history
+                  if (pendingOrderJson) {
+                    const pendingOrder = JSON.parse(pendingOrderJson) as PendingOrder;
+                    const orders = JSON.parse(localStorage.getItem('caterpillar-ranch-orders') || '[]');
+                    orders.push({
+                      ...pendingOrder,
+                      placedAt: new Date().toISOString(),
+                      status: 'confirmed',
+                    });
+                    localStorage.setItem('caterpillar-ranch-orders', JSON.stringify(orders));
+                  }
+                } else {
+                  // Order creation timed out - don't clear cart, show warning
+                  console.warn('Order creation polling timed out');
+                  // Still show success (payment went through) but cart preserved
+                }
+              }
+
               setIsVerifying(false);
             } else if (data.data.paymentStatus === 'unpaid') {
               setVerificationError('Payment not completed. Please try again.');
@@ -130,7 +173,7 @@ export default function CheckoutSuccessPage() {
         }
       } else {
         // No session ID - check if we have order details from sessionStorage
-        if (!orderDetails) {
+        if (!orderDetails && !pendingOrderJson) {
           setVerificationError('No order information found.');
         }
         setIsVerifying(false);

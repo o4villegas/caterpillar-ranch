@@ -12,10 +12,13 @@ export default [
   route("shipping", "routes/shipping.tsx"),
   route("games/the-culling", "routes/games.the-culling.tsx"),
   route("games/cursed-harvest", "routes/games.cursed-harvest.tsx"),
-  route("games/bug-telegram", "routes/games.bug-telegram.tsx"),
-  route("games/hungry-caterpillar", "routes/games.hungry-caterpillar.tsx"),
+  route("games/larva-launch", "routes/games.larva-launch.tsx"),
+  route("games/path-of-the-pupa", "routes/games.path-of-the-pupa.tsx"),
   route("games/midnight-garden", "routes/games.midnight-garden.tsx"),
   route("games/metamorphosis-queue", "routes/games.metamorphosis-queue.tsx"),
+  // Legacy routes (to be removed)
+  route("games/bug-telegram", "routes/games.bug-telegram.tsx"),
+  route("games/hungry-caterpillar", "routes/games.hungry-caterpillar.tsx"),
   route("admin/login", "routes/admin.login.tsx"),
   layout("routes/admin/layout.tsx", [
     route("admin/dashboard", "routes/admin/dashboard.tsx"),

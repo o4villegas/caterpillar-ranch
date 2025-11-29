@@ -42,24 +42,24 @@ interface Cocoon {
   resultEmoji?: string; // Moth emoji shown after completion
 }
 
-// === DIFFICULTY SETTINGS (TUNED FOR ~15-20% MAX DISCOUNT) ===
-const GAME_DURATION = 25; // seconds
+// === DIFFICULTY SETTINGS (REBALANCED FOR MOBILE + FORGIVENESS) ===
+const GAME_DURATION = 20; // seconds (shorter for mobile attention spans)
 const NUM_COCOONS = 5;
 
-// State timing (ms) - tighter window for harder gameplay
-const DORMANT_DURATION = 1800; // Shorter rest
-const PURPLE_DURATION = 1800; // Warning stage
-const PINK_DURATION = 1200; // Approaching (faster)
-const GREEN_DURATION = 250; // Perfect window (0.25s - very tight)
-const GREEN_BUFFER = 100; // +/- 0.1s for "good" timing (tighter)
-const RED_DURATION = 600; // Too late window (shorter)
-const RESULT_DISPLAY_DURATION = 1200; // Result display
+// State timing (ms) - wider windows for forgiveness
+const DORMANT_DURATION = 1500; // Shorter rest (faster cycles)
+const PURPLE_DURATION = 1500; // Warning stage
+const PINK_DURATION = 1200; // Approaching
+const GREEN_DURATION = 450; // Perfect window (0.45s - more forgiving)
+const GREEN_BUFFER = 200; // +/- 0.2s for "good" timing (more forgiving)
+const RED_DURATION = 800; // Too late window (more time to try)
+const RESULT_DISPLAY_DURATION = 1000; // Result display (faster)
 
-// Points
+// Points (more forgiving)
 const PERFECT_POINTS = 10;
 const GOOD_POINTS = 5;
-const FAILED_PENALTY = 4; // Harsher
-const MISSED_PENALTY = 6; // Harsher
+const FAILED_PENALTY = 2; // Reduced (was 4) - more forgiving
+const MISSED_PENALTY = 3; // Reduced (was 6) - more forgiving
 
 // Emojis - transformation results
 const COCOON_EMOJI = '🥚'; // Chrysalis

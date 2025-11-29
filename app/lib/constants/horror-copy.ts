@@ -109,7 +109,7 @@ export const HORROR_COPY = {
     theCulling: {
       title: 'The Culling',
       emoji: '🛡️',
-      duration: 25,
+      duration: 20,
       careStage: 'Protection',
       description: 'Defend the vulnerable from parasites',
       instructions: [
@@ -123,7 +123,7 @@ export const HORROR_COPY = {
     cursedHarvest: {
       title: 'Cursed Harvest',
       emoji: '🌿',
-      duration: 30,
+      duration: 20,
       careStage: 'Nourishment',
       description: 'Gather the nutrients they need',
       instructions: [
@@ -165,7 +165,7 @@ export const HORROR_COPY = {
     midnightGarden: {
       title: 'Midnight Garden',
       emoji: '🌙',
-      duration: 25,
+      duration: 20,
       careStage: 'Divination',
       description: 'Read the signs of what they will become',
       instructions: [
@@ -179,7 +179,7 @@ export const HORROR_COPY = {
     metamorphosisQueue: {
       title: 'The Emergence',
       emoji: '🦋',
-      duration: 25,
+      duration: 20,
       careStage: 'Birth',
       description: 'Help them break free at the right moment',
       instructions: [
@@ -188,6 +188,34 @@ export const HORROR_COPY = {
       ],
       startButton: 'Begin the Watch',
       failureMessage: 'Wrong timing. They emerged still dissolving, not yet formed.',
+    },
+
+    larvaLaunch: {
+      title: 'Larva Launch',
+      emoji: '🎯',
+      duration: 20,
+      careStage: 'Defense',
+      description: 'Launch defenders to protect the leaves',
+      instructions: [
+        'Parasites infest the sacred leaves. Launch caterpillars to stop them.',
+        'Drag back to aim, release to launch. Protect what feeds the chrysalis.',
+      ],
+      startButton: 'Begin Defense',
+      failureMessage: 'The parasites consumed everything. Nothing left to nourish the transformation.',
+    },
+
+    pathOfThePupa: {
+      title: 'Path of the Pupa',
+      emoji: '🌿',
+      duration: 20,
+      careStage: 'Guidance',
+      description: 'Draw paths to guide them to nourishment',
+      instructions: [
+        'Baby caterpillars wander lost. Draw paths to guide them to food.',
+        'Your touch shows them the way. They follow where you lead.',
+      ],
+      startButton: 'Begin Guidance',
+      failureMessage: 'They wandered in circles, starving. The chrysalis will be empty.',
     },
 
     // Tier-Specific Celebration Messages — Earned Transcendence

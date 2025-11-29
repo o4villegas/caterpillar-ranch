@@ -414,3 +414,158 @@ export async function waitForProductsToLoad(page: Page) {
   await page.waitForSelector('.card.bg-ranch-purple\\/20', { timeout: 10000 });
   await waitForAnimations(page, 500);
 }
+
+// ============================================================
+// GAME TESTING HELPERS
+// ============================================================
+
+/**
+ * Simulate slingshot launch in Larva Launch game
+ * Drags launcher element back and releases to fire projectile
+ */
+export async function launchProjectile(
+  page: Page,
+  launcherIndex: number = 0,
+  pullDistance: number = 80
+): Promise<void> {
+  const launchers = page.locator('.absolute.cursor-pointer');
+  const launcher = launchers.nth(launcherIndex);
+
+  const box = await launcher.boundingBox();
+  if (!box) {
+    throw new Error(`Launcher ${launcherIndex} not found or not visible`);
+  }
+
+  const centerX = box.x + box.width / 2;
+  const centerY = box.y + box.height / 2;
+
+  // Simulate drag: move to center, press, drag down (pull back), release
+  await page.mouse.move(centerX, centerY);
+  await page.mouse.down();
+  await page.mouse.move(centerX, centerY + pullDistance, { steps: 5 });
+  await page.mouse.up();
+
+  // Wait for projectile to launch
+  await page.waitForTimeout(100);
+}
+
+/**
+ * Draw a path in Path of the Pupa game
+ * Simulates touch/mouse drawing from start to end points
+ */
+export async function drawGamePath(
+  page: Page,
+  points: Array<{ x: number; y: number }>
+): Promise<void> {
+  const gameArea = page.locator('.touch-none.cursor-crosshair');
+  const box = await gameArea.boundingBox();
+
+  if (!box) {
+    throw new Error('Game area not found');
+  }
+
+  if (points.length < 2) {
+    throw new Error('Path must have at least 2 points');
+  }
+
+  // Start drawing at first point
+  await page.mouse.move(box.x + points[0].x, box.y + points[0].y);
+  await page.mouse.down();
+
+  // Draw through remaining points
+  for (let i = 1; i < points.length; i++) {
+    await page.mouse.move(
+      box.x + points[i].x,
+      box.y + points[i].y,
+      { steps: 3 }
+    );
+  }
+
+  // Release to complete path
+  await page.mouse.up();
+}
+
+/**
+ * Wait for game timer to expire and results to show
+ * Default 22s = 20s game + 2s buffer for animations
+ */
+export async function waitForGameEnd(
+  page: Page,
+  durationMs: number = 22000
+): Promise<void> {
+  await page.waitForTimeout(durationMs);
+  await waitForAnimations(page, 500);
+}
+
+/**
+ * Set up console error capture for a page
+ * Returns array that will be populated with errors/warnings
+ */
+export function setupConsoleCapture(page: Page): string[] {
+  const errors: string[] = [];
+
+  page.on('console', (msg) => {
+    const type = msg.type();
+    if (type === 'error' || type === 'warning') {
+      errors.push(msg.text());
+    }
+  });
+
+  return errors;
+}
+
+/**
+ * Assert no React memory leak or unmounted component warnings
+ * Call this after game completes to verify cleanup
+ */
+export function assertNoReactWarnings(errors: string[]): void {
+  const reactWarnings = errors.filter((e) =>
+    e.includes('unmounted') ||
+    e.includes('memory leak') ||
+    e.includes("Can't perform a React state update") ||
+    e.includes('Warning: Cannot update a component')
+  );
+
+  expect(reactWarnings).toHaveLength(0);
+}
+
+/**
+ * Get initial food count in Path of the Pupa
+ */
+export async function getFoodCount(page: Page): Promise<number> {
+  const food = page.locator('text=🍃');
+  return await food.count();
+}
+
+/**
+ * Get score from game HUD
+ * The GameScore component renders "Score" as a label followed by the number
+ * IMPORTANT: This targets only the GameScore HUD during gameplay, NOT GameResults
+ */
+export async function getGameScore(page: Page): Promise<number> {
+  // GameScore component structure:
+  // <div className="bg-ranch-purple/20 border-2 border-ranch-purple">
+  //   <span className="text-lg text-ranch-lavender">Score</span>
+  //   <span className="text-4xl font-bold font-mono">{score}</span>
+  // </div>
+  //
+  // GameResults uses different classes (bg-gradient, text-5xl)
+
+  // Look for container with exact "Score" label text (not "Final Score")
+  const scoreContainer = page.locator('div:has(> div > span.text-lg:text("Score"))').first();
+
+  try {
+    // Find the score number (text-4xl font-bold) within this container
+    const scoreValue = scoreContainer.locator('.text-4xl.font-bold');
+    const text = await scoreValue.textContent({ timeout: 5000 });
+    if (!text) return 0;
+    return parseInt(text.trim(), 10) || 0;
+  } catch {
+    // Fallback: try finding by class combo
+    const fallbackContainer = page.locator('.border-ranch-purple:has(span:text("Score"):not(:text("Final")))').first();
+    const scoreValue = fallbackContainer.locator('.text-4xl');
+    const text = await scoreValue.textContent({ timeout: 2000 }).catch(() => '');
+    if (!text) return 0;
+    return parseInt(text.trim(), 10) || 0;
+  }
+}
