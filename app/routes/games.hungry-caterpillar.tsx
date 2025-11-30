@@ -374,21 +374,68 @@ export default function HungryCaterpillarRoute() {
         {/* Game UI - Before start */}
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
-              <p
-                className="text-lg text-ranch-cream leading-relaxed text-center font-display-600"
-              >
+            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
+              <p className="text-lg text-ranch-cream leading-relaxed text-center font-display-600 mb-4">
                 {HORROR_COPY.games.hungryCaterpillar.instructions[0]}
               </p>
-              <p
-                className="text-lg text-ranch-lavender mt-2 text-center font-display-600"
-              >
-                {HORROR_COPY.games.hungryCaterpillar.instructions[1]}
-              </p>
-              <p
-                className="text-sm text-ranch-pink/70 mt-4 text-center font-display-500"
-              >
-                Warning: Collision ends the transformation immediately.
+
+              {/* Visual Instructions */}
+              <div className="grid grid-cols-2 gap-3 my-4">
+                {/* How to move */}
+                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-cyan/50">
+                  <div className="flex justify-center gap-1 mb-2">
+                    <span className="text-2xl">⬆️</span>
+                  </div>
+                  <div className="flex justify-center gap-1 mb-2">
+                    <span className="text-2xl">⬅️</span>
+                    <span className="text-2xl">🐛</span>
+                    <span className="text-2xl">➡️</span>
+                  </div>
+                  <div className="flex justify-center gap-1">
+                    <span className="text-2xl">⬇️</span>
+                  </div>
+                  <p className="text-ranch-cyan font-display-700 text-sm mt-2">MOVE</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">Arrows or swipe</p>
+                </div>
+
+                {/* What to collect */}
+                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-lime/50">
+                  <div className="flex justify-center items-center gap-2 mb-2">
+                    <span className="text-3xl">🐛</span>
+                    <span className="text-ranch-lime">→</span>
+                    <span className="text-3xl">🍃</span>
+                  </div>
+                  <p className="text-ranch-lime font-display-700 text-sm mt-2">EAT LEAVES</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">+{FOOD_POINTS} points each</p>
+                  <p className="text-ranch-cyan text-xs mt-1">Grow longer!</p>
+                </div>
+              </div>
+
+              {/* Warnings */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Wall collision */}
+                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-pink/50">
+                  <div className="flex justify-center items-center mb-2">
+                    <span className="text-2xl">🐛</span>
+                    <span className="text-ranch-pink mx-1">💥</span>
+                    <span className="text-2xl">🧱</span>
+                  </div>
+                  <p className="text-ranch-pink font-display-700 text-sm">WALLS = DEATH</p>
+                </div>
+
+                {/* Self collision */}
+                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-pink/50">
+                  <div className="flex justify-center items-center mb-2">
+                    <span className="text-2xl">🐛</span>
+                    <span className="text-ranch-pink mx-1">💥</span>
+                    <span className="text-xl">●●●</span>
+                  </div>
+                  <p className="text-ranch-pink font-display-700 text-sm">SELF = DEATH</p>
+                </div>
+              </div>
+
+              <p className="text-sm text-ranch-lavender/60 mt-4 font-display-500">
+                🎯 10+ leaves = +{PERFECT_BONUS} perfect bonus!
               </p>
             </div>
             <button

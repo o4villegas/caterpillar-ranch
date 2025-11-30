@@ -1,101 +1,140 @@
 /**
- * Path of the Pupa — Guidance Stage
+ * Path of the Pupa — Survival Stage
  *
- * Theme: "The Chrysalis" — Guide lost caterpillars to nourishment
+ * Theme: "The Chrysalis" — Survive the pursuit
  *
- * Horror-themed path-drawing game where players draw paths for baby
- * caterpillars to follow to reach food (glowing leaves).
+ * Horror-themed survival chase game where players control a snake
+ * fleeing from pursuing enemies. Collect gems for bonus points, but
+ * each gem makes you grow larger and easier to catch.
  *
- * Mobile-optimized: Touch-friendly drawing, forgiving gameplay
+ * Mobile-optimized: Touch-friendly, smooth follow controls
  *
  * Mechanics:
- * - 20 second duration (shorter for mobile attention spans)
- * - Baby caterpillars spawn at random edges
- * - Draw paths with finger/mouse to guide them
- * - Caterpillars follow paths automatically
- * - Obstacles slow AND penalize (forgiving but consequential)
+ * - 25 second duration
+ * - Direct control: snake follows cursor/finger
+ * - Enemies chase you, getting faster over time
+ * - 3 lives with brief invincibility after hit
+ * - Gems spawn randomly for bonus points
+ * - Each gem adds a segment (snake-like growth)
+ * - Bigger = easier to catch (risk/reward)
  *
  * Scoring:
- * - Caterpillar reaches food: +8 points
- * - Speed bonus (<2 sec): +2 points
- * - Multi-feed bonus: +3 per extra caterpillar
- * - Obstacle hit: -2 points + slowdown
+ * - +1 point per second survived
+ * - +5 points per gem collected
+ * - Survive all 25 seconds for max discount potential
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { GameTimer } from '../lib/components/Games/GameTimer';
 import { GameScore } from '../lib/components/Games/GameScore';
 import { GameResults } from '../lib/components/Games/GameResults';
-import { useGameState } from '../lib/components/Games/hooks/useGameState';
 import { useCart } from '../lib/contexts/CartContext';
 import { useReducedMotion } from '../lib/hooks/useReducedMotion';
 import { HORROR_COPY } from '../lib/constants/horror-copy';
 import type { Route } from './+types/games.path-of-the-pupa';
 
 // === DIFFICULTY SETTINGS ===
-const GAME_DURATION = 20; // seconds (shorter for mobile)
-const CATERPILLAR_SPAWN_INTERVAL = 2500; // ms between spawns
-const CATERPILLAR_SPEED = 2; // pixels per frame
-const OBSTACLE_SLOWDOWN = 0.3; // 70% speed reduction when hitting obstacle
-const PATH_FADE_TIME = 3000; // ms before path fades
-const FOOD_COUNT = 4; // Number of food items
+const GAME_DURATION = 25; // seconds
+const INITIAL_ENEMY_SPEED = 1.5; // pixels per frame at 60fps
+const ENEMY_SPEED_INCREASE = 0.08; // speed increase per second
+const PLAYER_SPEED = 4; // pixels per frame at 60fps
+const SEGMENT_SIZE = 20; // size of each body segment
+const HEAD_SIZE = 28; // size of snake head
+const ENEMY_SIZE = 24; // collision radius for enemies
+const GEM_SIZE = 20; // collision radius for gems
+const INITIAL_LIVES = 3;
+const INVINCIBILITY_DURATION = 1500; // ms of invincibility after hit
+const GEM_SPAWN_INTERVAL = 3000; // ms between gem spawns
+const ENEMY_SPAWN_INTERVAL = 4000; // ms between new enemy spawns
+const MAX_ENEMIES = 6;
+const MAX_GEMS = 2;
+const POINTS_PER_SECOND = 1;
+const POINTS_PER_GEM = 5;
 
-// Points
-const FED_POINTS = 8;
-const SPEED_BONUS = 2;
-const MULTI_FEED_BONUS = 3;
-const OBSTACLE_PENALTY = 2;
+// Game area dimensions
+const GAME_WIDTH = 360;
+const GAME_HEIGHT = 420;
 
 interface Point {
   x: number;
   y: number;
 }
 
-interface Path {
+interface Enemy {
   id: number;
-  points: Point[];
+  x: number;
+  y: number;
+  speed: number;
+}
+
+interface Gem {
+  id: number;
+  x: number;
+  y: number;
+}
+
+interface HitEffect {
+  id: number;
+  x: number;
+  y: number;
   createdAt: number;
 }
 
-interface Caterpillar {
-  id: number;
-  x: number;
-  y: number;
-  targetIndex: number;
-  path: Point[] | null;
-  spawnTime: number;
-  fed: boolean;
-  lastObstacleHit: number; // Timestamp of last obstacle hit (for cooldown)
-}
-
-interface FoodItem {
-  id: number;
-  x: number;
-  y: number;
-}
-
-interface Obstacle {
-  id: number;
-  x: number;
-  y: number;
-}
-
-interface FeedEffect {
-  id: number;
-  x: number;
-  y: number;
+// Game state type for ref-based state management (everything except lifecycle)
+interface GameStateData {
+  playerPos: Point;
+  targetPos: Point;
+  segments: Point[];
+  enemies: Enemy[];
+  gems: Gem[];
+  hitEffects: HitEffect[];
+  lives: number;
+  isInvincible: boolean;
+  invincibleUntil: number;
+  score: number;
+  timeLeft: number;
+  lastScoreTick: number;
+  lastEnemySpawn: number;
+  lastGemSpawn: number;
+  nextEnemyId: number;
+  nextGemId: number;
+  nextEffectId: number;
+  gameStartTime: number;
 }
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'Path of the Pupa — Guidance | Caterpillar Ranch' },
+    { title: 'Path of the Pupa — Survival | Caterpillar Ranch' },
     {
       name: 'description',
-      content: 'Draw paths to guide caterpillars to nourishment. Prove your care.',
+      content: 'Flee from your pursuers. Collect gems if you dare. Survive.',
     },
   ];
+}
+
+function createInitialGameState(): GameStateData {
+  return {
+    playerPos: { x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 },
+    targetPos: { x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 },
+    segments: [],
+    enemies: [],
+    gems: [],
+    hitEffects: [],
+    lives: INITIAL_LIVES,
+    isInvincible: false,
+    invincibleUntil: 0,
+    score: 0,
+    timeLeft: GAME_DURATION,
+    lastScoreTick: 0,
+    lastEnemySpawn: 0,
+    lastGemSpawn: 0,
+    nextEnemyId: 0,
+    nextGemId: 0,
+    nextEffectId: 0,
+    gameStartTime: 0,
+  };
 }
 
 export default function PathOfThePupaRoute() {
@@ -105,443 +144,358 @@ export default function PathOfThePupaRoute() {
   const shouldReduceMotion = useReducedMotion();
 
   const { addDiscount, removeDiscount, cart } = useCart();
-  const game = useGameState(GAME_DURATION);
 
-  const [paths, setPaths] = useState<Path[]>([]);
-  const [caterpillars, setCaterpillars] = useState<Caterpillar[]>([]);
-  const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
-  const [obstacles, setObstacles] = useState<Obstacle[]>([]);
-  const [feedEffects, setFeedEffects] = useState<FeedEffect[]>([]);
+  // React state for game lifecycle - this controls when the game loop runs
+  const [gameStatus, setGameStatus] = useState<'idle' | 'playing' | 'completed'>('idle');
+
+  // Ref for all other game state (no re-renders during gameplay)
+  const gameStateRef = useRef<GameStateData>(createInitialGameState());
+
+  // Render state - incremented to trigger React renders at 30fps
+  const [renderTick, setRenderTick] = useState(0);
+
+  // UI-only state
   const [showResults, setShowResults] = useState(false);
   const [bestScore, setBestScore] = useState(0);
 
-  // Drawing state
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [currentPath, setCurrentPath] = useState<Point[]>([]);
-
+  // Refs for animation loop
   const gameAreaRef = useRef<HTMLDivElement>(null);
-  const nextPathId = useRef(0);
-  const nextCaterpillarId = useRef(0);
-  const nextEffectId = useRef(0);
   const animationFrameRef = useRef<number | undefined>(undefined);
-  const spawnTimerRef = useRef<number | undefined>(undefined);
+  const lastFrameTimeRef = useRef<number>(0);
+  const renderIntervalRef = useRef<number | undefined>(undefined);
 
-  // === BUG FIX: Use refs to avoid stale closures in animation loop ===
-  const pathsRef = useRef<Path[]>([]);
-  const foodItemsRef = useRef<FoodItem[]>([]);
-  const obstaclesRef = useRef<Obstacle[]>([]);
-  const gameRef = useRef(game);
+  // Get current game state for rendering
+  const gs = gameStateRef.current;
 
-  // === BUG FIX: Track effect timeouts for cleanup ===
-  const effectTimeoutsRef = useRef<number[]>([]);
-
-  // Keep refs in sync
-  useEffect(() => {
-    pathsRef.current = paths;
-  }, [paths]);
-  useEffect(() => {
-    foodItemsRef.current = foodItems;
-  }, [foodItems]);
-  useEffect(() => {
-    obstaclesRef.current = obstacles;
-  }, [obstacles]);
-  useEffect(() => {
-    gameRef.current = game;
-  }, [game]);
-
-  // === BUG FIX: Clear timeouts on unmount ===
-  useEffect(() => {
-    return () => {
-      effectTimeoutsRef.current.forEach(clearTimeout);
-    };
-  }, []);
-
-  // === BUG FIX: Clear paths when game status changes ===
-  useEffect(() => {
-    if (game.status !== 'playing') {
-      setPaths([]);
-    }
-  }, [game.status]);
-
-  // Load best score from localStorage
+  // Load best score
   useEffect(() => {
     const saved = localStorage.getItem('game:path-of-the-pupa:best-score');
     if (saved) setBestScore(parseInt(saved, 10));
   }, []);
 
-  // Save best score
+  // Save best score when game ends
   useEffect(() => {
-    if (game.score > bestScore) {
-      setBestScore(game.score);
-      localStorage.setItem('game:path-of-the-pupa:best-score', game.score.toString());
+    if (gameStatus === 'completed' && gs.score > bestScore) {
+      setBestScore(gs.score);
+      localStorage.setItem('game:path-of-the-pupa:best-score', gs.score.toString());
     }
-  }, [game.score, bestScore]);
+  }, [gameStatus, gs.score, bestScore]);
 
-  // Initialize food items and obstacles
-  useEffect(() => {
-    if (game.status === 'playing') {
-      // Generate food positions (spread across middle area)
-      const food: FoodItem[] = [];
-      for (let i = 0; i < FOOD_COUNT; i++) {
-        food.push({
-          id: i,
-          x: 60 + (i % 2) * 200 + Math.random() * 40,
-          y: 120 + Math.floor(i / 2) * 120 + Math.random() * 40,
-        });
-      }
-      setFoodItems(food);
-
-      // Generate some obstacles
-      const obs: Obstacle[] = [];
-      for (let i = 0; i < 3; i++) {
-        obs.push({
-          id: i,
-          x: 80 + Math.random() * 200,
-          y: 100 + Math.random() * 200,
-        });
-      }
-      setObstacles(obs);
+  // Helper to clean up game loop resources
+  const cleanupGameLoop = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = undefined;
     }
-  }, [game.status]);
-
-  // Spawn caterpillars at edges
-  const spawnCaterpillar = useCallback(() => {
-    const id = nextCaterpillarId.current++;
-    const edge = Math.floor(Math.random() * 4);
-
-    let x: number, y: number;
-    switch (edge) {
-      case 0: // Top
-        x = 40 + Math.random() * 280;
-        y = 10;
-        break;
-      case 1: // Right
-        x = 350;
-        y = 40 + Math.random() * 280;
-        break;
-      case 2: // Bottom
-        x = 40 + Math.random() * 280;
-        y = 390;
-        break;
-      default: // Left
-        x = 10;
-        y = 40 + Math.random() * 280;
-        break;
+    if (renderIntervalRef.current) {
+      clearInterval(renderIntervalRef.current);
+      renderIntervalRef.current = undefined;
     }
-
-    setCaterpillars((prev) => [
-      ...prev,
-      {
-        id,
-        x,
-        y,
-        targetIndex: 0,
-        path: null,
-        spawnTime: Date.now(),
-        fed: false,
-        lastObstacleHit: 0,
-      },
-    ]);
   }, []);
 
-  // Spawn timer
+  // Helper to end the game (called from within game loop)
+  const endGame = useCallback(() => {
+    // Immediate cleanup - don't wait for React
+    cleanupGameLoop();
+
+    // Update React state to trigger re-render and show results
+    setGameStatus('completed');
+    setShowResults(true);
+  }, [cleanupGameLoop]);
+
+  // Main game loop - controlled by React state
   useEffect(() => {
-    if (game.status !== 'playing') {
-      if (spawnTimerRef.current) clearInterval(spawnTimerRef.current);
+    // Only run when playing
+    if (gameStatus !== 'playing') {
+      cleanupGameLoop();
       return;
     }
 
-    // Initial spawns
-    spawnCaterpillar();
-    setTimeout(spawnCaterpillar, 500);
+    // Start render interval - triggers React re-render at 30fps for smooth visuals
+    renderIntervalRef.current = window.setInterval(() => {
+      setRenderTick((t) => t + 1);
+    }, 33); // ~30fps for rendering
 
-    spawnTimerRef.current = window.setInterval(() => {
-      spawnCaterpillar();
-    }, CATERPILLAR_SPAWN_INTERVAL);
+    lastFrameTimeRef.current = performance.now();
 
-    return () => {
-      if (spawnTimerRef.current) clearInterval(spawnTimerRef.current);
-    };
-  }, [game.status, spawnCaterpillar]);
+    const gameLoop = (timestamp: number) => {
+      const state = gameStateRef.current;
 
-  // Clean up old paths
-  useEffect(() => {
-    if (game.status !== 'playing') return;
+      // Safety check - if game was ended, don't continue
+      if (gameStatus !== 'playing') return;
 
-    const interval = setInterval(() => {
-      const now = Date.now();
-      setPaths((prev) =>
-        prev.filter((p) => now - p.createdAt < PATH_FADE_TIME)
-      );
-    }, 500);
+      // Delta time calculation (normalized to 60fps)
+      const rawDelta = timestamp - lastFrameTimeRef.current;
+      const deltaTime = Math.min(rawDelta / 16.667, 3); // Cap at 3 frames to prevent physics jumps
+      lastFrameTimeRef.current = timestamp;
 
-    return () => clearInterval(interval);
-  }, [game.status]);
+      const now = performance.now();
+      const elapsed = (now - state.gameStartTime) / 1000;
 
-  // Physics/movement update loop
-  // === BUG FIX: Only depend on game.status to avoid restart thrashing ===
-  useEffect(() => {
-    if (game.status !== 'playing') {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      return;
-    }
+      // Update time left
+      state.timeLeft = Math.max(0, GAME_DURATION - elapsed);
 
-    const updateCaterpillars = () => {
-      // Collect scoring events to process after state update
-      const scoringEvents: { type: 'fed' | 'obstacle'; points: number; foodId?: number; x?: number; y?: number }[] = [];
+      // Check game completion (time ran out)
+      if (state.timeLeft <= 0) {
+        endGame();
+        return;
+      }
 
-      setCaterpillars((prev) => {
-        const updated: Caterpillar[] = [];
-        const currentPaths = pathsRef.current;
-        const currentFood = foodItemsRef.current;
-        const currentObstacles = obstaclesRef.current;
-        const now = Date.now();
+      // Score tick (1 point per second)
+      if (now - state.lastScoreTick >= 1000) {
+        state.score += POINTS_PER_SECOND;
+        state.lastScoreTick = now;
+      }
 
-        for (const cat of prev) {
-          if (cat.fed) continue;
+      // Check invincibility expiry
+      if (state.isInvincible && now >= state.invincibleUntil) {
+        state.isInvincible = false;
+      }
 
-          let newX = cat.x;
-          let newY = cat.y;
-          let newTargetIndex = cat.targetIndex;
-          let newPath = cat.path;
-          let newLastObstacleHit = cat.lastObstacleHit;
-          let speedMultiplier = 1;
+      // Spawn enemies
+      if (now - state.lastEnemySpawn >= ENEMY_SPAWN_INTERVAL && state.enemies.length < MAX_ENEMIES) {
+        const edge = Math.floor(Math.random() * 4);
+        let x: number, y: number;
+        switch (edge) {
+          case 0: x = Math.random() * GAME_WIDTH; y = -20; break;
+          case 1: x = GAME_WIDTH + 20; y = Math.random() * GAME_HEIGHT; break;
+          case 2: x = Math.random() * GAME_WIDTH; y = GAME_HEIGHT + 20; break;
+          default: x = -20; y = Math.random() * GAME_HEIGHT; break;
+        }
+        const speed = INITIAL_ENEMY_SPEED + (elapsed * ENEMY_SPEED_INCREASE);
+        state.enemies.push({ id: state.nextEnemyId++, x, y, speed });
+        state.lastEnemySpawn = now;
+      }
 
-          // Find nearest path if no path assigned
-          if (!cat.path) {
-            const nearestPath = currentPaths.find((p) => {
-              if (p.points.length < 2) return false;
-              const start = p.points[0];
-              const dx = start.x - cat.x;
-              const dy = start.y - cat.y;
-              return Math.sqrt(dx * dx + dy * dy) < 60;
-            });
+      // Spawn gems
+      if (now - state.lastGemSpawn >= GEM_SPAWN_INTERVAL && state.gems.length < MAX_GEMS) {
+        state.gems.push({
+          id: state.nextGemId++,
+          x: 50 + Math.random() * (GAME_WIDTH - 100),
+          y: 50 + Math.random() * (GAME_HEIGHT - 100),
+        });
+        state.lastGemSpawn = now;
+      }
 
-            if (nearestPath) {
-              newPath = nearestPath.points;
-              newTargetIndex = 0;
-            }
+      // Move player toward target
+      const target = state.targetPos;
+      const dx = target.x - state.playerPos.x;
+      const dy = target.y - state.playerPos.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist > PLAYER_SPEED * deltaTime) {
+        const moveX = (dx / dist) * PLAYER_SPEED * deltaTime;
+        const moveY = (dy / dist) * PLAYER_SPEED * deltaTime;
+
+        // Store old position for segment following
+        const oldX = state.playerPos.x;
+        const oldY = state.playerPos.y;
+
+        state.playerPos.x += moveX;
+        state.playerPos.y += moveY;
+
+        // Update segments (snake-like follow)
+        if (state.segments.length > 0) {
+          // First segment follows head's old position
+          const seg0 = state.segments[0];
+          const headDx = oldX - seg0.x;
+          const headDy = oldY - seg0.y;
+          const headDist = Math.sqrt(headDx * headDx + headDy * headDy);
+
+          if (headDist > SEGMENT_SIZE * 0.6) {
+            seg0.x += (headDx / headDist) * (headDist - SEGMENT_SIZE * 0.5);
+            seg0.y += (headDy / headDist) * (headDist - SEGMENT_SIZE * 0.5);
           }
 
-          // === BUG FIX: Check collision with obstacles BEFORE movement ===
-          // Apply slowdown effect + penalty (with cooldown to prevent spam)
-          for (const obs of currentObstacles) {
-            const dx = obs.x - newX;
-            const dy = obs.y - newY;
-            if (Math.sqrt(dx * dx + dy * dy) < 25) {
-              speedMultiplier = OBSTACLE_SLOWDOWN; // Apply slowdown
+          // Each segment follows the one before it
+          for (let i = 1; i < state.segments.length; i++) {
+            const prevSeg = state.segments[i - 1];
+            const currSeg = state.segments[i];
+            const segDx = prevSeg.x - currSeg.x;
+            const segDy = prevSeg.y - currSeg.y;
+            const segDist = Math.sqrt(segDx * segDx + segDy * segDy);
 
-              // Only penalize once per second per obstacle
-              if (now - newLastObstacleHit > 1000) {
-                newLastObstacleHit = now;
-                scoringEvents.push({ type: 'obstacle', points: -OBSTACLE_PENALTY });
-              }
+            if (segDist > SEGMENT_SIZE * 0.6) {
+              currSeg.x += (segDx / segDist) * (segDist - SEGMENT_SIZE * 0.5);
+              currSeg.y += (segDy / segDist) * (segDist - SEGMENT_SIZE * 0.5);
             }
           }
+        }
+      }
 
-          // Move along path with speed multiplier
-          const effectiveSpeed = CATERPILLAR_SPEED * speedMultiplier;
+      // Move enemies toward player
+      const speedMult = 1 + (elapsed * ENEMY_SPEED_INCREASE / INITIAL_ENEMY_SPEED);
+      for (const enemy of state.enemies) {
+        const edx = state.playerPos.x - enemy.x;
+        const edy = state.playerPos.y - enemy.y;
+        const edist = Math.sqrt(edx * edx + edy * edy);
 
-          if (newPath && newTargetIndex < newPath.length) {
-            const target = newPath[newTargetIndex];
-            const dx = target.x - newX;
-            const dy = target.y - newY;
-            const dist = Math.sqrt(dx * dx + dy * dy);
+        if (edist > 1) {
+          const speed = enemy.speed * speedMult * deltaTime;
+          enemy.x += (edx / edist) * speed;
+          enemy.y += (edy / edist) * speed;
+        }
+      }
 
-            if (dist < effectiveSpeed) {
-              newX = target.x;
-              newY = target.y;
-              newTargetIndex++;
-            } else {
-              newX += (dx / dist) * effectiveSpeed;
-              newY += (dy / dist) * effectiveSpeed;
-            }
-          } else if (newPath) {
-            // Path ended, wander toward center
-            const centerX = 180;
-            const centerY = 200;
-            const dx = centerX - newX;
-            const dy = centerY - newY;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > effectiveSpeed) {
-              newX += (dx / dist) * effectiveSpeed * 0.3;
-              newY += (dy / dist) * effectiveSpeed * 0.3;
-            }
+      // Check enemy collisions
+      if (!state.isInvincible) {
+        let wasHit = false;
+        let hitX = 0, hitY = 0;
+
+        for (const enemy of state.enemies) {
+          // Check head collision
+          const headDx = enemy.x - state.playerPos.x;
+          const headDy = enemy.y - state.playerPos.y;
+          const headDistSq = headDx * headDx + headDy * headDy;
+          const hitRadius = (HEAD_SIZE / 2 + ENEMY_SIZE / 2);
+
+          if (headDistSq < hitRadius * hitRadius) {
+            wasHit = true;
+            hitX = enemy.x;
+            hitY = enemy.y;
+            break;
           }
 
-          // Check collision with food
-          let wasFed = false;
-          for (const food of currentFood) {
-            const dx = food.x - newX;
-            const dy = food.y - newY;
-            if (Math.sqrt(dx * dx + dy * dy) < 30) {
-              wasFed = true;
+          // Check segment collisions
+          for (const segment of state.segments) {
+            const segDx = enemy.x - segment.x;
+            const segDy = enemy.y - segment.y;
+            const segDistSq = segDx * segDx + segDy * segDy;
+            const segHitRadius = (SEGMENT_SIZE / 2 + ENEMY_SIZE / 2);
 
-              // Calculate points
-              const timeElapsed = (Date.now() - cat.spawnTime) / 1000;
-              let points = FED_POINTS;
-              if (timeElapsed < 2) {
-                points += SPEED_BONUS;
-              }
-
-              // === BUG FIX: Track food to remove ===
-              scoringEvents.push({
-                type: 'fed',
-                points,
-                foodId: food.id,
-                x: food.x,
-                y: food.y,
-              });
-
+            if (segDistSq < segHitRadius * segHitRadius) {
+              wasHit = true;
+              hitX = enemy.x;
+              hitY = enemy.y;
               break;
             }
           }
-
-          if (!wasFed) {
-            updated.push({
-              ...cat,
-              x: newX,
-              y: newY,
-              targetIndex: newTargetIndex,
-              path: newPath,
-              lastObstacleHit: newLastObstacleHit,
-            });
-          }
+          if (wasHit) break;
         }
 
-        return updated;
-      });
+        if (wasHit) {
+          state.lives -= 1;
 
-      // === BUG FIX: Process scoring events outside state updater to avoid stale closures ===
-      for (const event of scoringEvents) {
-        if (event.type === 'fed') {
-          gameRef.current.addPoints(event.points);
+          // Add hit effect
+          state.hitEffects.push({
+            id: state.nextEffectId++,
+            x: hitX,
+            y: hitY,
+            createdAt: now,
+          });
 
-          // === BUG FIX: Remove food when eaten ===
-          if (event.foodId !== undefined) {
-            setFoodItems((prev) => prev.filter((f) => f.id !== event.foodId));
+          if (state.lives <= 0) {
+            endGame();
+            return;
+          } else {
+            state.isInvincible = true;
+            state.invincibleUntil = now + INVINCIBILITY_DURATION;
           }
-
-          // Add feed effect
-          if (event.x !== undefined && event.y !== undefined) {
-            const effectId = nextEffectId.current++;
-            setFeedEffects((e) => [
-              ...e,
-              { id: effectId, x: event.x!, y: event.y! },
-            ]);
-
-            // === BUG FIX: Track timeout for cleanup ===
-            const timeoutId = window.setTimeout(() => {
-              setFeedEffects((e) => e.filter((ef) => ef.id !== effectId));
-            }, 600);
-            effectTimeoutsRef.current.push(timeoutId);
-          }
-        } else if (event.type === 'obstacle') {
-          gameRef.current.subtractPoints(Math.abs(event.points));
         }
       }
 
-      animationFrameRef.current = requestAnimationFrame(updateCaterpillars);
+      // Check gem collisions
+      const gemsToRemove: number[] = [];
+      for (const gem of state.gems) {
+        const gdx = gem.x - state.playerPos.x;
+        const gdy = gem.y - state.playerPos.y;
+        const gdistSq = gdx * gdx + gdy * gdy;
+        const gemHitRadius = (HEAD_SIZE / 2 + GEM_SIZE / 2);
+
+        if (gdistSq < gemHitRadius * gemHitRadius) {
+          // Collect gem
+          state.score += POINTS_PER_GEM;
+          gemsToRemove.push(gem.id);
+
+          // Add a segment
+          const lastPos = state.segments.length > 0
+            ? state.segments[state.segments.length - 1]
+            : state.playerPos;
+          state.segments.push({ x: lastPos.x, y: lastPos.y });
+
+          // Add hit effect
+          state.hitEffects.push({
+            id: state.nextEffectId++,
+            x: gem.x,
+            y: gem.y,
+            createdAt: now,
+          });
+        }
+      }
+
+      // Remove collected gems
+      if (gemsToRemove.length > 0) {
+        state.gems = state.gems.filter((g) => !gemsToRemove.includes(g.id));
+      }
+
+      // Clean up old hit effects (after 500ms)
+      state.hitEffects = state.hitEffects.filter((e) => now - e.createdAt < 500);
+
+      // Continue loop
+      animationFrameRef.current = requestAnimationFrame(gameLoop);
     };
 
-    animationFrameRef.current = requestAnimationFrame(updateCaterpillars);
+    animationFrameRef.current = requestAnimationFrame(gameLoop);
 
-    return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    };
-  }, [game.status]); // === BUG FIX: Only restart on status change, not every render ===
+    // Cleanup on unmount or when gameStatus changes
+    return cleanupGameLoop;
+  }, [gameStatus, endGame, cleanupGameLoop]);
 
-  // Show results when game completes
-  useEffect(() => {
-    if (game.status === 'completed') {
-      setShowResults(true);
-    }
-  }, [game.status]);
-
-  // Handle drawing start
-  const handlePointerDown = useCallback(
-    (e: React.PointerEvent) => {
-      if (game.status !== 'playing') return;
-
-      const rect = gameAreaRef.current?.getBoundingClientRect();
-      if (!rect) return;
-
-      // === BUG FIX: Bounds checking ===
-      const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-      const y = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
-
-      setIsDrawing(true);
-      setCurrentPath([{ x, y }]);
-
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    },
-    [game.status]
-  );
-
-  // Handle drawing
+  // Handle pointer/touch input
   const handlePointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!isDrawing) return;
+      if (gameStatus !== 'playing') return;
 
       const rect = gameAreaRef.current?.getBoundingClientRect();
       if (!rect) return;
 
-      // === BUG FIX: Bounds checking ===
-      const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-      const y = Math.max(0, Math.min(e.clientY - rect.top, rect.height));
+      const x = Math.max(HEAD_SIZE / 2, Math.min(e.clientX - rect.left, GAME_WIDTH - HEAD_SIZE / 2));
+      const y = Math.max(HEAD_SIZE / 2, Math.min(e.clientY - rect.top, GAME_HEIGHT - HEAD_SIZE / 2));
 
-      // Add point if far enough from last point
-      setCurrentPath((prev) => {
-        if (prev.length === 0) return [{ x, y }];
-
-        const last = prev[prev.length - 1];
-        const dx = x - last.x;
-        const dy = y - last.y;
-        if (Math.sqrt(dx * dx + dy * dy) > 10) {
-          return [...prev, { x, y }];
-        }
-        return prev;
-      });
+      gameStateRef.current.targetPos = { x, y };
     },
-    [isDrawing]
+    [gameStatus]
   );
 
-  // Handle drawing end
-  const handlePointerUp = useCallback(
+  const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (!isDrawing) return;
-
-      // Save path if long enough
-      if (currentPath.length >= 3) {
-        const id = nextPathId.current++;
-        setPaths((prev) => [
-          ...prev,
-          {
-            id,
-            points: currentPath,
-            createdAt: Date.now(),
-          },
-        ]);
-      }
-
-      setIsDrawing(false);
-      setCurrentPath([]);
-
-      (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+      if (gameStatus !== 'playing') return;
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+      handlePointerMove(e);
     },
-    [isDrawing, currentPath]
+    [gameStatus, handlePointerMove]
   );
 
   const handleStartGame = useCallback(() => {
+    // Clean up any existing game loop first
+    cleanupGameLoop();
+
+    // Reset game state
+    const now = performance.now();
+    gameStateRef.current = {
+      ...createInitialGameState(),
+      gameStartTime: now,
+      lastScoreTick: now,
+      lastEnemySpawn: now - ENEMY_SPAWN_INTERVAL + 500, // First enemy spawns after 500ms
+      lastGemSpawn: now,
+      enemies: [
+        { id: 0, x: 30, y: 30, speed: INITIAL_ENEMY_SPEED },
+        { id: 1, x: GAME_WIDTH - 30, y: 30, speed: INITIAL_ENEMY_SPEED },
+        { id: 2, x: 30, y: GAME_HEIGHT - 30, speed: INITIAL_ENEMY_SPEED },
+      ],
+      gems: [{
+        id: 0,
+        x: 50 + Math.random() * (GAME_WIDTH - 100),
+        y: 50 + Math.random() * (GAME_HEIGHT - 100),
+      }],
+      nextEnemyId: 3,
+      nextGemId: 1,
+    };
+
+    // Update React state to trigger game loop
     setShowResults(false);
-    setPaths([]);
-    setCaterpillars([]);
-    setFeedEffects([]);
-    // === BUG FIX: Reset drawing state on retry ===
-    setIsDrawing(false);
-    setCurrentPath([]);
-    game.startGame();
-  }, [game]);
+    setGameStatus('playing');
+  }, [cleanupGameLoop]);
 
   const handleApplyDiscount = useCallback(
     (discount: number) => {
@@ -573,14 +527,22 @@ export default function PathOfThePupaRoute() {
     [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]
   );
 
-  // Convert path to SVG path string
-  const pathToSvg = (points: Point[]): string => {
-    if (points.length < 2) return '';
-    let d = `M ${points[0].x} ${points[0].y}`;
-    for (let i = 1; i < points.length; i++) {
-      d += ` L ${points[i].x} ${points[i].y}`;
-    }
-    return d;
+  // Render hearts for lives
+  const renderLives = () => {
+    return (
+      <div className="flex gap-1">
+        {Array.from({ length: INITIAL_LIVES }).map((_, i) => (
+          <motion.span
+            key={i}
+            className={`text-xl ${i < gs.lives ? 'opacity-100' : 'opacity-30'}`}
+            animate={i < gs.lives && !shouldReduceMotion ? { scale: [1, 1.2, 1] } : {}}
+            transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
+          >
+            {i < gs.lives ? '💚' : '🖤'}
+          </motion.span>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -589,13 +551,13 @@ export default function PathOfThePupaRoute() {
         {/* Header */}
         <div className="text-center mb-6">
           <p className="text-sm text-amber-500/70 uppercase tracking-widest mb-1 font-display-600">
-            {HORROR_COPY.games.pathOfThePupa.careStage}
+            {HORROR_COPY.games.pathOfThePupa?.survivalStage || 'Survival Stage'}
           </p>
           <h1 className="text-3xl text-ranch-lime mb-2 font-display-800">
-            {HORROR_COPY.games.pathOfThePupa.title}
+            {HORROR_COPY.games.pathOfThePupa?.title || 'Path of the Pupa'}
           </h1>
           <p className="text-ranch-lavender text-lg font-display-600">
-            {HORROR_COPY.games.pathOfThePupa.description}
+            {HORROR_COPY.games.pathOfThePupa?.survivalDescription || 'Flee. Survive. Grow at your own risk.'}
           </p>
           {bestScore > 0 && (
             <p className="text-ranch-cyan text-lg mt-1 font-display-600">
@@ -605,219 +567,200 @@ export default function PathOfThePupaRoute() {
         </div>
 
         {/* Game UI - Before start */}
-        {game.status === 'idle' && (
+        {gameStatus === 'idle' && (
           <div className="text-center space-y-6">
             <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
               <p className="text-lg text-ranch-cream leading-relaxed text-center font-display-600">
-                {HORROR_COPY.games.pathOfThePupa.instructions[0]}
+                Move your finger or mouse to flee from the pursuers.
               </p>
               <p className="text-lg text-ranch-lavender mt-2 text-center font-display-600">
-                {HORROR_COPY.games.pathOfThePupa.instructions[1]}
+                Collect gems for bonus points... but each one makes you bigger.
               </p>
-              <p className="text-sm text-ranch-lime/70 mt-4 text-center font-display-500">
-                Obstacles slow AND penalize. Avoid them when possible!
+              <p className="text-sm text-ranch-pink/70 mt-4 text-center font-display-500">
+                Bigger means easier to catch. Choose wisely.
               </p>
             </div>
 
-            {/* Visual Demo */}
-            <div className="bg-ranch-dark/50 border border-ranch-purple/30 rounded-lg p-4">
-              <p className="text-xs text-ranch-lavender/60 uppercase tracking-wider mb-3">How to Play</p>
-              <div className="flex items-center justify-center gap-4 text-2xl">
-                <span>🐛</span>
-                <span className="text-ranch-lime">✏️</span>
-                <span className="text-ranch-lavender">〰️</span>
-                <span className="text-ranch-lime">→</span>
-                <span>🍃</span>
+            {/* Visual Instructions */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Flee from enemies */}
+              <div className="bg-ranch-dark/50 rounded-lg p-4 border-2 border-ranch-pink/50">
+                <div className="flex justify-center mb-2">
+                  <div className="relative">
+                    <span className="text-4xl">👹</span>
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-ranch-pink rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">✕</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-ranch-pink font-display-700 text-sm">FLEE</p>
+                <p className="text-ranch-cream/70 text-xs mt-1">Enemies chase you</p>
+                <p className="text-ranch-pink text-xs mt-1">-1 life if caught</p>
               </div>
-              <p className="text-sm text-ranch-cream/60 mt-2">
-                Draw paths from caterpillars to leaves!
-              </p>
+
+              {/* Collect gems (risky) */}
+              <div className="bg-ranch-dark/50 rounded-lg p-4 border-2 border-ranch-cyan/50">
+                <div className="flex justify-center mb-2">
+                  <div className="relative">
+                    <span className="text-4xl">💎</span>
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-ranch-cyan rounded-full flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">?</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-ranch-cyan font-display-700 text-sm">COLLECT</p>
+                <p className="text-ranch-cream/70 text-xs mt-1">+{POINTS_PER_GEM} points each</p>
+                <p className="text-ranch-pink text-xs mt-1">Makes you bigger!</p>
+              </div>
+            </div>
+
+            {/* Legend row */}
+            <div className="bg-ranch-dark/50 border border-ranch-purple/30 rounded-lg p-3">
+              <div className="flex items-center justify-center gap-8 text-xl">
+                <div className="flex items-center gap-2">
+                  <span>🐍</span>
+                  <span className="text-xs text-ranch-lime">You</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span>💚💚💚</span>
+                  <span className="text-xs text-ranch-cream">{INITIAL_LIVES} Lives</span>
+                </div>
+              </div>
             </div>
 
             <button
               onClick={handleStartGame}
               className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors font-display-700"
             >
-              {HORROR_COPY.games.pathOfThePupa.startButton}
+              Begin the Chase
             </button>
           </div>
         )}
 
         {/* Game UI - Playing */}
-        {game.status === 'playing' && (
+        {gameStatus === 'playing' && (
           <div className="space-y-4">
             {/* HUD */}
-            <div className="flex gap-4">
-              <GameTimer timeLeft={game.timeLeft} className="flex-1" />
-              <GameScore score={game.score} showProgress={true} className="flex-1" />
+            <div className="flex gap-4 items-center">
+              <GameTimer timeLeft={Math.ceil(gs.timeLeft)} className="flex-1" />
+              <div className="flex-shrink-0">{renderLives()}</div>
+              <GameScore score={gs.score} showProgress={true} className="flex-1" />
             </div>
 
             {/* Game Area */}
             <div
               ref={gameAreaRef}
-              className="relative bg-gradient-to-b from-ranch-purple/10 to-ranch-dark/90 border-2 border-ranch-purple rounded-lg overflow-hidden touch-none cursor-crosshair"
-              style={{ width: '100%', height: '420px' }}
+              className="relative bg-gradient-to-b from-ranch-purple/10 to-ranch-dark/90 border-2 border-ranch-purple rounded-lg overflow-hidden touch-none cursor-none select-none"
+              style={{ width: '100%', height: `${GAME_HEIGHT}px` }}
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-              onPointerCancel={handlePointerUp}
             >
-              {/* SVG for paths */}
-              <svg className="absolute inset-0 pointer-events-none">
-                {/* Existing paths (fading) */}
-                {paths.map((path) => {
-                  const age = Date.now() - path.createdAt;
-                  const opacity = Math.max(0, 1 - age / PATH_FADE_TIME);
-                  return (
-                    <path
-                      key={path.id}
-                      d={pathToSvg(path.points)}
-                      stroke="#32CD32"
-                      strokeWidth="4"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      opacity={opacity * 0.7}
-                      style={{
-                        filter: `drop-shadow(0 0 4px rgba(50, 205, 50, ${opacity * 0.5}))`,
-                      }}
-                    />
-                  );
-                })}
-
-                {/* Current drawing path */}
-                {isDrawing && currentPath.length >= 2 && (
-                  <path
-                    d={pathToSvg(currentPath)}
-                    stroke="#00CED1"
-                    strokeWidth="5"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    style={{
-                      filter: 'drop-shadow(0 0 6px rgba(0, 206, 209, 0.8))',
-                    }}
-                  />
-                )}
-              </svg>
-
-              {/* Obstacles */}
-              {obstacles.map((obs) => (
+              {/* Gems - Using CSS transforms for performance */}
+              {gs.gems.map((gem) => (
                 <div
-                  key={obs.id}
-                  className="absolute text-2xl opacity-60"
+                  key={gem.id}
+                  className="absolute pointer-events-none"
                   style={{
-                    left: obs.x - 15,
-                    top: obs.y - 15,
-                    width: 30,
-                    height: 30,
+                    transform: `translate(${gem.x - GEM_SIZE / 2}px, ${gem.y - GEM_SIZE / 2}px)`,
+                    width: GEM_SIZE,
+                    height: GEM_SIZE,
                   }}
                 >
-                  🌵
+                  <span
+                    className="text-2xl drop-shadow-[0_0_8px_rgba(0,206,209,0.8)] animate-pulse"
+                  >
+                    💎
+                  </span>
                 </div>
               ))}
 
-              {/* Food items */}
-              <AnimatePresence>
-                {foodItems.map((food) => (
-                  <motion.div
-                    key={food.id}
-                    className="absolute"
-                    style={{
-                      left: food.x - 20,
-                      top: food.y - 20,
-                      width: 40,
-                      height: 40,
-                    }}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{
-                      scale: [1, 1.1, 1],
-                      rotate: [0, 5, -5, 0],
-                      opacity: 1,
-                    }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{
-                      repeat: Infinity,
-                      duration: 2,
-                      delay: food.id * 0.3,
-                    }}
-                  >
-                    <span className="text-3xl drop-shadow-[0_0_8px_rgba(50,205,50,0.6)]">
-                      🍃
-                    </span>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              {/* Feed effects */}
-              <AnimatePresence>
-                {feedEffects.map((effect) => (
-                  <motion.div
-                    key={effect.id}
-                    initial={{ scale: 0.5, opacity: 1 }}
-                    animate={{ scale: 2, opacity: 0, y: -30 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="absolute pointer-events-none text-2xl"
-                    style={{
-                      left: effect.x - 15,
-                      top: effect.y - 15,
-                    }}
-                  >
-                    ✨
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              {/* Caterpillars */}
-              <AnimatePresence>
-                {caterpillars.map((cat) => (
-                  <motion.div
-                    key={cat.id}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 1.5, opacity: 0 }}
-                    className="absolute"
-                    style={{
-                      left: cat.x - 15,
-                      top: cat.y - 15,
-                      width: 30,
-                      height: 30,
-                    }}
-                  >
-                    <motion.span
-                      className="text-2xl"
-                      animate={{
-                        rotate: cat.path ? [0, 10, -10, 0] : 0,
-                      }}
-                      transition={{
-                        repeat: Infinity,
-                        duration: 0.3,
-                      }}
-                    >
-                      🐛
-                    </motion.span>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-
-              {/* Drawing cursor indicator */}
-              {isDrawing && currentPath.length > 0 && (
-                <motion.div
-                  className="absolute w-4 h-4 rounded-full bg-ranch-cyan pointer-events-none"
+              {/* Player segments (body) - Using CSS transforms */}
+              {gs.segments.map((segment, i) => (
+                <div
+                  key={i}
+                  className="absolute rounded-full pointer-events-none"
                   style={{
-                    left: currentPath[currentPath.length - 1].x - 8,
-                    top: currentPath[currentPath.length - 1].y - 8,
+                    transform: `translate(${segment.x - SEGMENT_SIZE / 2}px, ${segment.y - SEGMENT_SIZE / 2}px)`,
+                    width: SEGMENT_SIZE,
+                    height: SEGMENT_SIZE,
+                    backgroundColor: gs.isInvincible ? 'rgba(50, 205, 50, 0.4)' : 'rgba(50, 205, 50, 0.7)',
+                    boxShadow: gs.isInvincible
+                      ? '0 0 10px rgba(50, 205, 50, 0.3)'
+                      : '0 0 6px rgba(50, 205, 50, 0.5)',
+                    opacity: gs.isInvincible ? 0.6 : 1,
                   }}
-                  animate={{ scale: [1, 1.3, 1] }}
-                  transition={{ repeat: Infinity, duration: 0.4 }}
                 />
-              )}
+              ))}
+
+              {/* Player head (snake) - Using CSS transforms */}
+              <div
+                className="absolute pointer-events-none"
+                style={{
+                  transform: `translate(${gs.playerPos.x - HEAD_SIZE / 2}px, ${gs.playerPos.y - HEAD_SIZE / 2}px)`,
+                  width: HEAD_SIZE,
+                  height: HEAD_SIZE,
+                  opacity: gs.isInvincible ? 0.6 : 1,
+                }}
+              >
+                <span
+                  className="text-3xl"
+                  style={{
+                    filter: gs.isInvincible
+                      ? 'drop-shadow(0 0 12px rgba(50, 205, 50, 0.8))'
+                      : 'drop-shadow(0 0 6px rgba(50, 205, 50, 0.5))',
+                  }}
+                >
+                  🐍
+                </span>
+              </div>
+
+              {/* Enemies - Using CSS transforms */}
+              {gs.enemies.map((enemy) => (
+                <div
+                  key={enemy.id}
+                  className="absolute pointer-events-none"
+                  style={{
+                    transform: `translate(${enemy.x - ENEMY_SIZE / 2}px, ${enemy.y - ENEMY_SIZE / 2}px)`,
+                    width: ENEMY_SIZE,
+                    height: ENEMY_SIZE,
+                  }}
+                >
+                  <span className="text-2xl drop-shadow-[0_0_6px_rgba(255,20,147,0.6)]">
+                    👹
+                  </span>
+                </div>
+              ))}
+
+              {/* Hit effects - CSS animation only */}
+              {gs.hitEffects.map((effect) => (
+                <div
+                  key={effect.id}
+                  className="absolute pointer-events-none text-3xl animate-ping"
+                  style={{
+                    transform: `translate(${effect.x - 20}px, ${effect.y - 20}px)`,
+                  }}
+                >
+                  💥
+                </div>
+              ))}
+
+              {/* Target cursor indicator */}
+              <div
+                className="absolute w-3 h-3 rounded-full bg-ranch-cyan/50 pointer-events-none animate-pulse"
+                style={{
+                  transform: `translate(${gs.targetPos.x - 6}px, ${gs.targetPos.y - 6}px)`,
+                }}
+              />
             </div>
 
             {/* Instructions during play */}
             <div className="text-center text-sm text-ranch-lavender/60">
-              Draw paths from caterpillars 🐛 to leaves 🍃
+              {gs.segments.length > 0 && (
+                <span className="text-ranch-pink">
+                  Size: {gs.segments.length + 1} segments • Easier to catch!
+                </span>
+              )}
+              {gs.segments.length === 0 && 'Move to flee • Collect gems to grow (risky!)'}
             </div>
           </div>
         )}
@@ -825,7 +768,7 @@ export default function PathOfThePupaRoute() {
         {/* Game Results */}
         {showResults && (
           <GameResults
-            score={game.score}
+            score={gs.score}
             onApplyDiscount={handleApplyDiscount}
             onRetry={handleStartGame}
           />

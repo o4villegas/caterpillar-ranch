@@ -277,21 +277,50 @@ export default function TheCullingRoute() {
         {/* Game UI - Before start */}
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
+            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
               <p
-                className="text-lg text-ranch-cream leading-relaxed text-center font-display-600"
+                className="text-lg text-ranch-cream leading-relaxed text-center font-display-600 mb-4"
               >
                 {HORROR_COPY.games.theCulling.instructions[0]}
               </p>
+
+              {/* Visual instruction examples */}
+              <div className="grid grid-cols-2 gap-4 my-6">
+                {/* Hit this - Invasive */}
+                <div className="bg-ranch-dark/50 rounded-lg p-4 border-2 border-ranch-pink/50">
+                  <div className="flex justify-center mb-2">
+                    <div className="relative">
+                      <InvasiveCaterpillar size={70} />
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-ranch-pink rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">!</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-ranch-pink font-display-700 text-sm">HIT THIS</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">Red Eyes = Parasite</p>
+                  <p className="text-ranch-lime text-xs mt-1">+{HIT_PARASITE_POINTS} points</p>
+                </div>
+
+                {/* Don't hit - Good */}
+                <div className="bg-ranch-dark/50 rounded-lg p-4 border-2 border-ranch-lime/50">
+                  <div className="flex justify-center mb-2">
+                    <div className="relative">
+                      <GoodCaterpillar size={70} />
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-ranch-dark border-2 border-ranch-lime rounded-full flex items-center justify-center">
+                        <span className="text-ranch-lime text-xs font-bold">✓</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-ranch-lime font-display-700 text-sm">DON'T HIT</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">Cyan Eyes = Protected</p>
+                  <p className="text-ranch-pink text-xs mt-1">-{HIT_GOOD_PENALTY} points</p>
+                </div>
+              </div>
+
               <p
-                className="text-lg text-ranch-lavender mt-2 text-center font-display-600"
+                className="text-sm text-ranch-lavender text-center font-display-500"
               >
                 {HORROR_COPY.games.theCulling.instructions[1]}
-              </p>
-              <p
-                className="text-sm text-ranch-pink/70 mt-4 text-center font-display-500"
-              >
-                Warning: Hitting a protected caterpillar costs {HIT_GOOD_PENALTY} points.
               </p>
             </div>
             <button

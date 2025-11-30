@@ -26,7 +26,7 @@ export interface CartItem {
 export interface Discount {
   id: string; // Unique discount ID
   productId: string; // Product this discount applies to
-  gameType: 'culling' | 'harvest' | 'larva-launch' | 'path-of-the-pupa' | 'garden' | 'metamorphosis' | 'last-resort' | 'telegram' | 'snake'; // telegram/snake are legacy
+  gameType: 'culling' | 'harvest' | 'larva-launch' | 'path-of-the-pupa' | 'garden' | 'metamorphosis' | 'last-resort' | 'pulse' | 'snake'; // snake is legacy
   discountPercent: number; // 3-15%
   earnedAt: string; // ISO timestamp
   expiresAt: string; // ISO timestamp (30 minutes from earnedAt)

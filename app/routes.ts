@@ -16,8 +16,7 @@ export default [
   route("games/path-of-the-pupa", "routes/games.path-of-the-pupa.tsx"),
   route("games/midnight-garden", "routes/games.midnight-garden.tsx"),
   route("games/metamorphosis-queue", "routes/games.metamorphosis-queue.tsx"),
-  // Legacy routes (to be removed)
-  route("games/bug-telegram", "routes/games.bug-telegram.tsx"),
+  route("games/chrysalis-pulse", "routes/games.chrysalis-pulse.tsx"),
   route("games/hungry-caterpillar", "routes/games.hungry-caterpillar.tsx"),
   route("admin/login", "routes/admin.login.tsx"),
   layout("routes/admin/layout.tsx", [

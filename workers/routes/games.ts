@@ -15,7 +15,7 @@ const games = new Hono<{ Bindings: Cloudflare.Env }>();
 const VALID_GAME_TYPES = [
   'culling',
   'harvest',
-  'telegram',
+  'pulse',
   'snake',
   'garden',
   'metamorphosis',

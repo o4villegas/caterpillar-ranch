@@ -13,10 +13,11 @@ interface GameModalProps {
 }
 
 // Game list with route mappings (using HORROR_COPY for display data)
-// Updated: Replaced Bug Telegram + Hungry Caterpillar with mobile-friendly games
+// All 7 mobile-friendly games
 const GAMES = [
   { id: 'culling', ...HORROR_COPY.games.theCulling, route: 'the-culling' },
   { id: 'harvest', ...HORROR_COPY.games.cursedHarvest, route: 'cursed-harvest' },
+  { id: 'pulse', ...HORROR_COPY.games.chrysalisPulse, route: 'chrysalis-pulse' },
   { id: 'launch', ...HORROR_COPY.games.larvaLaunch, route: 'larva-launch' },
   { id: 'path', ...HORROR_COPY.games.pathOfThePupa, route: 'path-of-the-pupa' },
   { id: 'garden', ...HORROR_COPY.games.midnightGarden, route: 'midnight-garden' },

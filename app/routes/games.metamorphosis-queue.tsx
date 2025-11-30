@@ -410,21 +410,59 @@ export default function MetamorphosisQueueRoute() {
         {/* Game UI - Before start */}
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
-              <p
-                className="text-lg text-ranch-cream leading-relaxed text-center font-display-600"
-              >
+            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
+              <p className="text-lg text-ranch-cream leading-relaxed text-center font-display-600 mb-4">
                 {HORROR_COPY.games.metamorphosisQueue.instructions[0]}
               </p>
-              <p
-                className="text-lg text-ranch-lavender mt-2 text-center font-display-600"
-              >
-                {HORROR_COPY.games.metamorphosisQueue.instructions[1]}
-              </p>
-              <p
-                className="text-sm text-ranch-pink/70 mt-4 text-center font-display-500"
-              >
-                Warning: Failed timing costs {FAILED_PENALTY} points. Missed emergence costs {MISSED_PENALTY} points.
+
+              {/* Visual Instructions - Color sequence */}
+              <div className="flex justify-center items-center gap-1 my-4">
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-10 bg-ranch-purple rounded-lg" />
+                  <span className="text-xs text-ranch-lavender mt-1">Wait</span>
+                </div>
+                <span className="text-ranch-cream/50">→</span>
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-10 bg-ranch-pink rounded-lg" />
+                  <span className="text-xs text-ranch-lavender mt-1">Ready</span>
+                </div>
+                <span className="text-ranch-cream/50">→</span>
+                <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 bg-ranch-lime rounded-lg ring-2 ring-ranch-lime shadow-[0_0_15px_rgba(50,205,50,0.5)]" />
+                  <span className="text-xs text-ranch-lime mt-1 font-bold">TAP!</span>
+                </div>
+                <span className="text-ranch-cream/50">→</span>
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-10 bg-red-600 rounded-lg" />
+                  <span className="text-xs text-ranch-pink mt-1">Late!</span>
+                </div>
+              </div>
+
+              {/* Outcome examples */}
+              <div className="grid grid-cols-2 gap-3 my-4">
+                {/* Perfect timing */}
+                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-lime/50">
+                  <div className="flex justify-center mb-2">
+                    <span className="text-4xl">{PERFECT_RESULT}</span>
+                  </div>
+                  <p className="text-ranch-lime font-display-700 text-sm">PERFECT</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">Tap during GREEN</p>
+                  <p className="text-ranch-cyan text-xs mt-1">+{PERFECT_POINTS} points</p>
+                </div>
+
+                {/* Failed/Missed */}
+                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-pink/50">
+                  <div className="flex justify-center gap-2 mb-2">
+                    <span className="text-4xl">{FAILED_RESULT}</span>
+                  </div>
+                  <p className="text-ranch-pink font-display-700 text-sm">FAILED</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">Wrong timing</p>
+                  <p className="text-ranch-pink text-xs mt-1">-{FAILED_PENALTY} to -{MISSED_PENALTY} points</p>
+                </div>
+              </div>
+
+              <p className="text-sm text-ranch-lavender/60 mt-4 font-display-500">
+                {NUM_COCOONS} cocoons. Watch for GREEN!
               </p>
             </div>
             <button

@@ -134,18 +134,18 @@ export const HORROR_COPY = {
       failureMessage: 'Wrong nutrients. The transformation will be agonizing.',
     },
 
-    bugTelegram: {
-      title: 'Bug Telegram',
-      emoji: '📡',
-      duration: 30,
-      careStage: 'Communication',
-      description: 'Receive their signals',
+    chrysalisPulse: {
+      title: 'Chrysalis Pulse',
+      emoji: '💓',
+      duration: 25,
+      careStage: 'Synchronization',
+      description: 'Sync with their heartbeat',
       instructions: [
-        'They send signals when ready to transform',
-        'Miss the message, miss the moment.',
+        'The chrysalis pulses with life. Feel the rhythm.',
+        'Tap when the pulse aligns with the ring.',
       ],
-      startButton: 'Begin Listening',
-      failureMessage: 'The signals were lost. They do not know when to emerge.',
+      startButton: 'Feel the Pulse',
+      failureMessage: 'Out of sync. The rhythm was lost.',
     },
 
     hungryCaterpillar: {
@@ -207,15 +207,17 @@ export const HORROR_COPY = {
     pathOfThePupa: {
       title: 'Path of the Pupa',
       emoji: '🌿',
-      duration: 20,
+      duration: 25,
       careStage: 'Guidance',
+      survivalStage: 'Survival',
       description: 'Draw paths to guide them to nourishment',
+      survivalDescription: 'Flee. Survive. Grow at your own risk.',
       instructions: [
-        'Baby caterpillars wander lost. Draw paths to guide them to food.',
-        'Your touch shows them the way. They follow where you lead.',
+        'Move your finger or mouse to flee from the pursuers.',
+        'Collect gems for bonus points... but each one makes you bigger.',
       ],
-      startButton: 'Begin Guidance',
-      failureMessage: 'They wandered in circles, starving. The chrysalis will be empty.',
+      startButton: 'Begin the Chase',
+      failureMessage: 'The predators caught you. The chrysalis remains empty.',
     },
 
     // Tier-Specific Celebration Messages — Earned Transcendence

@@ -180,7 +180,7 @@ CREATE TABLE IF NOT EXISTS game_completions (
     game_type IN (
       'culling',
       'harvest',
-      'telegram',
+      'pulse',
       'snake',
       'garden',
       'metamorphosis'

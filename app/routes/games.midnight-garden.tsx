@@ -320,22 +320,44 @@ export default function MidnightGardenRoute() {
         {/* Game UI - Before start */}
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
-              <p
-                className="text-lg text-ranch-cream leading-relaxed text-center font-display-600"
-              >
+            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
+              <p className="text-lg text-ranch-cream leading-relaxed text-center font-display-600 mb-4">
                 {HORROR_COPY.games.midnightGarden.instructions[0]}
               </p>
-              <p
-                className="text-lg text-ranch-lavender mt-2 text-center font-display-600"
-              >
-                {HORROR_COPY.games.midnightGarden.instructions[1]}
-              </p>
-              <p
-                className="text-sm text-ranch-pink/70 mt-4 text-center font-display-500"
-              >
-                Warning: Clicking bad signs costs {BAD_SIGN_PENALTY} points.
-              </p>
+
+              {/* Visual Instructions */}
+              <div className="grid grid-cols-2 gap-3 my-4">
+                {/* Good omens - click these */}
+                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-lime/50">
+                  <div className="flex justify-center gap-2 mb-2">
+                    {GOOD_OMENS.map(omen => (
+                      <span key={omen.id} className="text-3xl">{omen.emoji}</span>
+                    ))}
+                  </div>
+                  <p className="text-ranch-lime font-display-700 text-sm">TAP THESE!</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">Good omens</p>
+                  <p className="text-ranch-cyan text-xs mt-1">+{GOOD_OMEN_POINTS} points each</p>
+                </div>
+
+                {/* Bad signs - avoid */}
+                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-pink/50">
+                  <div className="flex justify-center gap-2 mb-2">
+                    {BAD_SIGNS.map(sign => (
+                      <span key={sign.id} className="text-3xl">{sign.emoji}</span>
+                    ))}
+                  </div>
+                  <p className="text-ranch-pink font-display-700 text-sm">AVOID!</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">Bad signs</p>
+                  <p className="text-ranch-pink text-xs mt-1">-{BAD_SIGN_PENALTY} points</p>
+                </div>
+              </div>
+
+              {/* Warning about deception */}
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 mt-4">
+                <p className="text-amber-400 font-display-600 text-sm">
+                  ⚠️ At {CONFUSION_THRESHOLD}+ points, bad signs disguise as good!
+                </p>
+              </div>
             </div>
             <button
               onClick={handleStartGame}

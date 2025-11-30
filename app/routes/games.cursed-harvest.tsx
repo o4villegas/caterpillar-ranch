@@ -293,21 +293,64 @@ export default function CursedHarvestRoute() {
         {/* Game UI - Before start */}
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-8">
+            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
               <p
-                className="text-lg text-ranch-cream leading-relaxed text-center font-display-600"
+                className="text-lg text-ranch-cream leading-relaxed text-center font-display-600 mb-4"
               >
                 {HORROR_COPY.games.cursedHarvest.instructions[0]}
               </p>
+
+              {/* Visual instruction examples */}
+              <div className="grid grid-cols-2 gap-3 my-4">
+                {/* How to play */}
+                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-cyan/50">
+                  <div className="flex justify-center items-center gap-2 mb-2">
+                    <div className="w-12 h-14 bg-ranch-purple border-2 border-ranch-lavender rounded-lg flex items-center justify-center">
+                      <span className="text-xl opacity-40">🌙</span>
+                    </div>
+                    <span className="text-ranch-cyan text-lg">→</span>
+                    <div className="w-12 h-14 bg-ranch-dark border-2 border-ranch-cyan rounded-lg flex items-center justify-center">
+                      <span className="text-2xl">🌿</span>
+                    </div>
+                  </div>
+                  <p className="text-ranch-cyan font-display-700 text-sm">FLIP CARDS</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">Tap to reveal nutrients</p>
+                </div>
+
+                {/* Match pairs */}
+                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-lime/50">
+                  <div className="flex justify-center items-center gap-1 mb-2">
+                    <div className="w-12 h-14 bg-ranch-dark border-2 border-amber-500 rounded-lg flex items-center justify-center shadow-[0_0_10px_rgba(251,191,36,0.3)]">
+                      <span className="text-2xl">🫐</span>
+                    </div>
+                    <div className="w-12 h-14 bg-ranch-dark border-2 border-amber-500 rounded-lg flex items-center justify-center shadow-[0_0_10px_rgba(251,191,36,0.3)]">
+                      <span className="text-2xl">🫐</span>
+                    </div>
+                  </div>
+                  <p className="text-ranch-lime font-display-700 text-sm">MATCH PAIRS</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">+{MATCH_POINTS} points per match</p>
+                </div>
+              </div>
+
+              {/* Nutrients preview */}
+              <div className="bg-ranch-dark/30 rounded-lg p-3 mb-4">
+                <p className="text-xs text-ranch-lavender/60 uppercase tracking-wider mb-2">Nutrients to Find</p>
+                <div className="flex justify-center gap-2 text-2xl">
+                  {NUTRIENTS.map((n) => (
+                    <span key={n.id} title={n.name}>{n.emoji}</span>
+                  ))}
+                </div>
+              </div>
+
               <p
-                className="text-lg text-ranch-lavender mt-2 text-center font-display-600"
+                className="text-sm text-ranch-lavender text-center font-display-600"
               >
                 {HORROR_COPY.games.cursedHarvest.instructions[1]}
               </p>
               <p
-                className="text-sm text-ranch-pink/70 mt-4 text-center font-display-500"
+                className="text-sm text-ranch-pink/70 mt-2 text-center font-display-500"
               >
-                Warning: Each mismatch costs {MISMATCH_PENALTY} points.
+                ⚠️ Mismatch: -{MISMATCH_PENALTY} points | Speed bonus (&lt;3s): +{SPEED_BONUS_POINTS}
               </p>
             </div>
             <button

@@ -408,6 +408,18 @@ button, .card, .modal {
   animation: spin 1s linear infinite;
 }
 
+/* Game splat effect */
+@keyframes splat {
+  from {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
 /* Border width utility for spinner */
 .border-3 {
   border-width: 3px;

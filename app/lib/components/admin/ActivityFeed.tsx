@@ -38,7 +38,7 @@ interface ActivityFeedProps {
 const GAME_NAMES: Record<string, string> = {
   culling: '🐛 The Culling',
   harvest: '🌾 Cursed Harvest',
-  telegram: '📡 Bug Telegram',
+  pulse: '💓 Chrysalis Pulse',
   snake: '🐍 Hungry Caterpillar',
   garden: '🌙 Midnight Garden',
   metamorphosis: '🦋 Metamorphosis',
