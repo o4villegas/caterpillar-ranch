@@ -265,7 +265,7 @@ CREATE TABLE IF NOT EXISTS sync_logs (
 
   -- Sync Metadata
   sync_timestamp TEXT NOT NULL DEFAULT (datetime('now')),
-  action TEXT NOT NULL CHECK (action IN ('added', 'updated', 'hidden', 'error')),
+  action TEXT NOT NULL CHECK (action IN ('added', 'updated', 'hidden', 'deleted', 'error')),
 
   -- Product Reference
   product_id TEXT, -- Our internal product ID (e.g., "cr-403422954")

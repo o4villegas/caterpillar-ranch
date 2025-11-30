@@ -12,7 +12,7 @@ import type { PrintfulStoreProduct } from './printful';
 export interface SyncResult {
   added: number;
   updated: number;
-  hidden: number;
+  deleted: number;
   errors: string[];
   duration: string;
 }
@@ -80,7 +80,7 @@ export async function syncAllProducts(
   const startTime = Date.now();
   let addedCount = 0;
   let updatedCount = 0;
-  let hiddenCount = 0;
+  let deletedCount = 0;
   const errors: string[] = [];
 
   // Fetch all store products from Printful
@@ -318,7 +318,7 @@ export async function syncAllProducts(
     }
   }
 
-  // Step 2: Detect and hide products that no longer exist in Printful
+  // Step 2: Detect and DELETE products that no longer exist in Printful
   console.log(`${logPrefix} Checking for deleted products...`);
 
   // Create a Set of all Printful product IDs for fast lookup
@@ -333,27 +333,20 @@ export async function syncAllProducts(
 
   const activeProducts = activeProductsResult.results || [];
 
-  // Find products in D1 that are NOT in Printful response
+  // Find products in D1 that are NOT in Printful response and DELETE them
   for (const dbProduct of activeProducts) {
     if (!printfulProductIds.has(dbProduct.printful_product_id)) {
       try {
-        console.log(`${logPrefix} Product no longer in Printful: ${dbProduct.name} (ID: ${dbProduct.printful_product_id})`);
+        console.log(`${logPrefix} Deleting product no longer in Printful: ${dbProduct.name} (ID: ${dbProduct.printful_product_id})`);
 
-        // Hide the product (soft delete)
-        await db.prepare(`
-          UPDATE products
-          SET status = 'hidden', updated_at = datetime('now')
-          WHERE id = ?
-        `).bind(dbProduct.id).run();
-
-        // Log to sync_logs table
+        // Log to sync_logs BEFORE deleting (so product_id is still valid for FK)
         await db.prepare(`
           INSERT INTO sync_logs (
             action, product_id, printful_product_id, product_name,
             reason, details
           ) VALUES (?, ?, ?, ?, ?, ?)
         `).bind(
-          'hidden',
+          'deleted',
           dbProduct.id,
           dbProduct.printful_product_id,
           dbProduct.name,
@@ -361,10 +354,15 @@ export async function syncAllProducts(
           JSON.stringify({ detectedDuring: 'scheduled-sync', previousStatus: 'active' })
         ).run();
 
-        hiddenCount++;
+        // DELETE the product (CASCADE handles variants and game_completions)
+        await db.prepare(`
+          DELETE FROM products WHERE id = ?
+        `).bind(dbProduct.id).run();
+
+        deletedCount++;
       } catch (error) {
-        console.error(`${logPrefix} Failed to hide product ${dbProduct.id}:`, error);
-        errors.push(`Hide product ${dbProduct.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        console.error(`${logPrefix} Failed to delete product ${dbProduct.id}:`, error);
+        errors.push(`Delete product ${dbProduct.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
   }
@@ -385,23 +383,16 @@ export async function syncAllProducts(
 
   for (const product of zeroVariantProducts) {
     try {
-      console.log(`${logPrefix} Product has zero variants: ${product.name} (ID: ${product.printful_product_id})`);
+      console.log(`${logPrefix} Deleting product with zero variants: ${product.name} (ID: ${product.printful_product_id})`);
 
-      // Hide the product
-      await db.prepare(`
-        UPDATE products
-        SET status = 'hidden', updated_at = datetime('now')
-        WHERE id = ?
-      `).bind(product.id).run();
-
-      // Log to sync_logs table
+      // Log to sync_logs BEFORE deleting (so product_id is still valid for FK)
       await db.prepare(`
         INSERT INTO sync_logs (
           action, product_id, printful_product_id, product_name,
           reason, details
         ) VALUES (?, ?, ?, ?, ?, ?)
       `).bind(
-        'hidden',
+        'deleted',
         product.id,
         product.printful_product_id,
         product.name,
@@ -409,17 +400,22 @@ export async function syncAllProducts(
         JSON.stringify({ detectedDuring: 'scheduled-sync', variantCount: 0 })
       ).run();
 
-      hiddenCount++;
+      // DELETE the product (CASCADE handles game_completions)
+      await db.prepare(`
+        DELETE FROM products WHERE id = ?
+      `).bind(product.id).run();
+
+      deletedCount++;
     } catch (error) {
-      console.error(`${logPrefix} Failed to hide product ${product.id}:`, error);
-      errors.push(`Hide product ${product.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error(`${logPrefix} Failed to delete product ${product.id}:`, error);
+      errors.push(`Delete product ${product.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(1);
 
   console.log(`${logPrefix} Sync completed in ${duration}s`);
-  console.log(`${logPrefix} Added: ${addedCount}, Updated: ${updatedCount}, Hidden: ${hiddenCount}, Errors: ${errors.length}`);
+  console.log(`${logPrefix} Added: ${addedCount}, Updated: ${updatedCount}, Deleted: ${deletedCount}, Errors: ${errors.length}`);
 
   if (errors.length > 0) {
     console.error(`${logPrefix} Errors during sync:`, errors);
@@ -428,7 +424,7 @@ export async function syncAllProducts(
   return {
     added: addedCount,
     updated: updatedCount,
-    hidden: hiddenCount,
+    deleted: deletedCount,
     errors,
     duration: `${duration}s`,
   };
