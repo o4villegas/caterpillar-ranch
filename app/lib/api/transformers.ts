@@ -193,13 +193,13 @@ function transformStoreVariant(syncVariant: PrintfulStoreProduct['sync_variants'
   }
 
   // Extract mockup URLs from files array
-  // Only include 'preview' type files - these are actual mockups
-  // Note: 'default' and 'label_inside' are artwork files, NOT mockups
+  // Include both 'preview' and 'default' type files - both have actual product mockups
+  // Note: 'label_inside' files are artwork files, NOT mockups
   const mockupUrls: string[] = [];
 
-  // Get only preview type files (actual mockups showing the product)
+  // Get preview and default type files (both show actual mockups)
   syncVariant.files?.forEach(f => {
-    if (f.preview_url && f.type === 'preview') {
+    if (f.preview_url && ['preview', 'default'].includes(f.type)) {
       if (!mockupUrls.includes(f.preview_url)) {
         mockupUrls.push(f.preview_url);
       }
