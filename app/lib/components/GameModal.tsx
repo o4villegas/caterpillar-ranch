@@ -13,11 +13,12 @@ interface GameModalProps {
 }
 
 // Game list with route mappings (using HORROR_COPY for display data)
-// All 7 mobile-friendly games
+// All 8 mobile-friendly games
 const GAMES = [
   { id: 'culling', ...HORROR_COPY.games.theCulling, route: 'the-culling' },
   { id: 'harvest', ...HORROR_COPY.games.cursedHarvest, route: 'cursed-harvest' },
   { id: 'pulse', ...HORROR_COPY.games.chrysalisPulse, route: 'chrysalis-pulse' },
+  { id: 'organ', ...HORROR_COPY.games.organHarvest, route: 'hungry-caterpillar' },
   { id: 'launch', ...HORROR_COPY.games.larvaLaunch, route: 'larva-launch' },
   { id: 'path', ...HORROR_COPY.games.pathOfThePupa, route: 'path-of-the-pupa' },
   { id: 'garden', ...HORROR_COPY.games.midnightGarden, route: 'midnight-garden' },

@@ -148,18 +148,18 @@ export const HORROR_COPY = {
       failureMessage: 'Out of sync. The rhythm was lost.',
     },
 
-    hungryCaterpillar: {
-      title: 'The Final Feeding',
-      emoji: '🐛',
+    organHarvest: {
+      title: 'Organ Harvest',
+      emoji: '🫀',
       duration: 45,
-      careStage: 'Preparation',
-      description: 'The last meal before the dark',
+      careStage: 'The Offering',
+      description: 'Stack the offerings. Survive the harvest.',
       instructions: [
-        'They must eat enough to survive the transformation',
-        'Guide them to nourishment. Avoid obstacles.',
+        'The ritual demands an offering',
+        'Stack the organs before time runs out',
       ],
-      startButton: 'Begin Feeding',
-      failureMessage: 'Not enough strength gathered. They will not survive the change.',
+      startButton: 'Begin the Harvest',
+      failureMessage: 'The offering was rejected. The ritual is incomplete.',
     },
 
     midnightGarden: {

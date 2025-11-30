@@ -1,26 +1,22 @@
 /**
- * The Final Feeding — Preparation Stage
+ * Organ Harvest — The Offering Stage
  *
- * Theme: "The Chrysalis" — The last meal before the dark
+ * Theme: "The Chrysalis" — Stack the offerings before time runs out
  *
- * Horror-themed snake game where the caterpillar must gather enough
- * nourishment to survive the transformation inside the chrysalis.
- *
- * Difficulty tuned for:
- * - 15% discount: ~15-20% of players (10+ food, no collision)
- * - Collision = instant failure (harsh)
- * - Faster movement speed
+ * Horror-themed Tetris game where players stack falling body parts.
+ * Survive for 60 seconds while clearing lines to earn points.
  *
  * Mechanics:
- * - 45 second duration
- * - Classic snake with arrow keys + swipe
- * - Gather nourishment (leaves) to grow
- * - Transform at the end if survived
+ * - 60 second duration
+ * - 10x20 grid (standard Tetris)
+ * - Body part themed pieces
+ * - Tap left/right to move, tap center to rotate, swipe down to drop
+ * - Lines cleared = points
+ * - Survive full time = bonus
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { AnimatePresence, motion } from 'framer-motion';
 import { GameTimer } from '../lib/components/Games/GameTimer';
 import { GameScore } from '../lib/components/Games/GameScore';
 import { GameResults } from '../lib/components/Games/GameResults';
@@ -29,42 +25,60 @@ import { useCart } from '../lib/contexts/CartContext';
 import { HORROR_COPY } from '../lib/constants/horror-copy';
 import type { Route } from './+types/games.hungry-caterpillar';
 
-// === DIFFICULTY SETTINGS (TUNED FOR ~15-20% MAX DISCOUNT) ===
-const GRID_SIZE = 15; // 15x15 grid
-const CELL_SIZE = 20; // pixels
+// === GAME SETTINGS ===
+const GRID_WIDTH = 10;
+const GRID_HEIGHT = 20;
+const CELL_SIZE = 18; // pixels
 const GAME_DURATION = 45; // seconds
-const MOVE_INTERVAL = 100; // ms between moves (faster - harder)
-const INITIAL_LENGTH = 3;
+const INITIAL_DROP_INTERVAL = 350; // ms (comfortable start)
+const MIN_DROP_INTERVAL = 120; // ms at max speed
+const SPEED_INCREASE_INTERVAL = 6000; // Speed up every 6 seconds
 
 // Points
-const FOOD_POINTS = 4; // Slightly reduced from 5
-const LENGTH_BONUS = 2; // Per segment at end
-const PERFECT_BONUS = 15; // 10+ food without collision
+const POINTS_PER_LINE = 10;
+const POINTS_DOUBLE = 25; // 2 lines at once
+const POINTS_TRIPLE = 40; // 3 lines at once
+const POINTS_TETRIS = 60; // 4 lines at once
+const SURVIVAL_BONUS = 20; // Bonus for surviving full time
 
-type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
+// Body part emojis for pieces
+const ORGANS = ['🫀', '🫁', '🧠', '👁️', '🦴', '🦷', '💀'];
 
-interface Position {
+// Tetris piece shapes (standard 7 pieces)
+const PIECES = [
+  // I piece
+  { shape: [[1, 1, 1, 1]], color: '🫀' },
+  // O piece
+  { shape: [[1, 1], [1, 1]], color: '🧠' },
+  // T piece
+  { shape: [[0, 1, 0], [1, 1, 1]], color: '🫁' },
+  // L piece
+  { shape: [[1, 0], [1, 0], [1, 1]], color: '👁️' },
+  // J piece
+  { shape: [[0, 1], [0, 1], [1, 1]], color: '🦴' },
+  // S piece
+  { shape: [[0, 1, 1], [1, 1, 0]], color: '🦷' },
+  // Z piece
+  { shape: [[1, 1, 0], [0, 1, 1]], color: '💀' },
+];
+
+type Grid = (string | null)[][];
+
+interface Piece {
+  shape: number[][];
+  color: string;
   x: number;
   y: number;
 }
 
-interface GameState {
-  snake: Position[];
-  direction: Direction;
-  food: Position | null;
-  gameOver: boolean;
-  foodEaten: number;
-  showTransformation: boolean;
-}
-
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: 'The Final Feeding — Preparation | Caterpillar Ranch' },
-    { name: 'description', content: 'The last meal before the dark. Prove your care.' },
+    { title: 'Organ Harvest — The Offering | Caterpillar Ranch' },
+    { name: 'description', content: 'Stack the offerings. Survive the harvest.' },
   ];
 }
 
-export default function HungryCaterpillarRoute() {
+export default function OrganHarvestRoute() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const productSlug = searchParams.get('product');
@@ -72,29 +86,25 @@ export default function HungryCaterpillarRoute() {
   const { addDiscount, removeDiscount, cart } = useCart();
   const game = useGameState(GAME_DURATION);
 
-  const [gameState, setGameState] = useState<GameState>({
-    snake: [
-      { x: 7, y: 7 },
-      { x: 6, y: 7 },
-      { x: 5, y: 7 },
-    ],
-    direction: 'RIGHT',
-    food: { x: 10, y: 10 },
-    gameOver: false,
-    foodEaten: 0,
-    showTransformation: false,
-  });
-
-  const [nextDirection, setNextDirection] = useState<Direction>('RIGHT');
+  const [grid, setGrid] = useState<Grid>(() =>
+    Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(null))
+  );
+  const [currentPiece, setCurrentPiece] = useState<Piece | null>(null);
+  const [nextPiece, setNextPiece] = useState<Piece | null>(null);
+  const [gameOver, setGameOver] = useState(false);
+  const [linesCleared, setLinesCleared] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [bestScore, setBestScore] = useState(0);
-  const [touchStart, setTouchStart] = useState<Position | null>(null);
+  const [dropInterval, setDropInterval] = useState(INITIAL_DROP_INTERVAL);
 
-  const moveIntervalRef = useRef<number | undefined>(undefined);
+  const dropTimerRef = useRef<number | undefined>(undefined);
+  const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const gameAreaRef = useRef<HTMLDivElement>(null);
+  const movePieceRef = useRef<(direction: 'left' | 'right' | 'down') => void>(() => {});
 
   // Load best score
   useEffect(() => {
-    const saved = localStorage.getItem('game:hungry-caterpillar:best-score');
+    const saved = localStorage.getItem('game:organ-harvest:best-score');
     if (saved) setBestScore(parseInt(saved, 10));
   }, []);
 
@@ -102,237 +112,335 @@ export default function HungryCaterpillarRoute() {
   useEffect(() => {
     if (game.score > bestScore) {
       setBestScore(game.score);
-      localStorage.setItem('game:hungry-caterpillar:best-score', game.score.toString());
+      localStorage.setItem('game:organ-harvest:best-score', game.score.toString());
     }
   }, [game.score, bestScore]);
 
-  // Generate random food position
-  const generateFood = useCallback((snake: Position[]): Position => {
-    let newFood: Position;
-    let attempts = 0;
-    do {
-      newFood = {
-        x: Math.floor(Math.random() * GRID_SIZE),
-        y: Math.floor(Math.random() * GRID_SIZE),
-      };
-      attempts++;
-    } while (
-      attempts < 100 &&
-      snake.some(segment => segment.x === newFood.x && segment.y === newFood.y)
-    );
-    return newFood;
+  // Generate random piece
+  const generatePiece = useCallback((): Piece => {
+    const template = PIECES[Math.floor(Math.random() * PIECES.length)];
+    return {
+      shape: template.shape.map(row => [...row]),
+      color: template.color,
+      x: Math.floor((GRID_WIDTH - template.shape[0].length) / 2),
+      y: 0,
+    };
   }, []);
 
-  // Move snake
-  const moveSnake = useCallback(() => {
-    if (gameState.gameOver || game.status !== 'playing') return;
+  // Check if piece can be placed at position
+  const canPlace = useCallback((piece: Piece, grid: Grid, offsetX = 0, offsetY = 0): boolean => {
+    for (let y = 0; y < piece.shape.length; y++) {
+      for (let x = 0; x < piece.shape[y].length; x++) {
+        if (piece.shape[y][x]) {
+          const newX = piece.x + x + offsetX;
+          const newY = piece.y + y + offsetY;
 
-    setGameState(prev => {
-      const newSnake = [...prev.snake];
-      const head = { ...newSnake[0] };
-
-      // Apply direction
-      switch (nextDirection) {
-        case 'UP':
-          head.y -= 1;
-          break;
-        case 'DOWN':
-          head.y += 1;
-          break;
-        case 'LEFT':
-          head.x -= 1;
-          break;
-        case 'RIGHT':
-          head.x += 1;
-          break;
+          if (newX < 0 || newX >= GRID_WIDTH || newY >= GRID_HEIGHT) {
+            return false;
+          }
+          if (newY >= 0 && grid[newY][newX]) {
+            return false;
+          }
+        }
       }
+    }
+    return true;
+  }, []);
 
-      // Check wall collision
-      if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
-        return { ...prev, gameOver: true };
+  // Place piece on grid
+  const placePiece = useCallback((piece: Piece, grid: Grid): Grid => {
+    const newGrid = grid.map(row => [...row]);
+    for (let y = 0; y < piece.shape.length; y++) {
+      for (let x = 0; x < piece.shape[y].length; x++) {
+        if (piece.shape[y][x]) {
+          const gridY = piece.y + y;
+          const gridX = piece.x + x;
+          if (gridY >= 0 && gridY < GRID_HEIGHT && gridX >= 0 && gridX < GRID_WIDTH) {
+            newGrid[gridY][gridX] = piece.color;
+          }
+        }
       }
+    }
+    return newGrid;
+  }, []);
 
-      // Check self collision
-      if (newSnake.some(segment => segment.x === head.x && segment.y === head.y)) {
-        return { ...prev, gameOver: true };
+  // Clear completed lines
+  const clearLines = useCallback((grid: Grid): { newGrid: Grid; cleared: number } => {
+    const newGrid = grid.filter(row => row.some(cell => cell === null));
+    const cleared = GRID_HEIGHT - newGrid.length;
+
+    // Add empty rows at top
+    while (newGrid.length < GRID_HEIGHT) {
+      newGrid.unshift(Array(GRID_WIDTH).fill(null));
+    }
+
+    return { newGrid, cleared };
+  }, []);
+
+  // Rotate piece
+  const rotatePiece = useCallback((piece: Piece): number[][] => {
+    const rows = piece.shape.length;
+    const cols = piece.shape[0].length;
+    const rotated: number[][] = [];
+
+    for (let x = 0; x < cols; x++) {
+      rotated.push([]);
+      for (let y = rows - 1; y >= 0; y--) {
+        rotated[x].push(piece.shape[y][x]);
       }
+    }
 
-      // Add new head
-      newSnake.unshift(head);
+    return rotated;
+  }, []);
 
-      // Check food collision
-      if (prev.food && head.x === prev.food.x && head.y === prev.food.y) {
-        // Ate food! Don't remove tail (snake grows)
-        const newFoodCount = prev.foodEaten + 1;
-        game.addPoints(FOOD_POINTS);
+  // Move piece
+  const movePiece = useCallback((direction: 'left' | 'right' | 'down') => {
+    if (!currentPiece || gameOver || game.status !== 'playing') return;
 
-        return {
-          ...prev,
-          snake: newSnake,
-          food: generateFood(newSnake),
-          direction: nextDirection,
-          foodEaten: newFoodCount,
-        };
-      }
+    const offset = {
+      left: { x: -1, y: 0 },
+      right: { x: 1, y: 0 },
+      down: { x: 0, y: 1 },
+    }[direction];
 
-      // Remove tail (normal movement)
-      newSnake.pop();
-
-      return {
+    if (canPlace(currentPiece, grid, offset.x, offset.y)) {
+      setCurrentPiece(prev => prev ? {
         ...prev,
-        snake: newSnake,
-        direction: nextDirection,
-      };
-    });
-  }, [gameState.gameOver, game, nextDirection, generateFood]);
+        x: prev.x + offset.x,
+        y: prev.y + offset.y,
+      } : null);
+    } else if (direction === 'down') {
+      // Piece has landed
+      const newGrid = placePiece(currentPiece, grid);
+      const { newGrid: clearedGrid, cleared } = clearLines(newGrid);
 
-  // Game loop
-  useEffect(() => {
-    if (game.status !== 'playing' || gameState.gameOver) {
-      if (moveIntervalRef.current) {
-        window.clearInterval(moveIntervalRef.current);
+      setGrid(clearedGrid);
+      setLinesCleared(prev => prev + cleared);
+
+      // Award points
+      if (cleared > 0) {
+        const points = cleared === 1 ? POINTS_PER_LINE :
+                       cleared === 2 ? POINTS_DOUBLE :
+                       cleared === 3 ? POINTS_TRIPLE :
+                       POINTS_TETRIS;
+        game.addPoints(points);
       }
+
+      // Spawn next piece
+      if (nextPiece) {
+        if (!canPlace(nextPiece, clearedGrid)) {
+          // Game over - can't place new piece
+          setGameOver(true);
+          game.endGame();
+        } else {
+          setCurrentPiece(nextPiece);
+          setNextPiece(generatePiece());
+        }
+      }
+    }
+  }, [currentPiece, gameOver, game, grid, canPlace, placePiece, clearLines, nextPiece, generatePiece]);
+
+  // Keep movePieceRef in sync with movePiece
+  useEffect(() => {
+    movePieceRef.current = movePiece;
+  }, [movePiece]);
+
+  // Handle rotation
+  const handleRotate = useCallback(() => {
+    if (!currentPiece || gameOver || game.status !== 'playing') return;
+
+    const rotated = rotatePiece(currentPiece);
+    const rotatedPiece = { ...currentPiece, shape: rotated };
+
+    // Try to place rotated piece, with wall kicks
+    const kicks = [0, -1, 1, -2, 2];
+    for (const kick of kicks) {
+      if (canPlace({ ...rotatedPiece, x: rotatedPiece.x + kick }, grid)) {
+        setCurrentPiece({ ...rotatedPiece, x: rotatedPiece.x + kick });
+        return;
+      }
+    }
+  }, [currentPiece, gameOver, game.status, rotatePiece, canPlace, grid]);
+
+  // Hard drop
+  const hardDrop = useCallback(() => {
+    if (!currentPiece || gameOver || game.status !== 'playing') return;
+
+    let dropY = 0;
+    while (canPlace(currentPiece, grid, 0, dropY + 1)) {
+      dropY++;
+    }
+
+    setCurrentPiece(prev => prev ? { ...prev, y: prev.y + dropY } : null);
+
+    // Force landing on next tick
+    setTimeout(() => movePiece('down'), 10);
+  }, [currentPiece, gameOver, game.status, canPlace, grid, movePiece]);
+
+  // Game loop - auto drop (uses ref to avoid interval recreation)
+  useEffect(() => {
+    if (game.status !== 'playing' || gameOver) {
+      if (dropTimerRef.current) clearInterval(dropTimerRef.current);
       return;
     }
 
-    moveIntervalRef.current = window.setInterval(moveSnake, MOVE_INTERVAL);
+    dropTimerRef.current = window.setInterval(() => {
+      movePieceRef.current('down');
+    }, dropInterval);
 
     return () => {
-      if (moveIntervalRef.current) {
-        window.clearInterval(moveIntervalRef.current);
-      }
+      if (dropTimerRef.current) clearInterval(dropTimerRef.current);
     };
-  }, [game.status, gameState.gameOver, moveSnake]);
+  }, [game.status, gameOver, dropInterval]);
 
-  // Handle keyboard controls
+  // Speed increase over time
+  useEffect(() => {
+    if (game.status !== 'playing') return;
+
+    const speedTimer = setInterval(() => {
+      setDropInterval(prev => Math.max(MIN_DROP_INTERVAL, prev - 100));
+    }, SPEED_INCREASE_INTERVAL);
+
+    return () => clearInterval(speedTimer);
+  }, [game.status]);
+
+  // Keyboard controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (game.status !== 'playing' || gameState.gameOver) return;
+      if (game.status !== 'playing' || gameOver) return;
 
-      const key = e.key;
-      const currentDir = gameState.direction;
-
-      // Prevent reversing direction
-      if (key === 'ArrowUp' && currentDir !== 'DOWN') {
-        setNextDirection('UP');
-        e.preventDefault();
-      } else if (key === 'ArrowDown' && currentDir !== 'UP') {
-        setNextDirection('DOWN');
-        e.preventDefault();
-      } else if (key === 'ArrowLeft' && currentDir !== 'RIGHT') {
-        setNextDirection('LEFT');
-        e.preventDefault();
-      } else if (key === 'ArrowRight' && currentDir !== 'LEFT') {
-        setNextDirection('RIGHT');
-        e.preventDefault();
+      switch (e.key) {
+        case 'ArrowLeft':
+          movePiece('left');
+          e.preventDefault();
+          break;
+        case 'ArrowRight':
+          movePiece('right');
+          e.preventDefault();
+          break;
+        case 'ArrowDown':
+          movePiece('down');
+          e.preventDefault();
+          break;
+        case 'ArrowUp':
+        case ' ':
+          handleRotate();
+          e.preventDefault();
+          break;
+        case 'Enter':
+          hardDrop();
+          e.preventDefault();
+          break;
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [game.status, gameState.gameOver, gameState.direction]);
+  }, [game.status, gameOver, movePiece, handleRotate, hardDrop]);
 
-  // Handle touch controls (swipe)
+  // Touch controls
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
-    setTouchStart({ x: touch.clientX, y: touch.clientY });
+    touchStartRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+      time: Date.now(),
+    };
   }, []);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (!touchStart || game.status !== 'playing' || gameState.gameOver) return;
+    if (!touchStartRef.current || game.status !== 'playing' || gameOver || !currentPiece) return;
 
     const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - touchStart.x;
-    const deltaY = touch.clientY - touchStart.y;
-    const currentDir = gameState.direction;
+    const deltaX = touch.clientX - touchStartRef.current.x;
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    const deltaTime = Date.now() - touchStartRef.current.time;
 
-    // Determine swipe direction (need at least 30px movement)
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
-      // Horizontal swipe
-      if (deltaX > 0 && currentDir !== 'LEFT') {
-        setNextDirection('RIGHT');
-      } else if (deltaX < 0 && currentDir !== 'RIGHT') {
-        setNextDirection('LEFT');
-      }
-    } else if (Math.abs(deltaY) > 30) {
-      // Vertical swipe
-      if (deltaY > 0 && currentDir !== 'UP') {
-        setNextDirection('DOWN');
-      } else if (deltaY < 0 && currentDir !== 'DOWN') {
-        setNextDirection('UP');
+    // Swipe down for hard drop
+    if (deltaY > 50 && Math.abs(deltaX) < 30) {
+      hardDrop();
+      touchStartRef.current = null;
+      return;
+    }
+
+    // Quick tap - relative to piece position
+    if (deltaTime < 300 && Math.abs(deltaX) < 30 && Math.abs(deltaY) < 30) {
+      const rect = gameAreaRef.current?.getBoundingClientRect();
+      if (rect) {
+        // Calculate piece bounds in screen coordinates
+        const pieceLeft = rect.left + 2 + (currentPiece.x * CELL_SIZE);
+        const pieceRight = pieceLeft + (currentPiece.shape[0].length * CELL_SIZE);
+        const pieceTop = rect.top + 2 + (currentPiece.y * CELL_SIZE);
+        const pieceBottom = pieceTop + (currentPiece.shape.length * CELL_SIZE);
+
+        const tapX = touch.clientX;
+        const tapY = touch.clientY;
+
+        // Check if tap is on the piece (with some padding for easier tapping)
+        const padding = CELL_SIZE;
+        const onPieceX = tapX >= pieceLeft - padding && tapX <= pieceRight + padding;
+        const onPieceY = tapY >= pieceTop - padding && tapY <= pieceBottom + padding;
+
+        if (onPieceX && onPieceY) {
+          // Tap on piece → rotate
+          handleRotate();
+        } else if (tapY > pieceBottom + padding) {
+          // Tap below piece → hard drop
+          hardDrop();
+        } else if (tapX < pieceLeft) {
+          // Tap left of piece → move left
+          movePiece('left');
+        } else if (tapX > pieceRight) {
+          // Tap right of piece → move right
+          movePiece('right');
+        }
       }
     }
 
-    setTouchStart(null);
-  }, [touchStart, game.status, gameState.gameOver, gameState.direction]);
+    touchStartRef.current = null;
+  }, [game.status, gameOver, hardDrop, movePiece, handleRotate, currentPiece]);
 
   // Handle game completion
   useEffect(() => {
-    if (game.status === 'completed' && !gameState.gameOver) {
-      // Game time ran out - show transformation
-      setGameState(prev => ({ ...prev, showTransformation: true }));
-
-      // Calculate final score bonuses
-      const lengthBonus = gameState.snake.length * LENGTH_BONUS;
-      const perfectBonus = gameState.foodEaten >= 10 && !gameState.gameOver ? PERFECT_BONUS : 0;
-
-      game.addPoints(lengthBonus + perfectBonus);
-
-      // Show transformation for 2 seconds, then results
-      setTimeout(() => {
-        setShowResults(true);
-      }, 2000);
-    } else if (gameState.gameOver) {
-      // Hit wall or self - game over immediately (harsh)
-      const lengthBonus = gameState.snake.length * LENGTH_BONUS;
-      game.addPoints(lengthBonus);
-      game.endGame();
+    if (game.status === 'completed' && !gameOver) {
+      // Survived full time!
+      game.addPoints(SURVIVAL_BONUS);
+      setShowResults(true);
+    } else if (gameOver) {
       setShowResults(true);
     }
-  }, [game.status, gameState.gameOver, gameState.showTransformation, gameState.snake.length]);
+  }, [game.status, gameOver]);
 
+  // Start game
   const handleStartGame = useCallback(() => {
-    setGameState({
-      snake: [
-        { x: 7, y: 7 },
-        { x: 6, y: 7 },
-        { x: 5, y: 7 },
-      ],
-      direction: 'RIGHT',
-      food: { x: 10, y: 10 },
-      gameOver: false,
-      foodEaten: 0,
-      showTransformation: false,
-    });
-    setNextDirection('RIGHT');
+    setGrid(Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(null)));
+    setCurrentPiece(generatePiece());
+    setNextPiece(generatePiece());
+    setGameOver(false);
+    setLinesCleared(0);
     setShowResults(false);
+    setDropInterval(INITIAL_DROP_INTERVAL);
     game.startGame();
-  }, [game]);
+  }, [game, generatePiece]);
 
   const handleApplyDiscount = useCallback((discount: number) => {
     if (discount > 0 && productSlug) {
-      // Remove existing discount for this product (replace, not accumulate)
-      const existingDiscount = cart.discounts.find(
-        (d) => d.productId === productSlug
-      );
-
+      const existingDiscount = cart.discounts.find(d => d.productId === productSlug);
       if (existingDiscount) {
         removeDiscount(existingDiscount.id);
       }
 
-      // Add new discount
       addDiscount({
-        id: `game-snake-${Date.now()}`,
+        id: `game-harvest-${Date.now()}`,
         productId: productSlug,
         discountPercent: discount,
-        gameType: 'snake',
+        gameType: 'snake', // Keep snake for DB compatibility
         earnedAt: new Date().toISOString(),
         expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
         applied: false
       });
     }
 
-    // Small delay to ensure cart state is persisted to localStorage before navigation
     setTimeout(() => {
       if (productSlug) {
         navigate(`/products/${productSlug}`);
@@ -342,30 +450,44 @@ export default function HungryCaterpillarRoute() {
     }, 50);
   }, [productSlug, cart.discounts, addDiscount, removeDiscount, navigate]);
 
+  // Render grid with current piece
+  const renderGrid = () => {
+    const displayGrid = grid.map(row => [...row]);
+
+    // Add current piece to display
+    if (currentPiece) {
+      for (let y = 0; y < currentPiece.shape.length; y++) {
+        for (let x = 0; x < currentPiece.shape[y].length; x++) {
+          if (currentPiece.shape[y][x]) {
+            const gridY = currentPiece.y + y;
+            const gridX = currentPiece.x + x;
+            if (gridY >= 0 && gridY < GRID_HEIGHT && gridX >= 0 && gridX < GRID_WIDTH) {
+              displayGrid[gridY][gridX] = currentPiece.color;
+            }
+          }
+        }
+      }
+    }
+
+    return displayGrid;
+  };
+
   return (
     <div className="min-h-screen bg-ranch-dark flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-6">
-          <p
-            className="text-sm text-amber-500/70 uppercase tracking-widest mb-1 font-display-600"
-          >
-            {HORROR_COPY.games.hungryCaterpillar.careStage}
+        <div className="text-center mb-4">
+          <p className="text-sm text-amber-500/70 uppercase tracking-widest mb-1 font-display-600">
+            The Offering
           </p>
-          <h1
-            className="text-3xl text-ranch-lime mb-2 font-display-800"
-          >
-            {HORROR_COPY.games.hungryCaterpillar.title}
+          <h1 className="text-3xl text-ranch-pink mb-2 font-display-800">
+            Organ Harvest
           </h1>
-          <p
-            className="text-ranch-lavender text-lg font-display-600"
-          >
-            {HORROR_COPY.games.hungryCaterpillar.description}
+          <p className="text-ranch-lavender text-lg font-display-600">
+            Stack the offerings. Survive the harvest.
           </p>
           {bestScore > 0 && (
-            <p
-              className="text-ranch-cyan text-lg mt-1 font-display-600"
-            >
+            <p className="text-ranch-cyan text-lg mt-1 font-display-600">
               Best: {bestScore}
             </p>
           )}
@@ -374,82 +496,77 @@ export default function HungryCaterpillarRoute() {
         {/* Game UI - Before start */}
         {game.status === 'idle' && (
           <div className="text-center space-y-6">
-            <div className="bg-ranch-purple/20 border-2 border-ranch-purple rounded-lg p-6">
+            <div className="bg-ranch-purple/20 border-2 border-ranch-pink rounded-lg p-6">
               <p className="text-lg text-ranch-cream leading-relaxed text-center font-display-600 mb-4">
-                {HORROR_COPY.games.hungryCaterpillar.instructions[0]}
+                The ritual demands an offering. Stack the organs before time runs out.
               </p>
 
               {/* Visual Instructions */}
-              <div className="grid grid-cols-2 gap-3 my-4">
-                {/* How to move */}
+              <div className="grid grid-cols-3 gap-2 my-4">
+                {/* Tap piece */}
                 <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-cyan/50">
-                  <div className="flex justify-center gap-1 mb-2">
-                    <span className="text-2xl">⬆️</span>
+                  <div className="flex justify-center mb-2 text-2xl">
+                    <span>🔄</span>
                   </div>
-                  <div className="flex justify-center gap-1 mb-2">
-                    <span className="text-2xl">⬅️</span>
-                    <span className="text-2xl">🐛</span>
-                    <span className="text-2xl">➡️</span>
-                  </div>
-                  <div className="flex justify-center gap-1">
-                    <span className="text-2xl">⬇️</span>
-                  </div>
-                  <p className="text-ranch-cyan font-display-700 text-sm mt-2">MOVE</p>
-                  <p className="text-ranch-cream/70 text-xs mt-1">Arrows or swipe</p>
+                  <p className="text-ranch-cyan font-display-700 text-xs">TAP PIECE</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">Rotate</p>
                 </div>
 
-                {/* What to collect */}
+                {/* Tap sides */}
+                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-lavender/50">
+                  <div className="flex justify-center gap-1 mb-2 text-2xl">
+                    <span>👈</span>
+                    <span>👉</span>
+                  </div>
+                  <p className="text-ranch-lavender font-display-700 text-xs">TAP SIDES</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">Move L/R</p>
+                </div>
+
+                {/* Tap below */}
                 <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-lime/50">
-                  <div className="flex justify-center items-center gap-2 mb-2">
-                    <span className="text-3xl">🐛</span>
-                    <span className="text-ranch-lime">→</span>
-                    <span className="text-3xl">🍃</span>
+                  <div className="flex justify-center mb-2 text-2xl">
+                    <span>👇</span>
                   </div>
-                  <p className="text-ranch-lime font-display-700 text-sm mt-2">EAT LEAVES</p>
-                  <p className="text-ranch-cream/70 text-xs mt-1">+{FOOD_POINTS} points each</p>
-                  <p className="text-ranch-cyan text-xs mt-1">Grow longer!</p>
+                  <p className="text-ranch-lime font-display-700 text-xs">TAP BELOW</p>
+                  <p className="text-ranch-cream/70 text-xs mt-1">Drop</p>
                 </div>
               </div>
 
-              {/* Warnings */}
-              <div className="grid grid-cols-2 gap-3">
-                {/* Wall collision */}
-                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-pink/50">
-                  <div className="flex justify-center items-center mb-2">
-                    <span className="text-2xl">🐛</span>
-                    <span className="text-ranch-pink mx-1">💥</span>
-                    <span className="text-2xl">🧱</span>
-                  </div>
-                  <p className="text-ranch-pink font-display-700 text-sm">WALLS = DEATH</p>
-                </div>
-
-                {/* Self collision */}
-                <div className="bg-ranch-dark/50 rounded-lg p-3 border-2 border-ranch-pink/50">
-                  <div className="flex justify-center items-center mb-2">
-                    <span className="text-2xl">🐛</span>
-                    <span className="text-ranch-pink mx-1">💥</span>
-                    <span className="text-xl">●●●</span>
-                  </div>
-                  <p className="text-ranch-pink font-display-700 text-sm">SELF = DEATH</p>
+              {/* Scoring */}
+              <div className="bg-ranch-dark/30 rounded-lg p-3 mb-4">
+                <p className="text-xs text-ranch-lavender/60 uppercase tracking-wider mb-2">Scoring</p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div><span className="text-ranch-lime">1 line</span> +{POINTS_PER_LINE}</div>
+                  <div><span className="text-ranch-cyan">2 lines</span> +{POINTS_DOUBLE}</div>
+                  <div><span className="text-ranch-lavender">3 lines</span> +{POINTS_TRIPLE}</div>
+                  <div><span className="text-amber-400">4 lines</span> +{POINTS_TETRIS}</div>
                 </div>
               </div>
 
-              <p className="text-sm text-ranch-lavender/60 mt-4 font-display-500">
-                🎯 10+ leaves = +{PERFECT_BONUS} perfect bonus!
+              {/* Pieces preview */}
+              <div className="flex justify-center gap-2 mb-4">
+                {ORGANS.map((organ, i) => (
+                  <span key={i} className="text-2xl">{organ}</span>
+                ))}
+              </div>
+
+              <p className="text-sm text-ranch-pink/70 text-center font-display-500">
+                ⚠️ Game over if pieces reach the top!
               </p>
             </div>
+
             <button
               onClick={handleStartGame}
-              className="w-full px-6 py-4 bg-ranch-lime text-ranch-dark rounded-lg text-lg hover:bg-ranch-cyan transition-colors font-display-700"
+              className="w-full px-6 py-4 bg-ranch-pink text-ranch-dark rounded-lg text-lg hover:bg-ranch-lime transition-colors font-display-700"
             >
-              {HORROR_COPY.games.hungryCaterpillar.startButton}
+              Begin the Harvest
             </button>
           </div>
         )}
 
         {/* Game UI - Playing */}
-        {game.status === 'playing' && !gameState.showTransformation && (
-          <div className="space-y-4">
+        {game.status === 'playing' && !showResults && (
+          <div className="space-y-3">
             {/* HUD */}
             <div className="flex gap-4">
               <GameTimer timeLeft={game.timeLeft} className="flex-1" />
@@ -457,94 +574,52 @@ export default function HungryCaterpillarRoute() {
             </div>
 
             {/* Stats */}
-            <div className="flex justify-between text-ranch-lavender text-lg px-2">
-              <span>Length: {gameState.snake.length}</span>
-              <span>Eaten: {gameState.foodEaten} 🍃</span>
+            <div className="flex justify-between text-ranch-lavender text-sm px-2">
+              <span>Lines: {linesCleared}</span>
+              <span>Next: {nextPiece?.color}</span>
             </div>
 
             {/* Game Board */}
             <div
-              role="application"
-              aria-label="Snake game - swipe or use arrow keys"
-              className="relative bg-ranch-purple/10 rounded-lg border-2 border-ranch-purple overflow-hidden"
+              ref={gameAreaRef}
+              className="relative bg-ranch-purple/10 rounded-lg border-2 border-ranch-pink overflow-hidden mx-auto"
               style={{
-                width: GRID_SIZE * CELL_SIZE,
-                height: GRID_SIZE * CELL_SIZE,
-                margin: '0 auto',
+                width: GRID_WIDTH * CELL_SIZE + 4,
+                height: GRID_HEIGHT * CELL_SIZE + 4,
               }}
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
             >
-              {/* Grid */}
-              <div className="absolute inset-0">
-                {Array.from({ length: GRID_SIZE }).map((_, y) =>
-                  Array.from({ length: GRID_SIZE }).map((_, x) => (
-                    <div
-                      key={`${x}-${y}`}
-                      className="absolute border border-ranch-purple/20"
-                      style={{
-                        left: x * CELL_SIZE,
-                        top: y * CELL_SIZE,
-                        width: CELL_SIZE,
-                        height: CELL_SIZE,
-                      }}
-                    />
-                  ))
-                )}
-              </div>
-
-              {/* Food */}
-              {gameState.food && (
-                <div
-                  className="absolute flex items-center justify-center food-pulse"
-                  style={{
-                    left: gameState.food.x * CELL_SIZE,
-                    top: gameState.food.y * CELL_SIZE,
-                    width: CELL_SIZE,
-                    height: CELL_SIZE,
-                  }}
-                >
-                  <span className="text-lg">🍃</span>
-                </div>
-              )}
-
-              {/* Snake */}
-              {gameState.snake.map((segment, index) => (
-                <div
-                  key={index}
-                  className={`absolute flex items-center justify-center ${
-                    index > 0 ? 'segment-pulse' : ''
-                  }`}
-                  style={{
-                    left: segment.x * CELL_SIZE,
-                    top: segment.y * CELL_SIZE,
-                    width: CELL_SIZE,
-                    height: CELL_SIZE,
-                    zIndex: gameState.snake.length - index,
-                  }}
-                >
-                  {index === 0 ? (
-                    <span className="text-lg">🐛</span>
-                  ) : (
-                    <div className="w-4 h-4 bg-ranch-lime rounded-full border border-ranch-cyan" />
-                  )}
-                </div>
+              {/* Grid cells */}
+              {renderGrid().map((row, y) => (
+                row.map((cell, x) => (
+                  <div
+                    key={`${x}-${y}`}
+                    className={`absolute flex items-center justify-center text-xs ${
+                      cell ? 'bg-ranch-purple/30' : 'bg-ranch-dark/50'
+                    } border border-ranch-purple/20`}
+                    style={{
+                      left: x * CELL_SIZE + 2,
+                      top: y * CELL_SIZE + 2,
+                      width: CELL_SIZE,
+                      height: CELL_SIZE,
+                    }}
+                  >
+                    {cell}
+                  </div>
+                ))
               ))}
 
               {/* Game Over Overlay */}
-              {gameState.gameOver && (
+              {gameOver && (
                 <div className="absolute inset-0 bg-ranch-dark/90 flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-6xl mb-2">💀</div>
-                    <p
-                      className="text-ranch-pink text-xl font-display-700"
-                    >
-                      THE GATHERING FAILED
+                    <p className="text-ranch-pink text-xl font-display-700">
+                      THE OFFERING FAILED
                     </p>
-                    <p
-                      className="text-ranch-lavender text-lg mt-1 font-display-500"
-                    >
-                      Gathered: {gameState.foodEaten} nourishment
+                    <p className="text-ranch-lavender text-lg mt-1 font-display-500">
+                      Lines cleared: {linesCleared}
                     </p>
                   </div>
                 </div>
@@ -552,35 +627,9 @@ export default function HungryCaterpillarRoute() {
             </div>
 
             {/* Mobile Controls Hint */}
-            <p className="text-ranch-lavender text-lg text-center">
-              Swipe or use arrow keys to move
+            <p className="text-ranch-lavender/60 text-sm text-center">
+              Tap piece: Rotate • Tap sides: Move • Tap below: Drop
             </p>
-          </div>
-        )}
-
-        {/* Transformation Cutscene */}
-        {gameState.showTransformation && (
-          <div className="space-y-4">
-            <div className="bg-ranch-purple/20 border-2 border-amber-500/50 rounded-lg p-8 text-center shadow-[0_0_40px_rgba(251,191,36,0.2)]">
-              <div className="text-8xl mb-4 transformation-animation">
-                🐛 → 🦋
-              </div>
-              <p
-                className="text-amber-400 text-2xl mb-2 font-display-700"
-              >
-                THEY ARE READY TO TRANSFORM
-              </p>
-              <p
-                className="text-ranch-lavender font-display-500"
-              >
-                Gathered: {gameState.foodEaten} nourishment
-              </p>
-              <p
-                className="text-ranch-cyan text-lg mt-2 font-display-600"
-              >
-                {gameState.foodEaten >= 10 ? '✨ Perfect Preparation! +15' : ''}
-              </p>
-            </div>
           </div>
         )}
 
@@ -593,38 +642,6 @@ export default function HungryCaterpillarRoute() {
           />
         )}
       </div>
-
-      {/* CSS Animations */}
-      <style>{`
-        @keyframes pulse-food {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.2); opacity: 0.8; }
-        }
-
-        @keyframes pulse-segment {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.1); }
-        }
-
-        @keyframes transform {
-          0% { transform: scale(1) rotate(0deg); opacity: 1; }
-          50% { transform: scale(1.5) rotate(180deg); opacity: 0.5; }
-          100% { transform: scale(1) rotate(360deg); opacity: 1; }
-        }
-
-        .food-pulse {
-          animation: pulse-food 1s ease-in-out infinite;
-        }
-
-        .segment-pulse {
-          animation: pulse-segment 2s ease-in-out infinite;
-          animation-delay: calc(var(--segment-index, 0) * 0.1s);
-        }
-
-        .transformation-animation {
-          animation: transform 2s ease-in-out;
-        }
-      `}</style>
     </div>
   );
 }
