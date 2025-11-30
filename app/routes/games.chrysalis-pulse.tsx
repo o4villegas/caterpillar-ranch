@@ -43,11 +43,11 @@ interface Pulse {
 
 // === DIFFICULTY SETTINGS ===
 const GAME_DURATION = 25; // seconds
-const TARGET_SCALE = 1.0; // Scale at which pulse should be tapped
-const PULSE_DURATION = 1200; // ms for pulse to reach target
-const INITIAL_SPAWN_INTERVAL = 1200; // ms between spawns at start
-const MIN_SPAWN_INTERVAL = 600; // ms between spawns at end
-const MAX_ACTIVE_PULSES = 4;
+const TARGET_SCALE = 0.88; // Scale at which pulse should be tapped (matches inset-4 target ring)
+const PULSE_DURATION = 1350; // ms for pulse to reach target
+const INITIAL_SPAWN_INTERVAL = 1350; // ms between spawns at start
+const MIN_SPAWN_INTERVAL = 700; // ms between spawns at end
+const MAX_ACTIVE_PULSES = 2;
 
 // Timing windows (ms from perfect)
 const PERFECT_WINDOW = 50;
@@ -58,7 +58,7 @@ const OK_WINDOW = 200;
 const PERFECT_POINTS = 5;
 const GOOD_POINTS = 3;
 const OK_POINTS = 1;
-const MISS_PENALTY = 3;
+const MISS_PENALTY = 1;
 
 // Colors for pulses
 const PULSE_COLORS = [
@@ -75,7 +75,7 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export default function BugTelegramRoute() {
+export default function ChrysalisPulseRoute() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const productSlug = searchParams.get('product');
@@ -185,12 +185,14 @@ export default function BugTelegramRoute() {
           if (pulse.status !== 'active') return pulse;
 
           // Calculate scale based on time
+          // Scale reaches TARGET_SCALE exactly at hitTime (elapsed = PULSE_DURATION)
           const elapsed = now - pulse.spawnTime;
-          const progress = Math.min(elapsed / PULSE_DURATION, 1.3);
-          const newScale = progress * TARGET_SCALE * 1.2; // Overshoot slightly
+          const progress = elapsed / PULSE_DURATION;
+          const newScale = Math.min(progress, 1.5) * TARGET_SCALE; // Cap at 1.5x target for cleanup
 
           // Check if pulse was missed (went past target without being tapped)
-          if (newScale > TARGET_SCALE + 0.25 && pulse.status === 'active') {
+          // Miss threshold: 20% past target scale
+          if (newScale > TARGET_SCALE * 1.20 && pulse.status === 'active') {
             // Missed!
             game.subtractPoints(MISS_PENALTY);
             setMistakeCount(m => m + 1);
