@@ -109,7 +109,7 @@ export const HORROR_COPY = {
     theCulling: {
       title: 'The Culling',
       emoji: '🛡️',
-      duration: 20,
+      duration: 25,
       careStage: 'Protection',
       description: 'Defend the vulnerable from parasites',
       instructions: [
@@ -123,7 +123,7 @@ export const HORROR_COPY = {
     cursedHarvest: {
       title: 'Cursed Harvest',
       emoji: '🌿',
-      duration: 20,
+      duration: 25,
       careStage: 'Nourishment',
       description: 'Gather the nutrients they need',
       instructions: [
@@ -193,7 +193,7 @@ export const HORROR_COPY = {
     larvaLaunch: {
       title: 'Larva Launch',
       emoji: '🎯',
-      duration: 20,
+      duration: 30,
       careStage: 'Defense',
       description: 'Launch defenders to protect the leaves',
       instructions: [

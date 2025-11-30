@@ -12,7 +12,7 @@
  * - Faster flip-back on mismatch (harder to memorize)
  *
  * Mechanics:
- * - 30 second duration
+ * - 25 second duration
  * - 12 cards (6 pairs) in 4x3 grid
  * - Match pair: +10 points (max 60 base)
  * - Speed bonus: +2 if matched within 3s (max 12 bonus)
@@ -52,7 +52,7 @@ interface Card {
 }
 
 // === DIFFICULTY SETTINGS (REBALANCED FOR MOBILE + FORGIVENESS) ===
-const GAME_DURATION = 20; // seconds (shorter for mobile attention spans)
+const GAME_DURATION = 25; // seconds (more time for memory matching)
 const MISMATCH_FLIP_DELAY = 600; // ms (more time to memorize)
 const SPEED_BONUS_WINDOW = 3000; // ms - 3 seconds for speed bonus (easier)
 

@@ -47,7 +47,7 @@ interface Caterpillar {
 }
 
 // === DIFFICULTY SETTINGS (REBALANCED FOR MOBILE + FORGIVENESS) ===
-const GAME_DURATION = 20; // seconds (shorter for mobile attention spans)
+const GAME_DURATION = 25; // seconds
 const APPEARANCE_INTERVAL = 750; // ms between spawns (slightly slower)
 const VISIBILITY_DURATION = 1000; // ms caterpillar stays visible (more time to react)
 const GOOD_CATERPILLAR_CHANCE = 0.3; // 30% chance of good caterpillar (fewer traps)
