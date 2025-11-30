@@ -4,11 +4,12 @@
  * Endpoints:
  * - GET    /api/admin/products          - List products (paginated, searchable, filterable)
  * - GET    /api/admin/products/:id      - Get single product with variants
- * - POST   /api/admin/products/:id/toggle-status - Toggle active/hidden status
+ * - PATCH  /api/admin/products/:id/status - Set product status (active/hidden)
  * - POST   /api/admin/products/:id/sync - Sync single product from Printful
  * - POST   /api/admin/products/sync-all - Batch sync all products with progress
  * - POST   /api/admin/products/bulk-action - Bulk hide/show/sync
  * - POST   /api/admin/products/:id/reorder - Move product up/down in display order
+ * - POST   /api/admin/products/reorder-batch - Batch reorder products (drag-and-drop)
  */
 
 import { Hono } from 'hono';
@@ -251,13 +252,13 @@ products.get('/:id', async (c) => {
 });
 
 /**
- * POST /api/admin/products/:id/toggle-status
+ * PATCH /api/admin/products/:id/status
  *
- * Toggle product status between active/hidden
+ * Set product status to active or hidden
  *
  * Body: { status: 'active' | 'hidden' }
  */
-products.post('/:id/toggle-status', async (c) => {
+products.patch('/:id/status', async (c) => {
   const db = c.env.DB;
   const productId = c.req.param('id');
 
@@ -270,16 +271,37 @@ products.post('/:id/toggle-status', async (c) => {
       return c.json({ error: 'Invalid status. Must be "active" or "hidden"' }, 400);
     }
 
+    // Get current product for logging
+    const currentProduct = await db.prepare(`
+      SELECT id, name, printful_product_id, status
+      FROM products WHERE id = ?
+    `).bind(productId).first<{ id: string; name: string; printful_product_id: number; status: string }>();
+
+    if (!currentProduct) {
+      return c.json({ error: 'Product not found' }, 404);
+    }
+
     // Update product status
-    const result = await db.prepare(`
+    await db.prepare(`
       UPDATE products
       SET status = ?, updated_at = datetime('now')
       WHERE id = ?
     `).bind(newStatus, productId).run();
 
-    if (result.meta.changes === 0) {
-      return c.json({ error: 'Product not found' }, 404);
-    }
+    // Log to sync_logs for audit trail
+    await db.prepare(`
+      INSERT INTO sync_logs (
+        action, product_id, printful_product_id, product_name,
+        reason, details
+      ) VALUES (?, ?, ?, ?, ?, ?)
+    `).bind(
+      newStatus === 'hidden' ? 'hidden' : 'updated',
+      productId,
+      currentProduct.printful_product_id,
+      currentProduct.name,
+      `Product manually ${newStatus === 'hidden' ? 'hidden' : 'shown'} by admin`,
+      JSON.stringify({ previousStatus: currentProduct.status, manualAction: true })
+    ).run();
 
     // Get updated product
     const updatedProduct = await db.prepare(`
@@ -491,6 +513,17 @@ products.post('/bulk-action', async (c) => {
 
       for (const productId of productIds) {
         try {
+          // Fetch product details for logging
+          const product = await db.prepare(`
+            SELECT id, name, printful_product_id, status
+            FROM products WHERE id = ?
+          `).bind(productId).first<{ id: string; name: string; printful_product_id: number; status: string }>();
+
+          if (!product) {
+            failed.push({ id: productId, error: 'Product not found' });
+            continue;
+          }
+
           const result = await db.prepare(`
             UPDATE products
             SET status = ?, updated_at = datetime('now')
@@ -499,6 +532,21 @@ products.post('/bulk-action', async (c) => {
 
           if (result.meta.changes > 0) {
             succeeded.push(productId);
+
+            // Log to sync_logs for audit trail
+            await db.prepare(`
+              INSERT INTO sync_logs (
+                action, product_id, printful_product_id, product_name,
+                reason, details
+              ) VALUES (?, ?, ?, ?, ?, ?)
+            `).bind(
+              newStatus === 'hidden' ? 'hidden' : 'updated',
+              productId,
+              product.printful_product_id,
+              product.name,
+              `Product manually ${action === 'hide' ? 'hidden' : 'shown'} by admin (bulk action)`,
+              JSON.stringify({ bulkAction: action, previousStatus: product.status, manualAction: true })
+            ).run();
           } else {
             failed.push({ id: productId, error: 'Product not found' });
           }
@@ -708,6 +756,48 @@ products.post('/:id/reorder', async (c) => {
     console.error('Failed to reorder product:', error);
     return c.json(
       { error: 'Failed to reorder product', details: error instanceof Error ? error.message : 'Unknown error' },
+      500
+    );
+  }
+});
+
+/**
+ * POST /api/admin/products/reorder-batch
+ *
+ * Batch reorder products based on drag-and-drop order
+ * Updates all display_order values in a single transaction
+ *
+ * Body: { productIds: string[] } - array of product IDs in desired order
+ */
+products.post('/reorder-batch', async (c) => {
+  const db = c.env.DB;
+
+  try {
+    const body = await c.req.json<{ productIds: string[] }>();
+    const { productIds } = body;
+
+    if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
+      return c.json({ error: 'Invalid request. Requires productIds array' }, 400);
+    }
+
+    // Build batch of UPDATE statements
+    const statements = productIds.map((id, index) =>
+      db.prepare('UPDATE products SET display_order = ?, updated_at = datetime(\'now\') WHERE id = ?')
+        .bind(index + 1, id)
+    );
+
+    // Execute all updates in a batch (transactional)
+    await db.batch(statements);
+
+    return c.json({
+      success: true,
+      message: `Reordered ${productIds.length} products`,
+      newOrder: productIds.map((id, index) => ({ id, display_order: index + 1 })),
+    });
+  } catch (error) {
+    console.error('Failed to batch reorder products:', error);
+    return c.json(
+      { error: 'Failed to reorder products', details: error instanceof Error ? error.message : 'Unknown error' },
       500
     );
   }

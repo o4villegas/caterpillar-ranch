@@ -223,20 +223,33 @@ export class PrintfulClient {
    * GET /store/products
    * Requires X-PF-Store-Id header
    * Returns simplified list without full variant details
+   * Handles pagination automatically to fetch all products
    */
   async getStoreProducts(): Promise<PrintfulStoreProductListItem[]> {
-    const url = `/store/products`;
+    const allProducts: PrintfulStoreProductListItem[] = [];
+    let offset = 0;
+    const limit = 100; // Printful's max per page
 
-    const response = await this.request<{
-      code: number;
-      result: PrintfulStoreProductListItem[];
-    }>(url, {
-      headers: {
-        'X-PF-Store-Id': this.storeId,
-      },
-    });
+    while (true) {
+      const response = await this.request<{
+        code: number;
+        result: PrintfulStoreProductListItem[];
+        paging?: { total: number; offset: number; limit: number };
+      }>(`/store/products?offset=${offset}&limit=${limit}`, {
+        headers: {
+          'X-PF-Store-Id': this.storeId,
+        },
+      });
 
-    return response.result;
+      allProducts.push(...response.result);
+
+      // Stop if we got fewer products than the limit (last page)
+      if (response.result.length < limit) break;
+
+      offset += limit;
+    }
+
+    return allProducts;
   }
 
   /**
