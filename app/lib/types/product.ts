@@ -11,7 +11,8 @@ export interface ProductVariant {
   printfulVariantId: number; // Numeric Printful variant ID for order creation
   size: ProductSize;
   color: string;
-  mockupUrl?: string; // Preview image URL from Printful (optional for backward compat)
+  mockupUrl?: string; // Primary preview image URL from Printful (optional for backward compat)
+  mockupUrls?: string[]; // All mockup URLs (main + inside label, etc.)
   inStock: boolean;
 }
 
@@ -21,7 +22,8 @@ export interface ProductVariant {
  */
 export interface ColorVariant {
   color: string; // Color name (e.g., "Black", "Navy")
-  mockupUrl: string; // Preview image for this color
+  mockupUrl: string; // Primary preview image for this color
+  mockupUrls: string[]; // All mockups for this color (main + inside label, etc.)
   hexCode: string; // Hex color code for swatch rendering
   sizes: ProductVariant[]; // All size variants for this color
   inStock: boolean; // True if any size is in stock

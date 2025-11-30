@@ -74,17 +74,24 @@ export function ProductView({
       });
     }
 
-    // Add color variant mockups if available
+    // Add ALL color variant mockups if available (main mockup + inside label, etc.)
     if (showColorSelection && product.colorVariants && product.colorVariants.length > 0) {
       product.colorVariants.forEach((colorVariant) => {
-        if (colorVariant.mockupUrl) {
-          images.push({
-            src: colorVariant.mockupUrl,
-            alt: `${product.name} - ${colorVariant.color}`,
-            label: colorVariant.color,
-            type: 'mockup',
-          });
-        }
+        // Use mockupUrls array if available, otherwise fallback to single mockupUrl
+        const urls = colorVariant.mockupUrls && colorVariant.mockupUrls.length > 0
+          ? colorVariant.mockupUrls
+          : colorVariant.mockupUrl ? [colorVariant.mockupUrl] : [];
+
+        urls.forEach((url, mockupIndex) => {
+          if (url) {
+            images.push({
+              src: url,
+              alt: `${product.name} - ${colorVariant.color}${mockupIndex > 0 ? ' (Inside Label)' : ''}`,
+              label: mockupIndex === 0 ? colorVariant.color : `${colorVariant.color} Label`,
+              type: 'mockup',
+            });
+          }
+        });
       });
     }
 

@@ -111,17 +111,36 @@ function groupVariantsByColor(variants: ProductVariant[]): ColorVariant[] {
   const sizeOrder = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
 
   // Convert to ColorVariant array
-  return Array.from(colorMap.entries()).map(([color, sizes]) => ({
-    color,
-    mockupUrl: sizes[0].mockupUrl || '',  // Use first variant's mockup
-    hexCode: colorNameToHex(color),
-    sizes: sizes.sort((a, b) => {
-      const aIndex = sizeOrder.indexOf(a.size);
-      const bIndex = sizeOrder.indexOf(b.size);
-      return aIndex - bIndex;
-    }),
-    inStock: sizes.some(s => s.inStock),
-  }));
+  return Array.from(colorMap.entries()).map(([color, colorVariants]) => {
+    // Collect ALL unique mockup URLs for this color from all sizes
+    const allMockupUrls: string[] = [];
+    colorVariants.forEach(v => {
+      // Add from mockupUrls array if available
+      if (v.mockupUrls && v.mockupUrls.length > 0) {
+        v.mockupUrls.forEach(url => {
+          if (!allMockupUrls.includes(url)) {
+            allMockupUrls.push(url);
+          }
+        });
+      } else if (v.mockupUrl && !allMockupUrls.includes(v.mockupUrl)) {
+        // Fallback to single mockupUrl
+        allMockupUrls.push(v.mockupUrl);
+      }
+    });
+
+    return {
+      color,
+      mockupUrl: allMockupUrls[0] || '',  // Primary mockup (backward compat)
+      mockupUrls: allMockupUrls,  // All mockups for this color (main + inside label, etc.)
+      hexCode: colorNameToHex(color),
+      sizes: colorVariants.sort((a, b) => {
+        const aIndex = sizeOrder.indexOf(a.size);
+        const bIndex = sizeOrder.indexOf(b.size);
+        return aIndex - bIndex;
+      }),
+      inStock: colorVariants.some(s => s.inStock),
+    };
+  });
 }
 
 /**
@@ -173,19 +192,37 @@ function transformStoreVariant(syncVariant: PrintfulStoreProduct['sync_variants'
     size = parts[1].trim();
   }
 
-  // Extract mockup URL from files array
-  // Priority: preview > default > product.image
-  const mockupUrl = syncVariant.files?.find(f => f.type === 'preview')?.preview_url
-    || syncVariant.files?.find(f => f.type === 'default')?.preview_url
-    || syncVariant.product?.image
-    || '';
+  // Extract ALL mockup URLs from files array
+  // Priority: preview > default types, then check for inside_label specifically
+  const mockupUrls: string[] = [];
+
+  // Get all preview and default type files
+  syncVariant.files?.forEach(f => {
+    if (f.preview_url && ['preview', 'default'].includes(f.type)) {
+      if (!mockupUrls.includes(f.preview_url)) {
+        mockupUrls.push(f.preview_url);
+      }
+    }
+  });
+
+  // Also check for inside_label type specifically (may have different type name)
+  const insideLabelFile = syncVariant.files?.find(f =>
+    f.preview_url && (f.type === 'inside_label' || f.type.includes('label'))
+  );
+  if (insideLabelFile?.preview_url && !mockupUrls.includes(insideLabelFile.preview_url)) {
+    mockupUrls.push(insideLabelFile.preview_url);
+  }
+
+  // Fallback to product image if no mockups found
+  const mockupUrl = mockupUrls[0] || syncVariant.product?.image || '';
 
   return {
     id: syncVariant.id.toString(),
     printfulVariantId: syncVariant.variant_id, // Use variant_id for order creation
     size: size as any,
     color: color,
-    mockupUrl,  // NEW: Include mockup URL
+    mockupUrl,  // Primary mockup (backward compat)
+    mockupUrls: mockupUrls.length > 0 ? mockupUrls : undefined,  // All mockups
     inStock: syncVariant.synced && !syncVariant.is_ignored,
   };
 }
