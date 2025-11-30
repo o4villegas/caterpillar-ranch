@@ -324,20 +324,19 @@ export async function syncAllProducts(
   // Create a Set of all Printful product IDs for fast lookup
   const printfulProductIds = new Set(storeProducts.map(p => p.id));
 
-  // Get all active products from D1
-  const activeProductsResult = await db.prepare(`
-    SELECT id, name, printful_product_id
+  // Get ALL products from D1 (both active and hidden)
+  const allProductsResult = await db.prepare(`
+    SELECT id, name, printful_product_id, status
     FROM products
-    WHERE status = 'active'
-  `).all<{ id: string; name: string; printful_product_id: number }>();
+  `).all<{ id: string; name: string; printful_product_id: number; status: string }>();
 
-  const activeProducts = activeProductsResult.results || [];
+  const allProducts = allProductsResult.results || [];
 
   // Find products in D1 that are NOT in Printful response and DELETE them
-  for (const dbProduct of activeProducts) {
+  for (const dbProduct of allProducts) {
     if (!printfulProductIds.has(dbProduct.printful_product_id)) {
       try {
-        console.log(`${logPrefix} Deleting product no longer in Printful: ${dbProduct.name} (ID: ${dbProduct.printful_product_id})`);
+        console.log(`${logPrefix} Deleting product no longer in Printful: ${dbProduct.name} (status: ${dbProduct.status})`);
 
         // Log to sync_logs BEFORE deleting (so product_id is still valid for FK)
         await db.prepare(`
@@ -351,7 +350,7 @@ export async function syncAllProducts(
           dbProduct.printful_product_id,
           dbProduct.name,
           'Product no longer exists in Printful store',
-          JSON.stringify({ detectedDuring: 'scheduled-sync', previousStatus: 'active' })
+          JSON.stringify({ detectedDuring: 'scheduled-sync', previousStatus: dbProduct.status })
         ).run();
 
         // DELETE the product (CASCADE handles variants and game_completions)
