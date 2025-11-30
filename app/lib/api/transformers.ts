@@ -192,26 +192,19 @@ function transformStoreVariant(syncVariant: PrintfulStoreProduct['sync_variants'
     size = parts[1].trim();
   }
 
-  // Extract ALL mockup URLs from files array
-  // Priority: preview > default types, then check for inside_label specifically
+  // Extract mockup URLs from files array
+  // Only include 'preview' type files - these are actual mockups
+  // Note: 'default' and 'label_inside' are artwork files, NOT mockups
   const mockupUrls: string[] = [];
 
-  // Get all preview and default type files
+  // Get only preview type files (actual mockups showing the product)
   syncVariant.files?.forEach(f => {
-    if (f.preview_url && ['preview', 'default'].includes(f.type)) {
+    if (f.preview_url && f.type === 'preview') {
       if (!mockupUrls.includes(f.preview_url)) {
         mockupUrls.push(f.preview_url);
       }
     }
   });
-
-  // Also check for inside_label type specifically (may have different type name)
-  const insideLabelFile = syncVariant.files?.find(f =>
-    f.preview_url && (f.type === 'inside_label' || f.type.includes('label'))
-  );
-  if (insideLabelFile?.preview_url && !mockupUrls.includes(insideLabelFile.preview_url)) {
-    mockupUrls.push(insideLabelFile.preview_url);
-  }
 
   // Fallback to product image if no mockups found
   const mockupUrl = mockupUrls[0] || syncVariant.product?.image || '';
