@@ -7,16 +7,21 @@
  * The garden reveals what the transformation will bring.
  *
  * Difficulty tuned for:
- * - 15% discount: ~15-20% of players (15+ good, 0-1 bad clicks)
- * - Harsh penalty for clicking bad signs (-6 pts)
- * - Higher bad sign ratio (45%)
- * - Faster spawning and shorter visibility
+ * - 15% discount: ~15-20% of players (requires ~87% accuracy)
+ * - +3 points per good click, -4 points per bad click
+ * - 45% bad sign ratio with "guarantee good" spawn logic
+ * - Prevents frustrating "all bad items" stuck state
+ *
+ * Math (25s @ 600ms spawn = ~42 items, 55% good = ~23 good omens):
+ * - Max possible: 23 × 3 = 69 points
+ * - Need 60 for max discount = requires excellent play
  *
  * Mechanics:
  * - 25 second duration
- * - Click good omens (hope, growth)
- * - Avoid bad signs (corruption, decay)
- * - At 15+ points, bad signs start disguising
+ * - Click good omens (hope, growth) +3 pts
+ * - Avoid bad signs (corruption, decay) -4 pts
+ * - At 20+ points, bad signs start disguising
+ * - If all items on screen are bad, force spawn a good one
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -60,18 +65,18 @@ interface Item {
 }
 
 // === DIFFICULTY SETTINGS (REBALANCED FOR MOBILE + FORGIVENESS) ===
-const GAME_DURATION = 20; // seconds (shorter for mobile attention spans)
+const GAME_DURATION = 25; // seconds (allows time to reach confusion mode)
 const ITEM_LIFETIME = 1500; // ms - items visible for 1.5s (more time to react)
 const SPAWN_INTERVAL = 600; // ms - spawn every 0.6s (less pressure)
 const MIN_ITEMS = 2; // minimum items on screen
 const MAX_ITEMS = 4; // maximum items on screen (less chaos)
 const CONFUSION_THRESHOLD = 20; // points - disguising starts later (more forgiving)
-const BAD_SIGN_CHANCE = 0.35; // 35% chance of bad sign (easier)
+const BAD_SIGN_CHANCE = 0.45; // 45% chance of bad sign (more challenge)
 
-// Points (more forgiving)
-const GOOD_OMEN_POINTS = 4;
-const BAD_SIGN_PENALTY = 3; // Reduced (was 6) - more forgiving
-const MISSED_OMEN_PENALTY = 1; // Reduced (was 2) - more forgiving
+// Points (balanced for challenge)
+const GOOD_OMEN_POINTS = 3; // Requires more clicks for max payout
+const BAD_SIGN_PENALTY = 4; // Harsher penalty for mistakes
+const MISSED_OMEN_PENALTY = 1;
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -125,8 +130,14 @@ export default function MidnightGardenRoute() {
     const activeItems = items.filter(item => !item.clicked);
     if (activeItems.length >= MAX_ITEMS) return;
 
+    // Guarantee at least one good omen if all current items are bad
+    // This prevents the "stuck" feeling when RNG spawns all bad items
+    const hasGoodItem = activeItems.some(item => item.type === 'good');
+    const forceGood = !hasGoodItem && activeItems.length >= 2;
+
     // Random type (55% good, 45% bad for harder gameplay)
-    const isGood = Math.random() >= BAD_SIGN_CHANCE;
+    // Force good if no good items exist and there are 2+ bad items on screen
+    const isGood = forceGood || Math.random() >= BAD_SIGN_CHANCE;
     const pool = isGood ? GOOD_OMENS : BAD_SIGNS;
     const omen = pool[Math.floor(Math.random() * pool.length)];
 

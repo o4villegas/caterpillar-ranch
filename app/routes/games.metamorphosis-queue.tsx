@@ -43,8 +43,8 @@ interface Cocoon {
 }
 
 // === DIFFICULTY SETTINGS (REBALANCED FOR MOBILE + FORGIVENESS) ===
-const GAME_DURATION = 20; // seconds (shorter for mobile attention spans)
-const NUM_COCOONS = 5;
+const GAME_DURATION = 25; // seconds (more opportunities for timing)
+const NUM_COCOONS = 4; // Better mobile visibility
 
 // State timing (ms) - wider windows for forgiveness
 const DORMANT_DURATION = 1500; // Shorter rest (faster cycles)

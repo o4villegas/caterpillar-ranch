@@ -165,7 +165,7 @@ export const HORROR_COPY = {
     midnightGarden: {
       title: 'Midnight Garden',
       emoji: '🌙',
-      duration: 20,
+      duration: 25,
       careStage: 'Divination',
       description: 'Read the signs of what they will become',
       instructions: [
@@ -179,7 +179,7 @@ export const HORROR_COPY = {
     metamorphosisQueue: {
       title: 'The Emergence',
       emoji: '🦋',
-      duration: 20,
+      duration: 25,
       careStage: 'Birth',
       description: 'Help them break free at the right moment',
       instructions: [
