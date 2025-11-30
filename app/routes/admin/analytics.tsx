@@ -7,9 +7,10 @@
  * - Product performance metrics
  */
 
-import { useLoaderData } from 'react-router';
+import { useLoaderData, useSearchParams } from 'react-router';
 import type { Route } from './+types/analytics';
 import { Badge } from '~/lib/components/ui/badge';
+import { Button } from '~/lib/components/ui/button';
 
 /**
  * Loader - Fetch analytics data from D1
@@ -28,17 +29,35 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
   const db = cloudflare.env.DB;
 
+  // Get time range from URL params
+  const url = new URL(request.url);
+  const range = url.searchParams.get('range') || 'all';
+
+  // Build date filter based on range
+  let dateFilter = '';
+  let gameDateFilter = '';
+  if (range === 'today') {
+    dateFilter = "AND DATE(created_at) = DATE('now')";
+    gameDateFilter = "AND DATE(completed_at) = DATE('now')";
+  } else if (range === 'week') {
+    dateFilter = "AND created_at >= DATE('now', '-7 days')";
+    gameDateFilter = "AND completed_at >= DATE('now', '-7 days')";
+  } else if (range === 'month') {
+    dateFilter = "AND created_at >= DATE('now', '-30 days')";
+    gameDateFilter = "AND completed_at >= DATE('now', '-30 days')";
+  }
+
   // Revenue analytics from orders
   const revenueResult = await db
     .prepare(
       `SELECT
         COUNT(*) as total_orders,
-        SUM(subtotal) as total_revenue,
-        SUM(discount_amount) as total_discounts,
-        SUM(total) as net_revenue,
-        AVG(total) as avg_order_value
+        COALESCE(SUM(subtotal), 0) as total_revenue,
+        COALESCE(SUM(discount_amount), 0) as total_discounts,
+        COALESCE(SUM(total), 0) as net_revenue,
+        COALESCE(AVG(total), 0) as avg_order_value
       FROM orders
-      WHERE printful_status != 'cancelled'`
+      WHERE printful_status != 'cancelled' ${dateFilter}`
     )
     .first<{
       total_orders: number;
@@ -54,8 +73,9 @@ export async function loader({ request, context }: Route.LoaderArgs) {
       `SELECT
         printful_status,
         COUNT(*) as count,
-        SUM(total) as revenue
+        COALESCE(SUM(total), 0) as revenue
       FROM orders
+      WHERE 1=1 ${dateFilter}
       GROUP BY printful_status`
     )
     .all<{ printful_status: string | null; count: number; revenue: number }>();
@@ -66,9 +86,11 @@ export async function loader({ request, context }: Route.LoaderArgs) {
       `SELECT
         game_type,
         COUNT(*) as plays,
-        AVG(score) as avg_score,
-        SUM(discount_earned) as total_discounts_issued
+        COALESCE(AVG(score), 0) as avg_score,
+        COALESCE(SUM(discount_earned), 0) as total_discounts_issued,
+        COALESCE(AVG(discount_earned), 0) as avg_discount
       FROM game_completions
+      WHERE 1=1 ${gameDateFilter}
       GROUP BY game_type
       ORDER BY plays DESC`
     )
@@ -77,23 +99,26 @@ export async function loader({ request, context }: Route.LoaderArgs) {
       plays: number;
       avg_score: number;
       total_discounts_issued: number;
+      avg_discount: number;
     }>();
 
   // Total game completions
   const totalGames = await db
-    .prepare(`SELECT COUNT(*) as count FROM game_completions`)
+    .prepare(`SELECT COUNT(*) as count FROM game_completions WHERE 1=1 ${gameDateFilter}`)
     .first<{ count: number }>();
 
   // Top products by revenue (from order_items)
   const topProducts = await db
     .prepare(
       `SELECT
-        product_name,
+        oi.product_name,
         COUNT(*) as times_ordered,
-        SUM(quantity) as units_sold,
-        SUM(subtotal) as revenue
-      FROM order_items
-      GROUP BY product_name
+        COALESCE(SUM(oi.quantity), 0) as units_sold,
+        COALESCE(SUM(oi.subtotal), 0) as revenue
+      FROM order_items oi
+      JOIN orders o ON oi.order_id = o.id
+      WHERE 1=1 ${dateFilter.replace('created_at', 'o.created_at')}
+      GROUP BY oi.product_name
       ORDER BY revenue DESC
       LIMIT 10`
     )
@@ -110,6 +135,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
       `SELECT
         id, customer_name, total, printful_status, created_at
       FROM orders
+      WHERE 1=1 ${dateFilter}
       ORDER BY created_at DESC
       LIMIT 10`
     )
@@ -122,6 +148,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     }>();
 
   return {
+    range,
     revenue: revenueResult || {
       total_orders: 0,
       total_revenue: 0,
@@ -138,15 +165,54 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 }
 
 export default function AdminAnalyticsPage() {
-  const { revenue, ordersByStatus, gameStats, totalGames, topProducts, recentOrders } =
+  const { range, revenue, ordersByStatus, gameStats, totalGames, topProducts, recentOrders } =
     useLoaderData<typeof loader>();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const handleRangeChange = (newRange: string) => {
+    setSearchParams({ range: newRange });
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-ranch-cream font-display">Analytics</h1>
-        <p className="text-ranch-lavender mt-1">Business insights and performance metrics</p>
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-ranch-cream font-display">Analytics</h1>
+          <p className="text-ranch-lavender mt-1">Business insights and performance metrics</p>
+        </div>
+
+        {/* Date Range Selector */}
+        <div className="flex gap-2">
+          <Button
+            variant={range === 'today' ? 'default' : 'outline'}
+            onClick={() => handleRangeChange('today')}
+            className={range === 'today' ? 'bg-ranch-cyan text-ranch-dark' : ''}
+          >
+            Today
+          </Button>
+          <Button
+            variant={range === 'week' ? 'default' : 'outline'}
+            onClick={() => handleRangeChange('week')}
+            className={range === 'week' ? 'bg-ranch-cyan text-ranch-dark' : ''}
+          >
+            This Week
+          </Button>
+          <Button
+            variant={range === 'month' ? 'default' : 'outline'}
+            onClick={() => handleRangeChange('month')}
+            className={range === 'month' ? 'bg-ranch-cyan text-ranch-dark' : ''}
+          >
+            This Month
+          </Button>
+          <Button
+            variant={range === 'all' ? 'default' : 'outline'}
+            onClick={() => handleRangeChange('all')}
+            className={range === 'all' ? 'bg-ranch-cyan text-ranch-dark' : ''}
+          >
+            All Time
+          </Button>
+        </div>
       </div>
 
       {/* Revenue Metrics */}
@@ -253,7 +319,7 @@ export default function AdminAnalyticsPage() {
                         {game.avg_score.toFixed(1)}
                       </td>
                       <td className="px-4 py-3 text-right text-ranch-lime">
-                        {game.total_discounts_issued.toFixed(0)}%
+                        {game.avg_discount.toFixed(1)}% avg
                       </td>
                     </tr>
                   ))

@@ -15,6 +15,23 @@ import { Button } from '~/lib/components/ui/button';
 import { Badge } from '~/lib/components/ui/badge';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 /**
  * Loader - Fetch products from admin API
@@ -66,11 +83,136 @@ interface Product {
   design_url?: string | null; // Admin-uploaded design image
 }
 
+/**
+ * Sortable table row component for drag-and-drop
+ */
+function SortableRow({
+  product,
+  index,
+  children,
+}: {
+  product: Product;
+  index: number;
+  children: React.ReactNode;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: product.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 1 : 0,
+    position: 'relative' as const,
+  };
+
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className={`hover:bg-ranch-purple/10 transition-colors ${isDragging ? 'bg-ranch-purple/20' : ''}`}
+    >
+      {/* Drag Handle */}
+      <td className="px-2 py-3 w-8">
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing text-ranch-lavender hover:text-ranch-cyan p-1 rounded"
+          aria-label="Drag to reorder"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 8h16M4 16h16"
+            />
+          </svg>
+        </button>
+      </td>
+      {children}
+    </tr>
+  );
+}
+
 export default function AdminProductsPage() {
-  const { products } = useLoaderData<typeof loader>();
+  const { products: loadedProducts } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
   const [uploadingDesign, setUploadingDesign] = useState<string | null>(null);
+  const [reordering, setReordering] = useState(false);
+  const [products, setProducts] = useState<Product[]>(loadedProducts);
   const fetcher = useFetcher();
+
+  // Update local state when loader data changes
+  if (loadedProducts !== products && !reordering) {
+    setProducts(loadedProducts);
+  }
+
+  // DnD sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Drag must move 8px before activating
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  /**
+   * Handle drag end - reorder products
+   */
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = products.findIndex((p) => p.id === active.id);
+    const newIndex = products.findIndex((p) => p.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Optimistic update
+    const newProducts = arrayMove(products, oldIndex, newIndex);
+    setProducts(newProducts);
+    setReordering(true);
+
+    try {
+      const res = await fetch('/api/admin/products/reorder-batch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getTokenFromCookie()}`,
+        },
+        body: JSON.stringify({ productIds: newProducts.map((p) => p.id) }),
+        credentials: 'include',
+      });
+
+      if (!res.ok) throw new Error('Failed to save order');
+
+      toast.success('Product order saved');
+    } catch (error) {
+      // Revert on failure
+      setProducts(loadedProducts);
+      toast.error('Failed to save order');
+      console.error(error);
+    } finally {
+      setReordering(false);
+      revalidator.revalidate();
+    }
+  };
 
   /**
    * Change product status (draft/active/hidden)
@@ -193,11 +335,19 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Products Table */}
-      <div className="border-2 border-ranch-purple rounded-lg overflow-hidden bg-ranch-dark/50">
+      <div className="border-2 border-ranch-purple rounded-lg overflow-hidden bg-ranch-dark/50 relative">
+        {reordering && (
+          <div className="absolute inset-0 bg-ranch-dark/50 flex items-center justify-center z-20">
+            <div className="text-ranch-cyan font-medium">Saving order...</div>
+          </div>
+        )}
         <div className="overflow-x-auto max-h-[calc(100vh-250px)] overflow-y-auto">
           <table className="w-full">
             <thead className="bg-ranch-purple/30 sticky top-0 z-10">
               <tr>
+                <th className="px-2 py-3 text-left text-sm font-semibold text-ranch-cream w-8">
+                  <span className="sr-only">Drag</span>
+                </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-ranch-cream">
                   Image
                 </th>
@@ -224,19 +374,25 @@ export default function AdminProductsPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-ranch-purple/20">
-              {products.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-ranch-lavender">
-                    No products found. Products auto-sync daily at 2 AM UTC.
-                  </td>
-                </tr>
-              ) : (
-                products.map((product: Product, index: number) => (
-                  <tr
-                    key={product.id}
-                    className="hover:bg-ranch-purple/10 transition-colors"
-                  >
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={products.map((p) => p.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <tbody className="divide-y divide-ranch-purple/20">
+                  {products.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} className="px-4 py-8 text-center text-ranch-lavender">
+                        No products found. Products auto-sync daily at 2 AM UTC.
+                      </td>
+                    </tr>
+                  ) : (
+                    products.map((product: Product, index: number) => (
+                      <SortableRow key={product.id} product={product} index={index}>
                     {/* Image */}
                     <td className="px-4 py-3">
                       <img
@@ -401,18 +557,20 @@ export default function AdminProductsPage() {
                       ${(product.retail_price || product.base_price).toFixed(2)}
                     </td>
 
-                    {/* Last Synced */}
-                    <td className="px-4 py-3 text-ranch-lavender text-sm">
-                      {product.printful_synced_at
-                        ? formatDistanceToNow(new Date(product.printful_synced_at), {
-                            addSuffix: true,
-                          })
-                        : 'Never'}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
+                        {/* Last Synced */}
+                        <td className="px-4 py-3 text-ranch-lavender text-sm">
+                          {product.printful_synced_at
+                            ? formatDistanceToNow(new Date(product.printful_synced_at), {
+                                addSuffix: true,
+                              })
+                            : 'Never'}
+                        </td>
+                      </SortableRow>
+                    ))
+                  )}
+                </tbody>
+              </SortableContext>
+            </DndContext>
           </table>
         </div>
       </div>
