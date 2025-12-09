@@ -39,15 +39,15 @@ async function main() {
   console.log('4. Re-upload with .webp extension');
   console.log('5. Delete the original PNG\n');
 
-  // Check if sharp is installed
+  // Import sharp (ESM)
+  let sharp: typeof import('sharp').default;
   try {
-    require.resolve('sharp');
+    const sharpModule = await import('sharp');
+    sharp = sharpModule.default;
   } catch {
     console.error('❌ Sharp is not installed. Run: npm install sharp');
     process.exit(1);
   }
-
-  const sharp = require('sharp');
 
   // Create temp directory
   if (!fs.existsSync(TEMP_DIR)) {

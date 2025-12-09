@@ -23,11 +23,11 @@ The architecture combines backend and frontend in a single Cloudflare Worker dep
 
 ## 🏗️ Current Implementation Status
 
-**Last Updated**: 2025-11-16
+**Last Updated**: 2025-12-09
 **Current Phase**: Phase 3.2 Complete - Backend Analytics & Admin Infrastructure
 **Codebase Size**: 47 TypeScript files, 5,900+ lines of application code
-**Production Status**: ✅ Live at https://caterpillar-ranch.lando555.workers.dev/
-**Latest Version**: bb14ff38-e737-4d9a-acee-4f04910ff4c3
+**Production Status**: ✅ Live at https://therancch.com/
+**Latest Version**: 4c61537d-612f-4bd7-90cb-97b37105d893
 
 ### ✅ Completed Phases
 
@@ -971,7 +971,9 @@ useEffect(() => {
 
 ## ⚠️ DEPLOYMENT MANDATE - READ FIRST
 
-**Production URL:** `https://caterpillar-ranch.lando555.workers.dev/`
+**Production URL:** `https://therancch.com/`
+
+⚠️ **IMPORTANT**: The `*.workers.dev` subdomain (`caterpillar-ranch.lando555.workers.dev`) may return error 1042 and should NOT be used for production testing. Always test using the custom domain `therancch.com`.
 
 **CRITICAL RULES:**
 1. ⛔ **NEVER use `npm run deploy`, `wrangler deploy`, or `wrangler publish`**
@@ -2510,7 +2512,9 @@ npx storybook@latest init
 
 ### **STRICT MANDATE - READ FIRST**
 
-**Production URL:** `https://caterpillar-ranch.lando555.workers.dev/`
+**Production URL:** `https://therancch.com/`
+
+⚠️ **DO NOT** use `caterpillar-ranch.lando555.workers.dev` - it may return error 1042. Always use the custom domain.
 
 **Deployment Rules:**
 1. ⛔ **NEVER run `npm run deploy` or `wrangler deploy` directly**
@@ -2556,7 +2560,7 @@ Look for in logs:
 **Step 5: Test only after confirmation**
 ```bash
 # Only after user confirms build success:
-curl https://caterpillar-ranch.lando555.workers.dev/
+curl https://therancch.com/
 # Or visit in browser for manual testing
 ```
 
@@ -2571,10 +2575,10 @@ curl https://caterpillar-ranch.lando555.workers.dev/
 **How to test:**
 ```bash
 # API endpoint testing:
-curl https://caterpillar-ranch.lando555.workers.dev/api/catalog/products
+curl https://therancch.com/api/catalog/products
 
 # Frontend testing:
-# Open in browser: https://caterpillar-ranch.lando555.workers.dev/
+# Open in browser: https://therancch.com/
 # Test all screens: home, product modal, cart, checkout
 # Verify preview banner shows if USE_MOCKS=true
 ```
@@ -2606,6 +2610,20 @@ Agent: "All tests passed! Product catalog is live."
 2. **CI/CD best practice**: All deploys traceable via git history
 3. **Error detection**: Catches build failures before runtime issues
 4. **Team visibility**: All changes visible in GitHub commits
+
+### Production URL Note
+
+⚠️ **Custom Domain vs Workers.dev Subdomain:**
+
+| URL | Status | Use For |
+|-----|--------|---------|
+| `https://therancch.com/` | ✅ Production | All testing |
+| `caterpillar-ranch.lando555.workers.dev` | ❌ May error | Do NOT use |
+
+**Why the difference?**
+The `*.workers.dev` subdomain routes differently from custom domains. When Cloudflare Pages deploys, it uses custom domain routing configured in `wrangler.jsonc`. The workers.dev subdomain may not have the same routing configuration and can fail with Worker error 1042.
+
+**Always test production using `https://therancch.com/`.**
 
 ### Local Development (No Deploy)
 

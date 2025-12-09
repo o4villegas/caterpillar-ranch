@@ -37,6 +37,7 @@
     "react-zoom-pan-pinch": "^3.7.0",
     "recharts": "^3.4.1",
     "resend": "^6.5.2",
+    "sharp": "^0.34.5",
     "sonner": "^2.0.7",
     "stripe": "^20.0.0",
     "tailwind-merge": "^3.3.1",
@@ -59,7 +60,7 @@
     "typescript": "5.8.3",
     "vite": "^6.0.0",
     "vite-tsconfig-paths": "5.1.4",
-    "wrangler": "4.21.x"
+    "wrangler": "^4.51.0"
   },
   "scripts": {
     "build": "react-router build",
