@@ -123,6 +123,10 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                 key={currentImage.src}
                 src={currentImage.src}
                 alt={currentImage.alt}
+                width={800}
+                height={1000}
+                loading="eager"
+                decoding="async"
                 className="w-full"
                 style={{ imageRendering: 'crisp-edges' }}
                 initial={{ opacity: 0 }}
@@ -174,6 +178,10 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                 <img
                   src={image.src}
                   alt={image.label}
+                  width={80}
+                  height={80}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                   draggable={false}
                 />

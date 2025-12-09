@@ -287,6 +287,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 <motion.img
                   src={product.imageUrl}
                   alt={product.name}
+                  width={400}
+                  height={500}
+                  loading={index === 0 ? "eager" : "lazy"}
+                  decoding="async"
                   className="w-full h-auto"
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.3 }}

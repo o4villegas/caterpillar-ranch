@@ -265,6 +265,56 @@ export default function AdminProductsPage() {
   };
 
   /**
+   * Compress image to WebP format for faster loading
+   * Uses browser Canvas API - no external dependencies
+   */
+  async function compressImage(file: File, quality = 0.85): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Failed to get canvas context'));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('Failed to compress image'));
+              return;
+            }
+
+            // Create new file with .webp extension
+            const newFileName = file.name.replace(/\.[^/.]+$/, '.webp');
+            const compressedFile = new File([blob], newFileName, {
+              type: 'image/webp',
+            });
+
+            // Clean up object URL
+            URL.revokeObjectURL(img.src);
+
+            resolve(compressedFile);
+          },
+          'image/webp',
+          quality
+        );
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(img.src);
+        reject(new Error('Failed to load image'));
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  /**
    * Upload design image for product
    */
   const handleDesignUpload = async (productId: string, file: File) => {
@@ -286,8 +336,18 @@ export default function AdminProductsPage() {
     setUploadingDesign(productId);
 
     try {
+      // Compress image to WebP before upload (reduces 5MB → ~500KB)
+      toast.info('Compressing image...');
+      const compressedFile = await compressImage(file);
+
+      // Show compression stats
+      const originalSize = (file.size / 1024 / 1024).toFixed(2);
+      const compressedSize = (compressedFile.size / 1024 / 1024).toFixed(2);
+      const savings = (((file.size - compressedFile.size) / file.size) * 100).toFixed(0);
+      toast.success(`Compressed: ${originalSize}MB → ${compressedSize}MB (${savings}% smaller)`);
+
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', compressedFile); // Use compressed file
       formData.append('productId', productId);
 
       const res = await fetch('/api/admin/designs/upload', {

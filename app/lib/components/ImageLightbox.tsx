@@ -207,6 +207,8 @@ export function ImageLightbox({
                       key={currentImage.src}
                       src={currentImage.src}
                       alt={currentImage.alt}
+                      loading="eager"
+                      decoding="async"
                       className="max-w-full max-h-full object-contain select-none"
                       style={{ imageRendering: 'crisp-edges' }}
                       initial={{ opacity: 0, scale: 0.9 }}
